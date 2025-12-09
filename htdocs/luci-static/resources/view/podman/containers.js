@@ -111,7 +111,7 @@ return view.extend({
 			const status = container.Status;
 
 			if (!status || !['healthy', 'unhealthy', 'starting'].includes(status
-				.toLowerCase())) {
+					.toLowerCase())) {
 				return E('span', {
 					'style': 'color: #999;'
 				}, '—');
@@ -264,11 +264,11 @@ return view.extend({
 							if (port.isMapped) {
 								portStrings.push(
 									`${port.hostPort}→${port.containerPort}`
-									);
+								);
 							} else {
 								portStrings.push(
 									`${port.containerPort}/${port.protocol}`
-									);
+								);
 							}
 						});
 						if (portStrings.length > 0) {
@@ -303,7 +303,7 @@ return view.extend({
 						autoStartCell.style.cursor = 'pointer';
 						autoStartCell.title = _(
 							'Restart policy set but no init script. Click to generate.'
-							);
+						);
 						autoStartCell.addEventListener('click', (ev) => {
 							ev.preventDefault();
 							this.handleGenerateInitScript(containerName);
