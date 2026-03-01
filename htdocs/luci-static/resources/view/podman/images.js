@@ -1,248 +1,118 @@
 'use strict';
 
-'require view';
 'require form';
 'require ui';
 
 'require podman.rpc as podmanRPC';
 'require podman.utils as utils';
-'require podman.format as format';
 'require podman.ui as podmanUI';
 'require podman.form as podmanForm';
-'require podman.list as List';
+'require podman.view as podmanView';
+'require podman.form.image as PodmanFormImage';
 
 const IMAGE_ID_TRUNCATE_LEN = 12;
-
-utils.addPodmanCss();
+const IMAGE_TAG_TRUNCATE_LEN = 14;
 
 /**
- * Image management view with pull, inspect, and delete operations
+ * Manage podman images
  */
-return view.extend({
-	handleSaveApply: null,
-	handleSave: null,
-	handleReset: null,
+return podmanView.list.extend({
+	sectionName: 'images',
 
-	map: null,
-	listHelper: null,
+	title: _('Images'),
+	titleSingle: _('Image'),
 
-	/**
-	 * Load image data and expand multi-tag images
-	 * @returns {Promise<Object>} Image data or error
-	 */
-	load: async function() {
-		return podmanRPC.image.list()
-			.then((images) => {
-				return {
-					images: images || []
-				};
-			})
-			.catch((err) => {
-				return {
-					error: err.message || _('Failed')
-				};
-			});
+	async load() {
+		return podmanRPC.images.list();
 	},
 
 	/**
-	 * Render images view
-	 * @param {Object} data - Data from load()
-	 * @returns {Element} Rendered view element
+	 * Update list section
 	 */
-	render: function (data) {
-		if (data && data.error) {
-			return utils.renderError(data.error);
-		}
-
-		this.listHelper = new List.Util({
-			itemName: 'image',
-			rpc: podmanRPC.image,
-			data: data,
-			view: this
-		});
-
-		this.map = new form.JSONMap(this.listHelper.data, _('Images'));
-
-		const section = this.map.section(
-			form.TableSection,
-			'images',
-			'',
-			_('Manage Podman %s').format(_('Images').toLowerCase())
-		);
-		section.anonymous = true;
+	async updateSection() {
+		this.section.selectKey = 'Id';
+		this.section.handleCreateText = _('Pull Image');
+		this.section.getCreateButton = function() {
+			return new podmanUI.ButtonNew(_('Pull Image'), {
+				click: ui.createHandlerFn(this, 'handleCreate'),
+				type: 'add',
+			}).render();
+		};
+		this.section.modalCreateTitle = _('Pull Image');
+		this.section.createForm = PodmanFormImage;
+		this.section.toolbarExtraButtons = [
+			new podmanUI.Button(_('Update'), ui.createHandlerFn(this, 'handlePullImages')).render(),
+		];
 
 		let o;
 
-		o = section.option(
-			podmanForm.field.SelectDummyValue,
-			'ID',
-			new ui.Checkbox(0, {
-				hiddenname: 'all'
-			}).render()
-		);
+		o = this.section.option(podmanForm.field.DummyValue, 'Repository', _('Repository'));
+		o.cfgdatavalue = async (image) => image.getRepository();
 
-		o = section.option(form.DummyValue, 'Repository', _('Repository'));
-		o.cfgvalue = (sectionId) => {
-			const image = this.map.data.data[sectionId];
-			const tag = image._displayTag || '<none>:<none>';
-			const parts = tag.split(':');
-			return E('strong', {}, parts[0] || '<none>');
-		};
+		o = this.section.option(podmanForm.field.DummyValue, 'Tag', _('Tag'));
+		o.cfgdatavalue = async (image) => {
+			const tagValue = image.getTag();
 
-		o = section.option(form.DummyValue, 'Tag', _('Tag'));
-		o.cfgvalue = (sectionId) => {
-			const image = this.map.data.data[sectionId];
-			const tag = image._displayTag || '<none>:<none>';
-			const parts = tag.split(':');
-			const tagValue = parts[1] || '<none>';
-
-			if (tagValue.length > 14) {
-				return E(
-					'span', {
-						'title': tagValue,
-						'class': 'tooltip'
-					},
-					tagValue.substring(0, 14) + '...'
-				);
+			if (tagValue.length > IMAGE_TAG_TRUNCATE_LEN) {
+				return new podmanUI.Tooltip(utils.truncate(tagValue, IMAGE_TAG_TRUNCATE_LEN), tagValue).render();
 			}
 
 			return tagValue;
 		};
+		o.width = '17%';
 
-		o = section.option(podmanForm.field.LinkDataDummyValue, 'ImageId', _('Image ID'));
-		o.click = (image) => this.handleInspect(image.Id);
-		o.text = (image) => utils.truncate(image.Id, IMAGE_ID_TRUNCATE_LEN);
+		o = this.section.option(podmanForm.field.LinkDummyValue, 'ImageId', _('Image ID'));
+		o.click = (_value, image) => this.section.handleInspect(image);
+		o.cfgdatavalue = (image) => utils.truncate(image.getID(), IMAGE_ID_TRUNCATE_LEN);
+		o.width = '15%';
 
-		o = section.option(podmanForm.field.DataDummyValue, 'Size', _('Size'));
-		o.cfgformatter = format.bytes;
+		o = this.section.option(podmanForm.field.ByteDummyValue, 'Size', _('Size'));
+		o.width = '12%';
 
-		o = section.option(podmanForm.field.DataDummyValue, 'Created', _('Created'));
-		o.cfgformatter = format.date;
+		o = this.section.option(podmanForm.field.TimestampDummyValue, 'Created', _('Created'));
+		o.width = '18%';
 
-		const toolbar = this.listHelper.createToolbar({
-			onDelete: () => this.handleDeleteSelected(),
-			onRefresh: () => this.handleRefresh(),
-			customButtons: [{
-				text: _('Pull Latest'),
-				handler: () => this.handlePullLatestSelected(),
-				cssClass: 'positive'
-			}]
-		});
-
-		const formImage = new podmanForm.Image.init();
-		formImage.submit = () => this.handleRefresh();
-
-		return Promise.all([
-			formImage.render(),
-			this.map.render(),
-		]).then((rendered) => {
-			const formRendered = rendered[0];
-			const mapRendered = rendered[1];
-			const viewContainer = E('div', {
-				'class': 'podman-view-list'
-			});
-
-			viewContainer.appendChild(formRendered);
-			viewContainer.appendChild(toolbar.container);
-			viewContainer.appendChild(mapRendered);
-
-			this.listHelper.setupSelectAll(mapRendered);
-
-			return viewContainer;
-		});
+		return this.map.render();
 	},
 
-	/**
-	 * Get selected images
-	 * @returns {Array<Object>} Array of {id, name} objects
-	 */
-	getSelectedImages: function () {
-		return this.listHelper.getSelected((image) => {
-			return {
-				id: image.Id,
-				name: image._displayTag || '<none>:<none>'
-			};
-		});
-	},
-
-	/**
-	 * Delete selected images
-	 */
-	handleDeleteSelected: function () {
-		this.listHelper.bulkDelete({
-			selected: this.getSelectedImages(),
-			deletePromiseFn: (img) => podmanRPC.image.remove(img.id, false),
-			formatItemName: (img) => img.name,
-			onSuccess: () => this.handleRefresh(true)
-		});
-	},
-
-	/**
-	 * Pull latest version of selected images
-	 */
-	handlePullLatestSelected: function () {
-		const selected = this.getSelectedImages();
+	handlePullImages: async function () {
+		const selected = this.section.getSelectedData();
 
 		if (selected.length === 0) {
-			podmanUI.warningTimeNotification(
-				_('No %s selected').format(_('Images').toLowerCase())
-			);
-			return;
+			return this.section.showNoneSelectedWarning();
 		}
 
-		const imageNames = selected.map((img) => img.name).join(', ');
-		const confirmText = _('Pull latest version of %d %s?\n\n%s').format(
-			selected.length,
-			utils._n(selected.length, _('Image'), _('Images')).toLowerCase(),
-			imageNames
-		);
-		if (!confirm(confirmText)) {
-			return;
+		const progressEl = E('pre', { class: 'terminal-area' });
+		const modal = new podmanUI.Modal(_('Updating Images'), [ progressEl ]);
+
+		/** @type {HTMLElement} */
+		const closeButton = modal.getCloseButton();
+		closeButton.classList.add('d-none');
+
+		modal.getButtons = () => [ closeButton ];
+		modal.render();
+
+		const append = (text) => {
+			progressEl.textContent += text;
+			progressEl.scrollTop = progressEl.scrollHeight;
+		};
+
+		let errors = 0;
+		let first = true;
+		for (const image of selected) {
+			if (!first) append('\n');
+			first = false;
+			try {
+				await image.streamPull((text) => append(text));
+			} catch (err) {
+				podmanUI.alert(`${_('Error')}: ${err.message}`);
+				errors++;
+			}
 		}
 
-		podmanUI.showSpinningModal(
-			_('Pulling Images'),
-			_('Pulling latest version of %d %s...').format(
-				selected.length,
-				utils._n(selected.length, _('Image'), _('Images')).toLowerCase()
-			)
-		);
-
-		const pullPromises = selected.map((img) => podmanRPC.image.pull(img.name));
-
-		Promise.all(pullPromises).then(() => {
-			ui.hideModal();
-			podmanUI.successTimeNotification(
-				_('Successfully pulled %d %s').format(
-					selected.length,
-					utils._n(selected.length, _('Image'), _('Images'))
-					.toLowerCase()
-				)
-			);
-			this.handleRefresh();
-		}).catch((err) => {
-			ui.hideModal();
-			podmanUI.errorNotification(
-				_('Failed to pull some images: %s').format(err.message)
-			);
-			this.handleRefresh();
-		});
+		this.section.handleRefresh();
+		closeButton.classList.remove('d-none');
+		if (errors === 0)
+			podmanUI.alert(_('All images updated successfully'), 'success', true);
 	},
-
-	/**
-	 * Refresh image list
-	 * @param {boolean} clearSelections - Clear checkbox selections
-	 */
-	handleRefresh: function (clearSelections) {
-		clearSelections = clearSelections || false;
-		this.listHelper.refreshTable(clearSelections);
-	},
-
-	/**
-	 * Show image inspect modal
-	 * @param {string} id - Image ID
-	 */
-	handleInspect: function (id) {
-		this.listHelper.showInspect(id);
-	}
 });

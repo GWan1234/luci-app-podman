@@ -1,1159 +1,388 @@
 'use strict';
 
-'require baseclass';
-'require dom';
 'require ui';
 
 'require podman.ui as podmanUI';
-'require podman.format as format';
+'require podman.form as podmanForm';
+'require podman.view as podmanView';
 'require podman.rpc as podmanRPC';
-'require podman.openwrt-network as openwrtNetwork';
 'require podman.utils as utils';
 
-/**
- * Container info tab - displays basic info, config, network, env vars, and mounts
- */
-return baseclass.extend({
-	containerId: 0,
-	containerData: {},
-	networksData: [],
+'require podman.model.Container as Container';
 
-	/**
-	 * Render container info tab content
-	 * Networks are loaded asynchronously for faster initial render
-	 * @param {HTMLElement} content - Container element to append sections to
-	 * @param {string} id - Container ID
-	 * @param {Object} data - Container inspect data
-	 * @param {Array} networks - Available networks list (may be null for async loading)
-	 */
-	render: async function (content, id, data, networks) {
-		this.containerId = id;
-		this.containerData = data;
-		this.networksData = networks || [];
+const CENSORED_VALUE = '••••••••';
 
-		const config = data.Config || {};
-		const hostConfig = data.HostConfig || {};
-		const networkSettings = data.NetworkSettings || {};
-		const status = data.State ? data.State.Status : 'unknown';
+return podmanView.tabContent.extend({
+	tab: 'info',
 
-		// Build info sections - basic sections render immediately
-		const sections = [];
+	container: null,
+	initScriptStatus: '',
 
-		sections.push((await this.basicSection(status, config, hostConfig)).render());
-		sections.push((await this.configSection(config, hostConfig)).render());
+	async render(container) {
+		this.container = container;
 
-		// Network section placeholder - will be populated async
-		const networkPlaceholder = E('div', {
-			'id': 'network-section-placeholder'
-		}, [
-			E('div', {
-				'class': 'cbi-section section-container-info'
-			}, [
-				E('h3', {}, _('Network')),
-				E('div', {
-					'class': 'p-md text-center'
-				}, [
-					E('em', {
-						'class': 'spinning'
-					}, _('Loading network information...'))
-				])
-			])
-		]);
-		sections.push(networkPlaceholder);
-
-		if (config.Env && config.Env.length > 0) {
-			sections.push((await this.envSection(config.Env)).render());
-		}
-
-		if (data.Mounts && data.Mounts.length > 0) {
-			sections.push((await this.mountsSection(data.Mounts)).render());
-		}
-
-		// Append all sections
-		sections.forEach(function (section) {
-			content.appendChild(section);
-		});
-
-		// Load networks asynchronously and update network section
-		this.loadNetworkSectionAsync(config, hostConfig, networkSettings);
-	},
-
-	/**
-	 * Load networks and render network section asynchronously
-	 * @param {Object} config - Container config
-	 * @param {Object} hostConfig - Container host config
-	 * @param {Object} networkSettings - Container network settings
-	 */
-	loadNetworkSectionAsync: function (config, hostConfig, networkSettings) {
-		podmanRPC.network.list()
-			.then((networks) => {
-				this.networksData = networks || [];
-				return this.networkSection(config, hostConfig, networkSettings);
-			})
-			.then((networkSection) => {
-				const placeholder = document.getElementById('network-section-placeholder');
-				if (placeholder) {
-					placeholder.replaceWith(networkSection.render());
-				}
-			})
-			.catch((err) => {
-				const placeholder = document.getElementById('network-section-placeholder');
-				if (placeholder) {
-					// Clear placeholder and show error using DOM methods
-					dom.content(placeholder, E('div', {
-						'class': 'cbi-section section-container-info'
-					}, [
-						E('h3', {}, _('Network')),
-						E('div', {
-								'class': 'alert-message error'
-							},
-							_('Failed to load network information: %s').format(err
-								.message))
-					]));
-				}
-			});
-	},
-
-	/**
-	 * Build basic information section (name, status, restart policy, health)
-	 * @param {string} status - Container status
-	 * @param {Object} config - Container config
-	 * @param {Object} hostConfig - Container host config
-	 * @returns {Promise<Object>} Section object with render() method
-	 */
-	basicSection: async function (status, config, hostConfig) {
-		// Basic Information - using podmanUI.Table
-		const data = this.containerData;
-		const basicTable = new podmanUI.Table({
-			'class': 'table table-list'
-		});
-
-		// Name (editable)
-		const inputId = 'edit-name';
-		basicTable.addRow([{
-				inner: _('Name')
-			},
-			{
-				inner: [
-					E('div', {
-						'class': 'editable-field'
-					}, [
-						E('input', {
-							'type': 'text',
-							'id': inputId,
-							'class': 'cbi-input-text edit-container-name',
-							'value': data.Name ? data.Name.replace(/^\//,
-								'') : '-',
-						}),
-						new podmanUI.Button(
-							_('Update'),
-							() => this.handleUpdateName(
-								document.getElementById(inputId).value
-							),
-							'apply'
-						).render()
-					])
-				]
-			}
+		const sections = await Promise.all([
+			this.basicSection(),
+			this.configSection(),
+			this.networkSection(),
+			this.envSection(),
+			this.mountSection(),
 		]);
 
-		// Standard info rows
-		basicTable
-			.addRow([{
-					inner: _('Id').toUpperCase()
-				},
-				{
-					inner: data.Id ? data.Id.substring(0, 64) : '-'
-				}
-			])
-			.addRow([{
-					inner: _('Image')
-				},
-				{
-					inner: config.Image || '-'
-				}
-			])
-			.addRow([{
-					inner: _('Status')
-				},
-				{
-					inner: data.State ? _(data.State.Status) : '-'
-				}
-			])
-			.addRow([{
-					inner: _('Created')
-				},
-				{
-					inner: data.Created ? format.date(data.Created) : '-'
-				}
-			])
-			.addRow([{
-					inner: _('Started')
-				},
-				{
-					inner: data.State && data.State.StartedAt ? format.date(data.State
-						.StartedAt) : '-'
-				}
-			]);
+		this.updateInitScriptIcon(sections[0]);
 
-		// Restart policy (editable)
-		const selectId = 'edit-restart-policy';
+		return sections;
+	},
+
+	basicSection() {
+		const basicTable = new podmanUI.TableList();
+
+		const editableNameField = new ui.Textfield(this.container.getName(), { name: 'container-name' }).render();
+		const editableName = new podmanForm.EditableField('container-name', editableNameField);
+		editableName.onSubmit = (value) => this.handleUpdateName(value);
+
 		const policies = {
 			'no': _('No'),
 			'always': _('Always'),
 			'on-failure': _('On Failure'),
 			'unless-stopped': _('Unless Stopped')
 		};
-		const currentPolicy = hostConfig.RestartPolicy ? hostConfig.RestartPolicy.Name || 'no' :
-			'no';
-		const policyOptions = Object.keys(policies).map((key) => {
-			return E('option', {
-				'value': key,
-				'selected': key === currentPolicy ? 'selected' : null
-			}, policies[key]);
-		});
+		const currentPolicy = this.container.getRestartPolicyName();
+		const editableRestartField = new ui.Select(currentPolicy, policies, { name: 'container-restart' }).render();
+		const editableRestart = new podmanForm.EditableField('container-restart', editableRestartField);
+		editableRestart.onSubmit = (value) => this.handleUpdateRestartPolicy(value);
 
-		basicTable.addRow([{
-				inner: _('Restart Policy')
-			},
-			{
-				inner: [
-					E('div', {
-						'class': 'editable-field'
-					}, [
-						E('select', {
-							'id': selectId,
-							'class': 'cbi-input-select input-lg mr-xs'
-						}, policyOptions),
-						new podmanUI.Button(_('Update'), () => this
-							.handleUpdateRestartPolicy(
-								document.getElementById(selectId).value), 'apply')
-						.render()
-					])
-				]
-			}
+		basicTable
+			.addRow(_('Name'), editableName.render())
+			.addRow(_('ID'), this.container.getID().substring(0, 64))
+			.addRow(_('Image'), new podmanUI.Tooltip(this.container.getImageName(), this.container.Image, { class: 'tooltip' }).render())
+			.addRow(_('Tag'), this.container.getImageTag())
+			.addRow(_('Status'), this.container.getStateBadge())
+			.addRow(_('Created'), this.container.getCreated(true))
+			.addRow(_('Started'), this.container.getStartedAt(true))
+			.addRow(_('Restart Policy'), editableRestart.render())
+			.addRow(_('Auto Update'), this.container.getAutoUpdateLabel() || _('Disabled'))
+			.addRow(_('Init Script'), E('div', {
+				class: `init-script-form align-center ${this.container.getRestartPolicyName() === 'no' ? 'd-none' : 'd-flex'}`
+			}, [
+				new podmanUI.Tooltip(
+					new podmanUI.ButtonNew(
+						this.container.getAutoStartStatusIcon(),
+						{
+							click: ui.createHandlerFn(this, 'handleToggleInitScript'),
+						}
+					 ).render(),
+					 _('Click to enable/disable'),
+					 {
+						class: 'cursor-pointer',
+					 }
+				).render(),
+
+				new podmanUI.ButtonNew(_('Show'), {
+					type: 'none',
+					click: ui.createHandlerFn(this, 'handleShowInitScript'),
+				}).render(),
+				new podmanUI.ButtonNew(_('Generate'), {
+					type: 'none',
+					click: ui.createHandlerFn(this, 'handleGenerateInitScript'),
+				}).render(),
+			]))
+		;
+
+		return E('div', {}, [
+			E('h4', {}, _('Basic Information')),
+			basicTable.render(),
 		]);
-
-		// Auto-update status
-		const autoUpdateLabel = config.Labels && config.Labels['io.containers.autoupdate'];
-		basicTable.addRow([{
-				inner: _('Auto-Update')
-			},
-			{
-				inner: autoUpdateLabel || _('Disabled')
-			}
-		]);
-
-		// Init Script status (loaded asynchronously)
-		const initScriptCell = E('span', {
-			'class': 'loading-gray'
-		}, '...');
-		const containerName = data.Name ? data.Name.replace(/^\//, '') : null;
-
-		// Check if container has a restart policy set
-		const hasRestartPolicy = hostConfig.RestartPolicy &&
-			hostConfig.RestartPolicy.Name &&
-			hostConfig.RestartPolicy.Name !== '' &&
-			hostConfig.RestartPolicy.Name !== 'no';
-
-		if (containerName) {
-			podmanRPC.initScript.status(containerName).then((status) => {
-				const buttons = [];
-
-				if (status.exists && status.enabled) {
-					// Init script exists and enabled
-					dom.content(initScriptCell, E('span', {
-						'class': 'text-success mr-sm'
-					}, '✓ ' + _('Enabled')));
-
-					buttons.push(new podmanUI.Button(_('Show'), () => this
-						.handleShowInitScript(containerName), 'neutral').render());
-					buttons.push(' ');
-					buttons.push(new podmanUI.Button(_('Regenerate'), () => this
-						.handleGenerateInitScript(containerName), 'apply')
-					.render());
-					buttons.push(' ');
-					buttons.push(new podmanUI.Button(_('Disable'), () => this
-							.handleToggleInitScript(containerName, false), 'negative')
-						.render());
-				} else if (status.exists && !status.enabled) {
-					// Init script exists but disabled
-					dom.content(initScriptCell, E('span', {
-						'class': 'text-muted mr-sm'
-					}, '○ ' + _('Disabled')));
-
-					buttons.push(new podmanUI.Button(_('Show'), () => this
-						.handleShowInitScript(containerName), 'neutral').render());
-					buttons.push(' ');
-					buttons.push(new podmanUI.Button(_('Regenerate'), () => this
-						.handleGenerateInitScript(containerName), 'apply')
-					.render());
-					buttons.push(' ');
-					buttons.push(new podmanUI.Button(_('Enable'), () => this
-							.handleToggleInitScript(containerName, true), 'positive')
-						.render());
-				} else if (hasRestartPolicy) {
-					// No init script but has restart policy - show warning with Generate button
-					dom.content(initScriptCell, E('span', {
-						'class': 'text-warning mr-sm',
-						'title': _('Restart policy set but no init script')
-					}, '⚠ ' + _('Not configured')));
-
-					buttons.push(new podmanUI.Button(_('Generate'), () => this
-							.handleGenerateInitScript(containerName), 'positive')
-						.render());
-				} else {
-					// No init script and no restart policy - show helper text
-					dom.content(initScriptCell, E('span', {
-						'class': 'text-muted',
-						'title': _(
-							'Set a restart policy to enable auto-start')
-					}, '— ' + _('Not available (no restart policy)')));
-				}
-
-				buttons.forEach((btn) => {
-					if (typeof btn === 'string') {
-						initScriptCell.appendChild(document.createTextNode(btn));
-					} else {
-						initScriptCell.appendChild(btn);
-					}
-				});
-			}).catch((err) => {
-				initScriptCell.textContent = '✗ ' + _('Error');
-				initScriptCell.className = 'text-error';
-				initScriptCell.title = err.message;
-			});
-		} else {
-			initScriptCell.textContent = '—';
-		}
-
-		basicTable.addRow([{
-				inner: _('Init Script')
-			},
-			{
-				inner: initScriptCell
-			}
-		]);
-
-		// Health status if exists
-		if (data.State && data.State.Health) {
-			const healthStatus = data.State.Health.Status || 'none';
-			const failingStreak = data.State.Health.FailingStreak || 0;
-			const log = data.State.Health.Log || [];
-			const lastCheck = log.length > 0 ? log[log.length - 1] : null;
-
-			// Build health status display with badge
-			const healthBadge = E('span', {
-				'class': 'badge status-' + healthStatus.toLowerCase() + ' mr-sm'
-			}, healthStatus);
-
-			const healthDetails = [healthBadge];
-
-			// Add failing streak if unhealthy
-			if (healthStatus === 'unhealthy' && failingStreak > 0) {
-				healthDetails.push(E('span', {
-					'class': 'text-error'
-				}, ' (' + _('%d consecutive failures').format(failingStreak) + ')'));
-			}
-
-			// Add last check time if available
-			if (lastCheck && lastCheck.End) {
-				healthDetails.push(E('br'));
-				healthDetails.push(E('small', {
-					'class': 'text-secondary'
-				}, _('Last check: %s').format(format.date(lastCheck.End))));
-			}
-
-			// Add manual health check button if container is running
-			if (status === 'running') {
-				healthDetails.push(' ');
-				healthDetails.push(new podmanUI.Button(_('Run Check'), () => this
-					.handleHealthCheck(),
-					'positive').render());
-			}
-
-			basicTable.addRow([{
-					inner: _('Health')
-				},
-				{
-					inner: healthDetails,
-					options: {
-						'class': 'text-break'
-					}
-				}
-			]);
-		}
-
-		const basicSection = new podmanUI.Section({
-			'class': 'mb-lg'
-		});
-		basicSection.addNode(_('Basic Information'), '', basicTable.render());
-
-		return basicSection;
 	},
 
-	/**
-	 * Build configuration section (command, entrypoint, user, tty, etc.)
-	 * @param {Object} config - Container config
-	 * @param {Object} hostConfig - Container host config
-	 * @returns {Promise<Object>} Section object with render() method
-	 */
-	configSection: async function (config, hostConfig) {
-		const cmd = config.Cmd ? config.Cmd.join(' ') : '-';
-		const entrypoint = config.Entrypoint ? config.Entrypoint.join(' ') : '-';
+	configSection() {
+		const configTable = new podmanUI.TableList();
+		const cmd = this.container.getCmdString() || '-';
+		const entrypoint = this.container.getEntrypointString() || '-';
+		const createCommand = this.container.getCreateCommandString() || '-';
+		const createCommandField = new podmanUI.SecretText(createCommand, CENSORED_VALUE);
 
-		// Format CreateCommand for display
-		const createCommand = utils.formatCreateCommand(config.CreateCommand);
-		const createCommandElement = createCommand ? E('div', {
-			'class': 'command-display'
-		}, [
-			E('code', {
-				'class': 'command-code'
-			}, createCommand),
-			E('button', {
-				'class': 'cbi-button',
-				'click': () => {
-					navigator.clipboard.writeText(createCommand).then(() => {
-						podmanUI.infoTimeNotification(_(
-							'Command copied to clipboard'));
-					});
-				}
-			}, _('Copy'))
-		]) : '-';
-
-		const configTable = new podmanUI.Table({
-			'class': 'table table-list'
-		});
 		configTable
-			.addRow([{
-					inner: _('Create Command')
-				},
-				{
-					inner: createCommandElement,
-					options: {
-						'class': 'text-break td'
-					}
-				}
-			])
-			.addRow([{
-					inner: _('Command')
-				},
-				{
-					inner: cmd,
-					options: {
-						'class': 'text-break td'
-					}
-				}
-			])
-			.addRow([{
-					inner: _('Entrypoint')
-				},
-				{
-					inner: entrypoint,
-					options: {
-						'class': 'text-break td'
-					}
-				}
-			])
-			.addRow([{
-					inner: _('Working Directory')
-				},
-				{
-					inner: config.WorkingDir || '-'
-				}
-			])
-			.addRow([{
-					inner: _('User')
-				},
-				{
-					inner: config.User || '-'
-				}
-			])
-			.addRow([{
-					inner: _('Hostname')
-				},
-				{
-					inner: config.Hostname || '-'
-				}
-			])
-			.addRow([{
-					inner: _('Privileged')
-				},
-				{
-					inner: hostConfig.Privileged ? _('Yes') : _('No')
-				}
-			])
-			.addRow([{
-					inner: _('TTY')
-				},
-				{
-					inner: config.Tty ? _('Yes') : _('No')
-				}
-			])
-			.addRow([{
-					inner: _('Interactive')
-				},
-				{
-					inner: config.OpenStdin ? _('Yes') : _('No')
-				}
-			]);
+			.addRow(_('Create Command'), createCommandField.render())
+			.addRow(_('Command'), cmd)
+			.addRow(_('Entrypoint'), entrypoint)
+			.addRow(_('Working Directory'), this.container.getWorkingDir())
+			.addRow(_('User'), this.container.getUser())
+			.addRow(_('Hostname'), this.container.getHostname())
+			.addRow(_('Privileged'), this.container.getPrivileged() ? _('Yes') : _('No'))
+			.addRow(_('TTY'), this.container.getTty() ? _('Yes') : _('No'))
+			.addRow(_('Interactive'), this.container.getInteractive() ? _('Yes') : _('No'))
+		;
 
-		const configSection = new podmanUI.Section({
-			'class': 'cbi-section section-container-info',
-		});
-		configSection.addNode(_('Configuration'), '', configTable.render());
-
-		return configSection;
+		return E('div', {}, [
+			E('h4', {}, _('Configuration')),
+			configTable.render(),
+		]);
 	},
 
-	/**
-	 * Build network section (connections, ports, connect/disconnect controls)
-	 * @param {Object} config - Container config
-	 * @param {Object} hostConfig - Container host config
-	 * @param {Object} networkSettings - Container network settings
-	 * @returns {Promise<Object>} Section object with render() method
-	 */
-	networkSection: async function (config, hostConfig, networkSettings) {
-		// Network - using podmanUI.Table
-		const networkTable = new podmanUI.Table({
-			'class': 'table table-list'
-		});
+	async networkSection () {
+		const table = new podmanUI.TableList();
+		const { NetworkMode, Links } = this.container.getHostConfig();
+		const { Networks, IPAddress } = this.container.getNetworkSettings();
 
-		// Network mode
-		networkTable.addInfoRow(_('Network Mode'), hostConfig.NetworkMode || 'default');
+		table.addRow(_('Network Mode'), NetworkMode || _('default'));
 
-		// Add network connections
-		// System networks that cannot be disconnected (default Podman networks)
 		const systemNetworks = ['bridge', 'host', 'none', 'container', 'slirp4netns'];
 		let userNetworks = [];
 
-		if (networkSettings.Networks && Object.keys(networkSettings.Networks).length > 0) {
-			// Filter to only show user-created networks
-			userNetworks = Object.keys(networkSettings.Networks).filter((netName) => {
-				return !systemNetworks.includes(netName);
-			});
+		if (Networks && Object.keys(Networks).length > 0) {
+			userNetworks = Object.keys(Networks).filter((netName) => !systemNetworks.includes(netName));
 
-			// Only display user-created networks with disconnect buttons
 			userNetworks.forEach((netName) => {
-				const net = networkSettings.Networks[netName];
+				const net = Networks[netName];
 				const tooltip = (() => {
+					if (!this.container.isRunning()) {
+						return _('Container is not running');
+					}
+
 					const parts = [];
 					if (net.IPAddress) parts.push(`IPv4: ${net.IPAddress}`);
-					if (net.GlobalIPv6Address) parts.push(
-						`IPv6: ${net.GlobalIPv6Address}`);
+					if (net.GlobalIPv6Address) parts.push(`IPv6: ${net.GlobalIPv6Address}`);
 					else parts.push('IPv6: disabled');
 					if (net.Gateway) parts.push(`Gateway: ${net.Gateway}`);
 					if (net.MacAddress) parts.push(`MAC: ${net.MacAddress}`);
-					if (net.NetworkID) parts.push(
-						`Network ID: ${net.NetworkID.substring(0, 12)}`);
 					return parts.join('\n');
 				})();
 
-				networkTable.addRow([{
-						inner: netName,
-						options: {
-							'class': 'tooltip td',
-							'title': tooltip
-						}
-					},
-					{
-						inner: [
-							net.IPAddress || '-',
-							' ',
-							E('span', {
-								'class': 'ml-sm'
-							}, [
-								new podmanUI.Button(_('Disconnect'), () =>
-									this
-									.handleNetworkDisconnect(netName),
-									'remove').render()
-							])
-						]
+				const ipContent = net.GlobalIPv6Address
+					? [net.IPAddress || '-', E('br'), net.GlobalIPv6Address]
+					: net.IPAddress || '-';
+
+				table.addRow(
+					new podmanUI.Tooltip(E('span', { class: 'tooltip' }, netName), tooltip).render(),
+					E('div', { class: 'd-flex align-center' }, [
+						E('span', {}, ipContent),
+						new podmanUI.Tooltip('✖', _('Click to disconnect'), {
+							class: 'text-error cursor-pointer container-icon-disconnect ml-sm border-0',
+							click: () => this.handleNetworkDisconnect(netName),
+						}).render(),
+					])
+				);
+			});
+		}
+
+		if (IPAddress && userNetworks.length === 0) {
+			table.addRow(_('IP Address'), IPAddress);
+		}
+
+		const podmanNetworks = await podmanRPC.networks.list();
+		const networkOptions = Object.assign({
+			'': _('-- Select %s --').format(_('Network'))
+		}, Object.fromEntries(podmanNetworks.map(item => [item.name, item.name])));
+
+		const networkSelectWidget = new ui.Select('', networkOptions, { name: 'container-connect-network' });
+		const ipTextWidget = new ui.Textfield('', { name: 'container-connect-ip', placeholder: '192.168.1.100' });
+		ipTextWidget.datatype = 'ip4addr';
+
+		table.addRow(_('Connect to'), [
+			E('div', { class: 'd-flex align-center container-connect' }, [
+				networkSelectWidget.render(),
+				ipTextWidget.render(),
+				new podmanUI.Button(_('Connect'), () => {
+					const selectedNetwork = networkSelectWidget.getValue();
+					const selectedIp = ipTextWidget.getValue();
+
+					if (!selectedNetwork) {
+						return this.error(_('No network selected'));
 					}
-				]);
-			});
-		}
 
-		// Only show legacy IP Address row if no user networks are displayed
-		// (avoids duplicate IP display when networks are shown with their IPs)
-		if (networkSettings.IPAddress && userNetworks.length === 0) {
-			networkTable.addInfoRow(_('IP Address'), networkSettings.IPAddress);
-		}
-
-		// Add connect to network option (inline instead of helper method)
-		const networkSelectId = 'connect-network-select';
-		const ipInputId = 'connect-network-ip';
-
-		const networkOptions = [E('option', {
-			'value': ''
-		}, _('-- Select %s --').format(_('Network')))];
-
-		if (this.networksData && Array.isArray(this.networksData)) {
-			this.networksData.forEach(function (net) {
-				const name = net.Name || net.name;
-				if (name && name !== 'none' && name !== 'host') {
-					networkOptions.push(E('option', {
-						'value': name
-					}, name));
-				}
-			});
-		}
-
-		networkTable.addRow([{
-				inner: _('Connect to')
-			},
-			{
-				inner: [
-					E('select', {
-						'id': networkSelectId,
-						'class': 'cbi-input-select input-md mr-xs'
-					}, networkOptions),
-					E('input', {
-						'type': 'text',
-						'id': ipInputId,
-						'class': 'cbi-input-text input-sm mr-xs',
-						'placeholder': _('IP (optional)')
-					}),
-					new podmanUI.Button(_('Connect'), () => {
-						const netName = document.getElementById(networkSelectId)
-							.value;
-						const ip = document.getElementById(ipInputId).value;
-						if (netName) {
-							this.handleNetworkConnect(netName, ip);
-						}
-					}, 'positive').render()
-				]
-			}
+					this.handleNetworkConnect(selectedNetwork, selectedIp);
+				}).render(),
+			]),
 		]);
 
-		// Ports - smart detection based on network type
-		// For OpenWrt-integrated networks: show container IP + exposed ports
-		// For standard networks: show host IP + port mappings
-		await this.renderPorts(networkTable, config, hostConfig, networkSettings);
+		table.addRow(_('Ports'), E('div', {},
+			this.container.getPorts().map((port) => E('div', {}, port.string)),
+		));
 
-		// Links - display as single row with line breaks
-		const links = [];
-		if (hostConfig.Links && hostConfig.Links.length > 0) {
-			hostConfig.Links.forEach(function (link) {
-				links.push(link);
-			});
+		if (Links && Links.length > 0) {
+			const linkNodes = Links.reduce((nodes, link, i) => {
+				if (i > 0) nodes.push(E('br'));
+				nodes.push(link);
+				return nodes;
+			}, []);
+			table.addRow(_('Links'), linkNodes);
 		}
 
-		if (links.length > 0) {
-			networkTable.addInfoRow(_('Links'), links.join('<br>'));
-		}
-
-		// Render Network section using podmanUI.Section
-		const networkSection = new podmanUI.Section({
-			'class': 'cbi-section section-container-info',
-		});
-		networkSection.addNode(_('Network'), '', networkTable.render());
-
-		return networkSection;
+		return E('div', { class: 'networks' }, [
+			E('h4', {}, _('Network')),
+			table.render(),
+		]);
 	},
 
-	/**
-	 * Build environment variables section with click-to-reveal values
-	 * @param {Array<string>} envs - Environment variables (KEY=value format)
-	 * @returns {Promise<Object>} Section object with render() method
-	 */
-	envSection: async function (envs) {
-		const envTable = new podmanUI.Table({
-			class: 'table table-env-vars'
-		});
-		envTable
-			.addHeader(_('Variable'))
-			.addHeader(_('Value'));
+	envSection() {
+		const table = new podmanUI.Table();
+		table
+			.addHeader(_('Variable'), { style: 'width: 50%;' })
+			.addHeader(_('Value'), { style: 'width: 50%;' });
 
-		envs.forEach(function (env) {
+		this.container.getEnvironmentVars().forEach((env) => {
 			const parts = env.split('=');
 			const varName = parts[0];
 			const varValue = parts.slice(1).join('=');
+			const valueField = new podmanUI.SecretText(varValue, CENSORED_VALUE);
 
-			// Create censored value display (bullet points)
-			const censoredValue = '••••••••';
-
-			envTable.addRow([{
+			table.addRow([{
 					inner: varName
 				},
 				{
-					inner: censoredValue,
-					options: {
-						'title': _('Click to reveal/hide value'),
-						'data-revealed': 'false',
-						'data-value': varValue,
-						'click': function () {
-							const isRevealed = this.getAttribute(
-								'data-revealed') === 'true';
-							if (isRevealed) {
-								// Hide value
-								this.textContent = censoredValue;
-								this.setAttribute('data-revealed',
-									'false');
-
-								return;
-							}
-
-							// Reveal value
-							this.textContent = this.getAttribute(
-								'data-value');
-							this.setAttribute('data-revealed', 'true');
-						}
-					}
+					inner: valueField.render(),
 				},
 			]);
 		});
 
-		const envSection = new podmanUI.Section({
-			'class': 'cbi-section section-container-info',
-		});
-		envSection.addNode(_('Environment Variables'), '', envTable.render());
-
-		return envSection;
+		return E('div', {}, [
+			E('h4', {}, _('Environment Variables')),
+			table.render(),
+		]);
 	},
 
-	/**
-	 * Build mounts section (volumes, bind mounts)
-	 * @param {Array<Object>} mounts - Mount objects with Type, Source, Destination, RW
-	 * @returns {Promise<Object>} Section object with render() method
-	 */
-	mountsSection: async function (mounts) {
-		const mountsTable = new podmanUI.Table();
-		mountsTable
-			.addHeader(_('Type'))
-			.addHeader(_('Source'))
-			.addHeader(_('Destination'))
-			.addHeader(_('Mode'));
+	mountSection() {
+		const table = new podmanUI.Table();
+		table
+			.addHeader(_('Type'), { style: 'width: 10%;' })
+			.addHeader(_('Source'), { style: 'width: 35%;' })
+			.addHeader(_('Destination'), { style: 'width: 35%;' })
+			.addHeader(_('Mode'), { style: 'width: 10%;' })
+		;
 
-		mounts.forEach(function (mount) {
-			mountsTable.addRow([{
-					inner: mount.Type || '-'
-				},
-				{
-					inner: utils.truncate(mount.Source || '-', 50),
-					options: {
-						'title': mount.Source || '-'
-					}
-				},
-				{
-					inner: utils.truncate(mount.Destination || '-', 50),
-					options: {
-						'title': mount.Destination || '-'
-					}
-				},
-				{
-					inner: mount.RW ? 'rw' : 'ro'
-				}
+		const truncatedField = (value) => {
+			const v = value || '-';
+			return v.length > 50 ? new podmanUI.Tooltip(utils.truncate(v, 50), v).render() : v;
+		};
+
+		this.container.getMounts().forEach((mount) => {
+			const mountSourceField = truncatedField(mount.Source);
+			const mountDestField = truncatedField(mount.Destination);
+
+			table.addRow([
+				{ inner: mount.Type || '-' },
+				{ inner: mountSourceField },
+				{ inner: mountDestField },
+				{ inner: mount.RW ? 'rw' : 'ro' },
 			]);
-		});
+		})
 
-		const mountsSection = new podmanUI.Section({
-			'class': 'cbi-section section-container-info',
-		});
-		mountsSection.addNode(_('Mounts'), '', mountsTable.render());
-
-		return mountsSection;
+		return E('div', {}, [
+			E('h4', {}, _('Mounts')),
+			table.render(),
+		]);
 	},
 
-	/**
-	 * Render ports with smart detection based on network type
-	 * @param {Object} networkTable - Table to add port row to
-	 * @param {Object} config - Container config
-	 * @param {Object} hostConfig - Container host config
-	 * @param {Object} networkSettings - Container network settings
-	 */
-	renderPorts: async function (networkTable, config, hostConfig, networkSettings) {
-		const portElements = [];
+	async _refreshContainer() {
+		const inspectData = await this.container.inspect();
+		this.container = Container.getSingleton(inspectData);
+	},
 
-		// Get primary network name and check for OpenWrt integration
-		const networks = networkSettings.Networks || {};
-		const networkNames = Object.keys(networks);
-		const primaryNetwork = networkNames.length > 0 ? networkNames[0] : null;
+	async _refreshNetworkSection() {
+		const networkSection = await this.networkSection();
+		document.querySelector('.networks').replaceWith(networkSection);
+	},
 
-		let useContainerIp = false;
-		let containerIp = null;
+	async updateInitScriptIcon(infoSection) {
+		this.initScriptStatus = await this.container.checkInitScript();
+		const initScriptIconElement = (infoSection || document).querySelector('.autostart-status');
+		const initScriptIcon = this.container.getAutoStartStatusIcon(this.initScriptStatus);
+		initScriptIconElement.replaceWith(initScriptIcon);
+	},
 
-		if (primaryNetwork) {
-			// Check if network has OpenWrt integration
-			const hasIntegration = await openwrtNetwork.hasIntegration(primaryNetwork).catch(() =>
-				false);
-
-			if (hasIntegration) {
-				useContainerIp = true;
-				containerIp = networks[primaryNetwork].IPAddress;
-			}
+	async handleUpdateName(name) {
+		if (!name || this.container.Name === name) {
+			return;
 		}
 
-		// Extract all ports (both mapped and exposed) from NetworkSettings.Ports
-		const extractedPorts = utils.extractPorts(networkSettings.Ports);
+		this.loading(_('Update name'));
 
-		if (useContainerIp && containerIp) {
-			// OpenWrt-integrated network: Show container IP + port
-			extractedPorts.forEach((port) => {
-				const isTcp = port.protocol === 'tcp';
-				const urlProtocol = port.containerPort === '443' ? 'https' : 'http';
+		await this.container.updateName(name);
 
-				if (isTcp) {
-					const url = `${urlProtocol}://${containerIp}:${port.containerPort}`;
-					const linkText = `${containerIp}:${port.containerPort}`;
-					portElements.push(E('a', {
-						href: url,
-						target: '_blank',
-						style: 'text-decoration: underline; color: #0066cc;',
-						title: _(
-							'Direct access to container on OpenWrt-integrated network'
-						)
-					}, linkText));
-				} else {
-					portElements.push(E('span', {},
-						`${containerIp}:${port.containerPort}/${port.protocol}`));
-				}
-			});
+		document.querySelector('.container-toolbar h2').textContent = name;
+		this.success(_('Name updated successfully'));
+	},
+
+	async handleUpdateRestartPolicy(policy) {
+		this.loading(_('Update restart policy'));
+
+		const updateData = { RestartPolicy: policy };
+		if (policy === 'on-failure') updateData.RestartRetries = 5;
+
+		await this.container.update(updateData);
+		await this._refreshContainer();
+
+		const initScriptForm = document.querySelector('.init-script-form');
+		if (policy === 'no') {
+			initScriptForm.classList.replace('d-flex', 'd-none');
 		} else {
-			// Standard network: Show port mappings for mapped, just port for exposed
-			extractedPorts.forEach((port) => {
-				if (port.isMapped) {
-					// Mapped port with host binding
-					const hostIp = port.hostIp || '0.0.0.0';
-					const linkIp = (hostIp === '0.0.0.0' || hostIp === '::') ?
-						window.location.hostname :
-						hostIp;
-					const urlProtocol = port.hostPort === '443' ? 'https' : 'http';
-					const isTcp = port.protocol === 'tcp';
-
-					if (isTcp) {
-						const url = `${urlProtocol}://${linkIp}:${port.hostPort}`;
-						const linkText =
-							`${hostIp}:${port.hostPort} → ${port.containerPort}/${port.protocol}`;
-						portElements.push(E('a', {
-							href: url,
-							target: '_blank',
-							style: 'text-decoration: underline; color: #0066cc;',
-							title: _('Access via host port mapping')
-						}, linkText));
-					} else {
-						portElements.push(E('span', {},
-							`${hostIp}:${port.hostPort} → ${port.containerPort}/${port.protocol}`
-						));
-					}
-				} else {
-					// Exposed port without host mapping
-					portElements.push(E('span', {
-						style: 'color: #666;'
-					}, `${port.containerPort}/${port.protocol} (exposed)`));
-				}
-			});
+			initScriptForm.classList.replace('d-none', 'd-flex');
 		}
 
-		if (portElements.length > 0) {
-			const portsContainer = E('div', {});
-			portElements.forEach((portEl, idx) => {
-				if (idx > 0) {
-					portsContainer.appendChild(E('br'));
-				}
-				portsContainer.appendChild(portEl);
-			});
+		this.updateInitScriptIcon();
 
-			// Label based on network type
-			const label = useContainerIp ? _('Exposed Ports') : _('Port Mappings');
-			networkTable.addInfoRow(label, portsContainer);
-		}
+		this.success(_('Restart policy updated successfully'));
 	},
 
-	/**
-	 * Handle name update
-	 * @param {string} newName - New container name
-	 */
-	handleUpdateName: function (newName) {
-		if (!newName || newName === this.containerData.Name.replace(/^\//, '')) {
-			return;
-		}
+	async handleNetworkConnect(networkName, ip) {
+		this.loading(_('Connecting container to network'));
 
-		podmanUI.showSpinningModal(_('Updating Container'), _('Renaming container...'));
+		const params = {};
+		if (ip) params.static_ips = [ip];
 
-		// Podman rename API call
-		podmanRPC.container.rename(this.containerId, newName).then((result) => {
+		await this.container.connect(networkName, params);
+		await this._refreshContainer();
+		this.success(_('Connected successfully to %s').format(networkName));
+		await this._refreshNetworkSection();
+	},
+
+	async handleNetworkDisconnect(networkName) {
+		this.loading(_('Disconnect container from network'));
+
+		await this.container.disconnect(networkName);
+		await this._refreshContainer();
+		this.success(_('Disconnected from %s').format(networkName));
+		await this._refreshNetworkSection();
+	},
+
+	async handleGenerateInitScript() {
+		this.loading(_('Creating auto-start configuration for %s').format(this.container.getName()));
+
+		await this.container.generateInitScript();
+		await this.container.enableInitScript();
+		ui.hideModal();
+		window.location.reload();
+	},
+
+	async handleShowInitScript() {
+		this.loading(_('Loading init script'));
+
+		const result = await this.container.showInitScript();
+		ui.hideModal();
+
+		if (!result || !result.path || !result.content) return;
+
+		const modal = new podmanUI.Modal(result.path, [
+			new podmanUI.BashCodeArea(result.content.replace(/\\n/g, '\n')).render()
+		]);
+		modal.handleSubmit = undefined;
+		modal.render();
+	},
+
+	async handleToggleInitScript() {
+		if (this.initScriptStatus === 'missing') {
+			return this.handleGenerateInitScript();
+		} else if (this.initScriptStatus === 'enabled') {
+			this.loading(_('Disabling init script'));
+			await this.container.disableInitScript();
 			ui.hideModal();
-			if (result && result.error) {
-				podmanUI.errorNotification(
-					_('Failed to rename container: %s').format(result.error)
-				);
-
-				return;
-			}
-
-			podmanUI.infoNotification(_('Container renamed successfully'));
 			window.location.reload();
-		}).catch((err) => {
+		} else if (this.initScriptStatus === 'disabled') {
+			this.loading(_('Enabling init script'));
+			await this.container.enableInitScript();
 			ui.hideModal();
-			podmanUI.errorNotification(
-				_('Failed to rename container: %s').format(err.message)
-			);
-		});
-	},
-
-	/**
-	 * Handle restart policy update with init script auto-sync
-	 * @param {string} policy - New restart policy
-	 */
-	handleUpdateRestartPolicy: function (policy) {
-		podmanUI.showSpinningModal(_('Updating Container'), _('Updating restart policy...'));
-
-		const containerName = this.containerData.Name ? this.containerData.Name.replace(/^\//,
-			'') : null;
-		const hasRestartPolicy = policy && policy !== '' && policy !== 'no';
-
-		// Podman libpod API uses query parameters for restart policy
-		const updateData = {
-			RestartPolicy: policy
-		};
-
-		// Only add RestartRetries if policy is on-failure
-		if (policy === 'on-failure') {
-			updateData.RestartRetries = 5;
-		}
-
-		// Step 1: Update restart policy
-		podmanRPC.container.update(this.containerId, updateData).then((
-			result) => {
-			if (result && result.error) {
-				throw new Error(result.error);
-			}
-
-			// Step 2: Auto-sync init script based on restart policy
-			if (!containerName) {
-				// No container name, skip init script sync
-				return Promise.resolve();
-			}
-
-			// Check current init script status
-			return podmanRPC.initScript.status(containerName).then((status) => {
-				if (hasRestartPolicy && !status.exists) {
-					// Restart policy set but no init script → Generate and enable
-					return podmanRPC.initScript.generate(containerName)
-						.then((genResult) => {
-							if (genResult && genResult.success) {
-								return podmanRPC.initScript.setEnabled(
-									containerName, true);
-							}
-							// Generation failed, but policy update succeeded - just log warning
-							console.warn(
-								'Failed to auto-generate init script:',
-								genResult.error);
-							return Promise.resolve();
-						})
-						.catch((err) => {
-							// Auto-generation failed, but policy update succeeded - just log warning
-							console.warn(
-								'Failed to auto-generate init script:',
-								err.message);
-							return Promise.resolve();
-						});
-				} else if (!hasRestartPolicy && status.exists) {
-					// Restart policy removed and init script exists → Remove it
-					return podmanRPC.initScript.remove(containerName)
-						.catch((err) => {
-							// Auto-removal failed, but policy update succeeded - just log warning
-							console.warn('Failed to auto-remove init script:',
-								err.message);
-							return Promise.resolve();
-						});
-				}
-
-				// No action needed
-				return Promise.resolve();
-			});
-		}).then(() => {
-			ui.hideModal();
-			podmanUI.successTimeNotification(_('Restart policy updated successfully'));
 			window.location.reload();
-		}).catch((err) => {
-			ui.hideModal();
-			podmanUI.errorNotification(_('Failed to update restart policy: %s')
-				.format(err.message));
-		});
-	},
-
-	/**
-	 * Handle network connect
-	 * @param {string} networkName - Network name
-	 * @param {string} ip - Optional IP address
-	 */
-	handleNetworkConnect: function (networkName, ip) {
-		podmanUI.showSpinningModal(
-			_('Connecting to Network'),
-			_('Connecting container to network...')
-		);
-
-		// Build params according to Podman API NetworkConnectOptions schema
-		const params = {
-			container: this.containerId
-		};
-		if (ip) {
-			params.static_ips = [ip]; // static_ips is an array
 		}
-
-		podmanRPC.network.connect(networkName, params).then((result) => {
-			ui.hideModal();
-			if (result && result.error) {
-				podmanUI.errorNotification(
-					_('Failed to connect to network: %s').format(result.error)
-				);
-
-				return;
-			}
-
-			podmanUI.infoNotification(_('Connected to network successfully'));
-			window.location.reload();
-		}).catch((err) => {
-			ui.hideModal();
-			podmanUI.errorNotification(
-				_('Failed to connect to network: %s').format(err.message)
-			);
-		});
 	},
-
-	/**
-	 * Handle network disconnect
-	 * @param {string} networkName - Network name
-	 */
-	handleNetworkDisconnect: function (networkName) {
-		if (!confirm(_('Disconnect from network %s?').format(networkName))) {
-			return;
-		}
-
-		podmanUI.showSpinningModal(
-			_('Disconnecting from Network'),
-			_('Disconnecting container from network...')
-		);
-
-		// Build params according to Podman API DisconnectOptions schema (capital C for Container)
-		podmanRPC.network.disconnect(networkName, {
-				Container: this.containerId
-			})
-			.then((result) => {
-				ui.hideModal();
-				if (result && result.error) {
-					podmanUI.errorNotification(
-						_('Failed to disconnect from network: %s').format(result.error)
-					);
-
-					return;
-				}
-
-				podmanUI.infoNotification(_('Disconnected from network successfully'));
-				window.location.reload();
-			}).catch((err) => {
-				ui.hideModal();
-				podmanUI.errorNotification(
-					_('Failed to disconnect from network: %s').format(err.message)
-				);
-			});
-	},
-
-	/**
-	 * Handle generate init script for container
-	 * @param {string} containerName - Container name
-	 */
-	handleGenerateInitScript: function (containerName) {
-		podmanUI.showSpinningModal(
-			_('Generating Init Script'),
-			_('Creating auto-start configuration for %s').format(containerName)
-		);
-
-		podmanRPC.initScript.generate(containerName).then((result) => {
-			if (result && result.success) {
-				return podmanRPC.initScript.setEnabled(containerName, true);
-			} else {
-				throw new Error(result.error || _('Failed to generate init script'));
-			}
-		}).then((result) => {
-			ui.hideModal();
-			if (result && result.success) {
-				podmanUI.successTimeNotification(
-					_('Init script created and enabled for %s').format(containerName));
-				window.location.reload();
-			} else {
-				throw new Error(result.error || _('Failed to enable init script'));
-			}
-		}).catch((err) => {
-			ui.hideModal();
-			podmanUI.errorNotification(
-				_('Failed to setup auto-start: %s').format(err.message)
-			);
-		});
-	},
-
-	/**
-	 * Handle show init script content
-	 * @param {string} containerName - Container name
-	 */
-	handleShowInitScript: function (containerName) {
-		podmanUI.showSpinningModal(
-			_('Loading Init Script'),
-			_('Fetching script'),
-		);
-
-		podmanRPC.initScript.show(containerName).then((result) => {
-			ui.hideModal();
-			if (result && result.content) {
-				// Show script content in a modal
-				const content = E('div', {}, [
-					E(
-						'pre', {
-							'class': 'code-area'
-						},
-						result.content.replace(/\\n/g, '\n')
-					)
-				]);
-
-				ui.showModal(_('Init Script'), [
-					content,
-					E('div', {
-						'class': 'right modal-buttons',
-					}, [
-						new podmanUI.Button(_('Close'), ui.hideModal,
-							'neutral')
-						.render()
-					])
-				]);
-			} else {
-				throw new Error(result.error || _('Failed to load init script'));
-			}
-		}).catch((err) => {
-			ui.hideModal();
-			podmanUI.errorNotification(
-				`${_('Failed to load init script')}: ${err.message}`);
-		});
-	},
-
-	/**
-	 * Handle enable/disable init script
-	 * @param {string} containerName - Container name
-	 * @param {boolean} enabled - Enable or disable
-	 */
-	handleToggleInitScript: function (containerName, enabled) {
-		const action = enabled ? _('Enabling') : _('Disabling');
-		podmanUI.showSpinningModal(
-			_('Updating Init Script'),
-			_('%s auto-start for %s').format(action, containerName)
-		);
-
-		podmanRPC.initScript.setEnabled(containerName, enabled).then((result) => {
-			ui.hideModal();
-			if (result && result.success) {
-				const msg = enabled ?
-					_('Init script enabled for %s').format(containerName) :
-					_('Init script disabled for %s').format(containerName);
-				podmanUI.successTimeNotification(msg);
-				window.location.reload();
-			} else {
-				throw new Error(result.error || _('Failed to update init script'));
-			}
-		}).catch((err) => {
-			ui.hideModal();
-			podmanUI.errorNotification(
-				`${_('Failed to update init script')}: ${err.message}`);
-		});
-	}
 });

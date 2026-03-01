@@ -2,117 +2,138 @@
 
 'require baseclass';
 'require ui';
-'require dom';
-'require podman.utils as utils';
 'require podman.constants as c';
 
-/**
- * Custom UI components and notification helpers for Podman LuCI application.
- * Provides wrappers for buttons, modals, tables, sections, tabs, and notifications.
- */
-const UINotifications = baseclass.extend({
-	__name__: 'Notifications',
+const AbstractInputField = ui.Textfield.extend({
+	__name__: 'Podman.UI.AbstractInputField',
 
-	/**
-	 * Show spinning modal with loading indicator.
-	 * @param {string} title - Modal title
-	 * @param {string} text - Loading message
-	 */
-	showSpinningModal: function(title, text) {
-		ui.showModal(title, [E('p', { 'class': 'spinning' }, text)]);
+	inputType: 'text',
+
+	__init__(value, options) {
+		this.value = value;
+		this.options = Object.assign({ min: '', max: '' }, options);
 	},
 
-	/**
-	 * Show persistent notification.
-	 * @param {string} text - Message text
-	 * @param {string} [type] - Type (info, warning, error)
-	 */
-	simpleNotification: function (text, type) {
-		ui.addNotification(null, E('p', text), type || 'info');
-	},
+	render() {
+		const frameEl = E('div', { id: this.options.id });
+		const inputEl = E('input', {
+			id: this.options.id ? `widget.${this.options.id}` : null,
+			name: this.options.name,
+			type: this.inputType,
+			class: 'cbi-input-text',
+			readonly: this.options.readonly ? '' : null,
+			disabled: this.options.disabled ? '' : null,
+			min: this.options.min,
+			max: this.options.max,
+			placeholder: this.options.placeholder,
+			value: this.value,
+		});
 
-	infoNotification: function (text) {
-		ui.addNotification(null, E('p', text), 'info');
-	},
+		frameEl.appendChild(inputEl);
 
-	/**
-	 * Show persistent warning.
-	 * @param {string} text - Warning message
-	 */
-	warningNotification: function (text) {
-		ui.addNotification(null, E('p', text), 'warning');
-	},
-
-	/**
-	 * Show persistent error.
-	 * @param {string} text - Error message
-	 */
-	errorNotification: function (text) {
-		ui.addNotification(null, E('p', text), 'error');
-	},
-
-	/**
-	 * Show auto-dismiss notification.
-	 * @param {string} text - Message text
-	 * @param {string} [type] - Type (info, warning, success)
-	 */
-	simpleTimeNotification: function (text, type) {
-		ui.addTimeLimitedNotification(null, E('p', text), c.NOTIFICATION_TIMEOUT, type || 'info');
-	},
-
-	/**
-	 * Show auto-dismiss info message.
-	 * @param {string} text - Info message
-	 */
-	infoTimeNotification: function (text) {
-		ui.addTimeLimitedNotification(null, E('p', text), c.NOTIFICATION_TIMEOUT, 'info');
-	},
-
-	/**
-	 * Show auto-dismiss warning.
-	 * @param {string} text - Warning message
-	 */
-	warningTimeNotification: function (text) {
-		ui.addTimeLimitedNotification(null, E('p', text), c.NOTIFICATION_TIMEOUT, 'warning');
-	},
-
-	/**
-	 * Show auto-dismiss success message.
-	 * @param {string} text - Success message
-	 */
-	successTimeNotification: function (text) {
-		ui.addTimeLimitedNotification(null, E('p', text), c.NOTIFICATION_TIMEOUT, 'success');
+		return this.bind(frameEl);
 	},
 });
 
-const Notification = new UINotifications();
+const UIBase = baseclass.extend({
+	__name__: 'Podman.UI',
 
-/**
- * Standard LuCI button with consistent styling.
- */
+	alert(text, type, timeLimited) {
+		timeLimited = timeLimited === true ? c.NOTIFICATION_TIMEOUT : timeLimited;
+		type = type || 'info';
+
+		if (Array.isArray(text) !== true) {
+			text = E('p', {}, text);
+		}
+
+		if (parseInt(timeLimited) > 0) {
+			ui.addTimeLimitedNotification(type.toUpperCase(), text, timeLimited, type);
+			return;
+		}
+
+		ui.addNotification(type.toUpperCase(), text, type);
+	},
+
+	showSpinningModal(title, text) {
+		ui.showModal(title, [E('div', { class: 'spinning' }, text)], 'loading-modal');
+	},
+});
+
+const UITooltip = baseclass.extend({
+	__name__: 'Podman.UI.Tooltip',
+
+	node: '',
+	tooltip: '',
+	options: {},
+
+	__init__(node, tooltip, options) {
+		this.node = node || '';
+		this.tooltip = tooltip || '';
+		this.options = options || {};
+	},
+
+	render() {
+		const cssClass = 'cbi-tooltip-container';
+		const cls = this.options.class ? `${this.options.class} ${cssClass}` : cssClass;
+		const options = Object.assign({}, this.options, { class: cls });
+
+		return E('div', options, [
+			this.node,
+			E('div', { class: 'cbi-tooltip' }, this.tooltip),
+		]);
+	}
+});
+
+const UISecretText = baseclass.extend({
+	__name__: 'Podman.UI.SecretText',
+
+	value: '',
+	censoredValue: '',
+	show: false,
+
+	__init__(value, censoredValue) {
+		this.value = value;
+		this.censoredValue = censoredValue;
+	},
+
+	render() {
+		const me = this;
+
+		return new UITooltip(
+			me.censoredValue,
+			_('Click to reveal/hide value'),
+			{
+				class: 'tooltip',
+				click() {
+					if (me.show) {
+						me.show = false;
+						this.childNodes[0].nodeValue = me.censoredValue;
+
+						return;
+					}
+
+					me.show = true;
+					this.childNodes[0].nodeValue = me.value;
+				},
+			}
+		).render();
+	}
+});
+
 const UIButton = baseclass.extend({
-	/**
-	 * Initialize button.
-	 * @param {string} text - Button label
-	 * @param {string|Function} href - URL or click handler
-	 * @param {string} [cssClass] - Style (positive, negative, remove, save, apply)
-	 * @param {string} [tooltip] - Tooltip text
-	 */
-	__init__: function(text, href, cssClass, tooltip) {
+	__name__: 'Podman.UI.Button',
+
+	__init__(text, href, cssClass, tooltip) {
 		this.text = text;
 		this.href = href;
 		this.cssClass = cssClass;
 		this.tooltip = tooltip;
 	},
 
-	/**
-	 * Render button element.
-	 * @returns {Element} Button element
-	 */
-	render: function() {
+	render() {
 		const attrs = {
-			'class': this.cssClass ? 'cbi-button cbi-button-' + this.cssClass : 'cbi-button',
-			'click': typeof this.href === 'function' ? this.href : (ev) => {
+			class: this.cssClass ? 'cbi-button cbi-button-' + this.cssClass : 'cbi-button',
+			click: typeof this.href === 'function' ? this.href : (ev) => {
 				ev.preventDefault();
 				window.location.href = this.href;
 			}
@@ -126,371 +147,232 @@ const UIButton = baseclass.extend({
 	}
 });
 
-/**
- * Dropdown button menu using LuCI ComboButton.
- */
-const UIMultiButton = baseclass.extend({
-	cssClass: '',
-	items: [],
+const UIButtonNew = baseclass.extend({
+	__name__: 'Podman.UI.ButtonNew',
 
-	/**
-	 * Initialize multi-button.
-	 * @param {Array|Object} items - Initial items (optional)
-	 * @param {string} [cssClass] - Button style
-	 */
-	__init__: function (items, cssClass) {
-		if (Array.isArray(items)) {
-			items.forEach((item) => {
-				this.addItem(item.text, item.href);
-			});
-		}
-
-		this.cssClass = cssClass;
+	__init__(text, options) {
+		this.options = Object.assign({
+			text: text || '',
+			// class: ''
+			type: '',
+			href: '',
+			click: () => { },
+			tooltip: '',
+		}, options);
 	},
 
-	/**
-	 * Add menu item.
-	 * @param {string} text - Item label
-	 * @param {string|Function} href - URL or click handler
-	 * @returns {UIMultiButton} This for chaining
-	 */
-	addItem: function (text, href) {
-		this.items.push({
-			text,
-			href
-		});
-		return this;
-	},
+	render() {
+		const click = this.options.href
+			? ui.createHandlerFn(this, (event) => {
+				event.preventDefault();
+				window.location.href = this.options.href;
+			})
+			: this.options.click;
 
-	/**
-	 * Render dropdown button.
-	 * @returns {Element|string} ComboButton element
-	 */
-	render: function () {
-		if (this.items.length <= 0) {
-			return '';
+		const button = E('button', {
+			class: `cbi-button cbi-button-${this.options.type}`,
+			click,
+		}, this.options.text);
+
+		if (this.options.tooltip) {
+			return new UITooltip(button, this.options.tooltip).render();
 		}
 
-		const texts = {};
-		const classes = {};
-		const href = {};
-
-		this.items.forEach((item, index) => {
-			texts['item' + index] = item.text;
-			href['item' + index] = item.href;
-			classes['item' + index] = this.cssClass ? 'cbi-button cbi-button-' + this
-				.cssClass : 'cbi-button';
-		});
-
-		return (new ui.ComboButton(
-			texts.item0,
-			texts, {
-				classes,
-				click: function (ev, choice) {
-					if (!href[choice]) {
-						return;
-					}
-
-					ev.preventDefault();
-
-					if (typeof href[choice] === 'function') {
-						href[choice]();
-
-						return;
-					}
-
-					window.location.href = href[choice];
-				},
-			}
-		)).render();
+		return button;
 	}
 });
 
-/**
- * Modal footer with Cancel and Confirm buttons.
- */
-const UIModalButtons = baseclass.extend({
-	/**
-	 * Initialize modal buttons.
-	 * @param {Object} options - Config (cancelText, confirmText, onCancel, onConfirm)
-	 */
-	__init__: function (options) {
-		this.options = options;
+const UIJsonArea = baseclass.extend({
+	__name__: 'Podman.UI.JsonArea',
+
+	__init__(data) {
+		this.data = data || this.data;
 	},
 
-	/**
-	 * Render modal footer.
-	 * @returns {Element} Button container
-	 */
-	render: function() {
-		const wrappedOnConfirm = (ev) => {
-			const modal = ev.target.closest('.modal');
-			if (modal && modal.querySelectorAll('.cbi-input-invalid').length > 0) return;
-			if (this.options.onConfirm) {
-				this.options.onConfirm(ev);
-			}
-		};
+	render() {
+		const data = JSON.stringify(this.data, null, 2);
 
-		return E('div', {
-			'class': 'right',
-			'style': 'margin-top: 15px;'
-		}, [
-			new UIButton(
-				this.options.cancelText || _('Cancel'),
-				this.options.onCancel || ui.hideModal,
-				'negative'
-			).render(),
-			' ',
-			new UIButton(
-				this.options.confirmText || _('OK'),
-				wrappedOnConfirm,
-				this.options.confirmClass || 'positive'
-			).render()
-		]);
-	}
+		return E('pre', { class: 'json-area' }, this.syntaxHighlight(data));
+	},
+
+	syntaxHighlight(json) {
+		json = json
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;");
+
+		return json.replace(
+			/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+			(match) => {
+				let cls = "number";
+				if (/^"/.test(match)) {
+					if (/:$/.test(match)) {
+						cls = "key";
+					} else {
+						cls = "string";
+					}
+				} else if (/true|false/.test(match)) {
+					cls = "boolean";
+				} else if (/null/.test(match)) {
+					cls = "null";
+				}
+				return '<span class="' + cls + '">' + match + "</span>";
+			}
+		);
+	},
+});
+
+const UIBashCodeArea = baseclass.extend({
+	__name__: 'Podman.UI.BashCodeArea',
+
+	code: '',
+
+	__init__(code) {
+		this.code = code || this.code;
+	},
+
+	render() {
+		return E('pre', { class: 'code-area bash' }, this.syntaxHighlight(this.code));
+	},
+
+	syntaxHighlight(code) {
+		const bashRegex = /(#.*)|("(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*')|(\$\w+|\$\{[^}]+\})|\b(if|then|else|elif|fi|case|esac|for|while|do|done|in|break|continue|exit|return|stop_service|start_service)\b|(\b\d+\b)/g;
+
+		return code.replace(bashRegex, (match, comment, string, variable, keyword, number) => {
+			if (comment)  return `<span class="comment">${comment}</span>`;
+			if (string)   return `<span class="string">${string}</span>`;
+			if (variable) return `<span class="variable">${variable}</span>`;
+			if (keyword)  return `<span class="keyword">${keyword}</span>`;
+			if (number)   return `<span class="number">${number}</span>`;
+			return match;
+		});
+	},
 });
 
 /**
  * Table builder with header and row chaining.
  */
 const UITable = baseclass.extend({
-	options: { 'class': 'table' },
+	__name__: 'Podman.UI.Table',
+
+	options: { class: 'table' },
 
 	headers: [],
 	rows: [],
 
-	/**
-	 * Initialize table.
-	 * @param {Object} [options] - Table options
-	 */
-	__init__: function (options) {
+	__init__(options) {
 		this.headers = [];
 		this.rows = [];
-		this.options = Object.assign({ 'class': 'table' }, options || {});
+
+		const baseClass = this.options.class;
+		this.options = Object.assign({}, this.options, options);
+		if (options?.class) this.options.class = `${baseClass} ${options.class}`;
 	},
 
-	/**
-	 * Add header cell.
-	 * @param {string|Element} header - Header content
-	 * @param {Object} [options] - Cell options
-	 * @returns {UITable} This for chaining
-	 */
-	addHeader: function(header, options) {
+	addHeader(header, options) {
 		this.headers.push({
 			inner: header,
-			options: Object.assign({ 'class': 'th' }, options || {}),
+			options: Object.assign({ class: 'th' }, options || {}),
 		});
 
 		return this;
 	},
 
-	/**
-	 * Set all headers at once.
-	 * @param {Array} headers - Header array
-	 * @returns {UITable} This for chaining
-	 */
-	setHeaders: function(headers) {
+	setHeaders(headers) {
 		this.headers = headers;
 
 		return this;
 	},
 
-	/**
-	 * Add data row.
-	 * @param {Array} cells - Cell array
-	 * @param {Object} [options] - Row options
-	 * @returns {UITable} This for chaining
-	 */
-	addRow: function(cells, options) {
+	addRow(cells, options) {
 		this.rows.push({
 			cells,
-			options: Object.assign({ 'class': 'tr' }, options || {}),
+			options: Object.assign({ class: 'tr' }, options || {}),
 		});
 
 		return this;
 	},
 
-	/**
-	 * Set all rows at once.
-	 * @param {Array} rows - Row array
-	 * @returns {UITable} This for chaining
-	 */
-	setRows: function(rows) {
+	setRows(rows) {
 		this.rows = rows;
 
 		return this;
 	},
 
-	/**
-	 * Add label/value row with standard styling.
-	 * @param {string} label - Row label
-	 * @param {string|Element} value - Row value
-	 * @returns {UITable} This for chaining
-	 */
-	addInfoRow: function(label, value) {
-		// Handle HTML values (like '<br>' tags)
-		const valueContent = (typeof value === 'string' && value.indexOf('<br>') !== -1)
-			? E('span', { 'innerHTML': value })
-			: value;
-
-		return this.addRow([
-			{ inner: label },
-			{ inner: valueContent }
-		]);
-	},
-
-	/**
-	 * Render table element.
-	 * @returns {Element} Table element
-	 */
-	render: function() {
+	render() {
 		let headerRow = '';
 
 		if (Array.isArray(this.headers) && this.headers.length > 0) {
-			headerRow = E('tr', {
-					'class': 'tr table-titles'
-				},
-				this.headers.map(function (header) {
-					return E('th', header.options, header.inner);
-				})
+			headerRow = E('tr', { class: 'tr table-titles' },
+				this.headers.map((header) => E('th', header.options, header.inner))
 			);
 		}
 
 		let rows = '';
 
 		if (Array.isArray(this.rows) && this.rows.length > 0) {
-			rows = this.rows.map(function (row) {
-				return E('tr', row.options,
-					row.cells.map(function (cell) {
-						return E('td', Object.assign({ 'class': 'td' }, cell.options || {}), cell.inner);
-					})
-				);
-			});
+			rows = this.rows.map((row) => E('tr', row.options,
+				row.cells.map((cell) => E('td', Object.assign({ class: 'td' }, cell.options || {}), cell.inner))
+			));
 		}
 
 		return E('table', this.options, [headerRow].concat(rows));
 	}
 });
 
-/**
- * Section container with title, description, and content nodes.
- */
-const UISection = baseclass.extend({
-	options: { 'class': 'cbi-section' },
-	nodes: [],
+const UITableList = UITable.extend({
+	__name__: 'Podman.UI.TableList',
 
-	/**
-	 * Initialize section.
-	 * @param {Object} [options] - Section options
-	 */
-	__init__: function (options) {
-		this.nodes = [];
-		this.options = Object.assign(this.options, options || {});
+	options: { class: 'table table-list' },
+
+	addRow(label, value, rowOptions) {
+		return this.super('addRow', [[
+			{ inner: label },
+			{ inner: value }
+		], rowOptions]);
 	},
-
-	/**
-	 * Add content node to section.
-	 * @param {string} title - Node title
-	 * @param {string} description - Node description
-	 * @param {Element} inner - Node content
-	 * @param {Object} [options] - Node options
-	 * @returns {UISection} This for chaining
-	 */
-	addNode: function(title, description, inner, options) {
-		this.nodes.push({
-			title,
-			description,
-			inner,
-			options: Object.assign({ 'class': 'cbi-section-node' }, options || {}),
-		});
-
-		return this;
-	},
-
-	/**
-	 * Render section element.
-	 * @returns {Element} Section element
-	 */
-	render: function() {
-		const nodes = [];
-		this.nodes.map(function(node) {
-			if (node.title) {
-				nodes.push(E('h3', {}, node.title));
-			}
-			if (node.description) {
-				nodes.push(E('div', { 'class': 'cbi-section-descr' }, node.description));
-			}
-			nodes.push(E('div', node.options, Array.isArray(node.inner) ? node.inner : [node.inner]));
-		});
-
-		return E('div', this.options, nodes);
-	}
 });
 
 /**
  * Tabbed interface using LuCI tabs API.
  */
 const UITabs = baseclass.extend({
+	__name__: 'Podman.UI.Tabs',
+
 	tabs: [],
 	activeTab: null,
 
-	/**
-	 * Initialize tabs container.
-	 * @param {string} [activeTab] - Default active tab ID
-	 */
-	__init__: function (activeTab) {
+	__init__(activeTab) {
 		this.tabs = [];
 		this.activeTab = activeTab || null;
 	},
 
-	/**
-	 * Add tab pane.
-	 * @param {string} id - Tab ID
-	 * @param {string} title - Tab title
-	 * @param {Element|string} content - Tab content
-	 * @param {boolean} [active] - Force active
-	 * @returns {UITabs} This for chaining
-	 */
-	addTab: function(id, title, content, active) {
+	addTab(id, title, content, active) {
 		this.tabs.push({
-			id: id,
-			title: title,
-			content: content,
+			id,
+			title,
+			content,
 			active: active || false
 		});
 
 		return this;
 	},
 
-	/**
-	 * Render tab container and initialize LuCI tabs.
-	 * @returns {Element} Tab container
-	 */
-	render: function() {
+	render() {
 		const tabPanes = this.tabs.map((tab, index) => {
 			const isActive = tab.active || (!this.activeTab && index === 0) || (this.activeTab === tab.id);
 
-			const contentEl = typeof tab.content === 'string'
-				? E('div', { 'id': tab.content })
-				: tab.content;
-
 			return E('div', {
-				'class': 'tab-pane',
+				class: 'tab-pane',
 				'data-tab': tab.id,
 				'data-tab-title': tab.title,
 				'data-tab-active': isActive ? 'true' : null
-			}, [contentEl]);
+			}, [tab.content || E('div', { class: 'cbi-section' }, E('div', { class: 'cbi-section-node' }))]);
 		});
 
-		const tabContainer = E('div', {
-			'class': 'cbi-section'
-		}, [
-			E('div', {
-				'class': 'cbi-section-node'
-			}, [
-				E('div', {
-					'class': 'tab-panes'
-				}, tabPanes)
+		const tabContainer = E('div', { class: 'cbi-section' }, [
+			E('div', { class: 'cbi-section-node' }, [
+				E('div', { class: 'tab-panes' }, tabPanes)
 			])
 		]);
 
@@ -503,15 +385,98 @@ const UITabs = baseclass.extend({
 	}
 });
 
-const PodmanUI = UINotifications.extend({
-	__name__: 'PodmanUI',
+const UINumberfield = AbstractInputField.extend({
+	__name__: 'Podman.UI.Numberfield',
+	inputType: 'number',
+});
+
+const UIDatefield = AbstractInputField.extend({
+	__name__: 'Podman.UI.Datefield',
+	inputType: 'date',
+});
+
+const UIModal = baseclass.extend({
+	__name__: 'Podman.UI.Modal',
+
+	title: '',
+	content: null,
+	extraClasses: [],
+
+	__init__(title, content, extraClasses) {
+		this.title = title || this.title;
+		this.content = content || this.content;
+		this.extraClasses = extraClasses || this.extraClasses;
+	},
+
+	render() {
+		ui.showModal(this.title, [
+			E('div', {}, this.getContent()),
+			E('div', { class: 'd-flex justify-end mt-sm gap-5' }, this.getButtons()),
+		], ...this.extraClasses);
+	},
+
+	getContent() {
+		return this.content;
+	},
+
+	getButtons() {
+		const buttons = [];
+
+		if (typeof this.handleClose === 'function') {
+			buttons.push(this.getCloseButton());
+		}
+
+		if (typeof this.handleSubmit === 'function') {
+			buttons.push(this.getOkButton());
+		}
+
+		return buttons;
+	},
+
+	async handleClose() {
+		ui.hideModal();
+	},
+
+	async handleSubmit() {
+		ui.hideModal();
+	},
+
+	getOkButton() {
+		return new UIButtonNew(_('OK'), {
+			click: ui.createHandlerFn(this, 'handleSubmit'),
+			type: 'positive',
+		}).render();
+	},
+
+	getCloseButton() {
+		return new UIButtonNew(_('Close'), {
+			click: ui.createHandlerFn(this, 'handleClose'),
+			type: 'negative',
+		}).render();
+	},
+});
+
+const PodmanUI = UIBase.extend({
+	__name__: 'Podman.UI',
+
+	Modal: UIModal,
 
 	Button: UIButton,
-	MultiButton: UIMultiButton,
-	ModalButtons: UIModalButtons,
-	Section: UISection,
+	ButtonNew: UIButtonNew,
+	// MultiButton: UIMultiButton,
+
+	Numberfield: UINumberfield,
+	Datefield: UIDatefield,
+
+	SecretText: UISecretText,
+
+	JsonArea: UIJsonArea,
+	BashCodeArea: UIBashCodeArea,
+
 	Table: UITable,
+	TableList: UITableList,
 	Tabs: UITabs,
+	Tooltip: UITooltip,
 });
 
 return PodmanUI;

@@ -17,7 +17,6 @@
 					"container_stats",
 					"container_top",
 					"container_healthcheck_run",
-					"container_logs",
 					"images_list",
 					"image_inspect",
 					"image_manifest_inspect",
@@ -47,11 +46,12 @@
 		},
 		"write": {
 			"cgi-io": [
-				"exec"
+				"exec",
+				"upload"
 			],
 			"file": {
-				"/usr/libexec/podman-api volume_import * * *": [
-					"exec"
+				"/tmp/podman-import": [
+					"write"
 				]
 			},
 			"ubus": {
@@ -72,6 +72,7 @@
 					"network_disconnect",
 					"volume_create",
 					"volume_remove",
+					"volume_import",
 					"pod_start",
 					"pod_stop",
 					"pod_restart",
@@ -84,8 +85,7 @@
 					"system_prune",
 					"init_script_generate",
 					"init_script_set_enabled",
-					"init_script_remove",
-					"container_recreate"
+					"init_script_remove"
 				]
 			},
 			"uci": [

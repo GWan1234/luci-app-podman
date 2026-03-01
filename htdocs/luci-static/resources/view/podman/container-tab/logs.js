@@ -1,298 +1,137 @@
 'use strict';
 
-'require baseclass';
-'require dom';
-'require ui';
-'require poll';
-
-'require podman.rpc as podmanRPC';
 'require podman.ui as podmanUI';
-'require podman.constants as constants';
+'require podman.view as podmanView';
 
-const TIMESTAMP_RE = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\s/;
-const TIMESTAMP_RE_GLOBAL = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\s/gm;
-const POLL_TAIL_LINES = 100;
+const TIMESTAMP_RE_GLOBAL = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\s*/g;
+const ANSI_REGEX = /\x1B\[[0-9;]*[A-Za-z]/g;
+const MAX_LOG_LINES = 1000;
 
-/**
- * Container logs tab - displays container logs with optional live streaming.
- * Streaming uses tail+since: server filters by epoch (97% data reduction),
- * client deduplicates sub-second precision via ISO timestamp comparison.
- */
-return baseclass.extend({
-	/**
-	 * Render logs tab content with stream controls
-	 * @param {HTMLElement} content - Container element to render into
-	 * @param {string} containerId - Container ID
-	 */
-	render: function (content, containerId) {
-		this.containerId = containerId;
+return podmanView.tabContent.extend({
+	tab: 'logs',
+	container: null,
 
-		dom.content(content, null);
+	async render(container) {
+		this.container = container;
 
-		const logsDisplay = E('div', {
-			'class': 'cbi-section'
-		}, [
-			E('div', {
-				'class': 'cbi-section-node'
-			}, [
-				E('div', {
-					'class': 'mb-sm'
-				}, [
-					E('label', {
-						'class': 'mr-md'
-					}, [
-						E('input', {
-							'type': 'checkbox',
-							'id': 'log-stream-toggle',
-							'class': 'mr-xs',
-							'checked': 'checked',
-							'change': (ev) => this.toggleLogStream(ev)
-						}),
-						_('Live Stream')
-					]),
-					E('label', {
-						'class': 'mr-md'
-					}, [
-						_('Lines: '),
-						E('input', {
-							'type': 'number',
-							'id': 'log-lines',
-							'class': 'cbi-input-text input-xs ml-xs',
-							'value': '100',
-							'min': '10',
-							'max': '150'
-						})
-					]),
-					new podmanUI.Button(_('Clear'), () => this.clearLogs())
-					.render(),
-					' ',
-					new podmanUI.Button(_('Refresh'), () => this.refreshLogs())
-					.render()
-				]),
-				E('pre', {
-					'id': 'logs-output',
-					'class': 'logs-output'
-				}, _('Loading logs...'))
-			])
+		this.logViewer = E('pre', { id: 'log-viewer', class: 'terminal-area' }, []);
+
+		return this.renderTabContent('', [
+			this.renderLogToolbar(),
+			this.logViewer,
 		]);
-
-		content.appendChild(logsDisplay);
-
-		const tabNode = document.querySelector('[data-tab="logs"]');
-		const mutationObserver = new MutationObserver((mutationsList, observer) => {
-			let activateLogsPoll = true;
-			mutationsList.forEach(mutation => {
-				if (activateLogsPoll === true && mutation.attributeName === 'class' && mutation.target.classList.contains('cbi-tab-disabled') === false) {
-					activateLogsPoll = false;
-					this.startLogStream();
-
-					return;
-				}
-
-				if (activateLogsPoll === true && mutation.attributeName === 'class' && mutation.target.classList.contains('cbi-tab-disabled') === true) {
-					activateLogsPoll = false;
-					this.stopLogStream();
-
-					return;
-				}
-			});
-		});
-
-		mutationObserver.observe(tabNode, { attributes: true });
 	},
 
-	/**
-	 * Fetch last N log lines via RPC
-	 * @param {number} lines - Number of tail lines
-	 * @param {number} [since] - Unix epoch timestamp (0 = no filter)
-	 * @returns {Promise<string>} Log text
-	 */
-	fetchLogs: function (lines, since) {
-		return podmanRPC.container.logs(this.containerId, lines || 100, since || 0)
-			.then((result) => result.logs || '');
-	},
-
-	/**
-	 * Process timestamped log lines: filter duplicates and strip timestamps.
-	 * @param {string} text - Raw log text with timestamps
-	 * @param {string|null} afterTimestamp - Only keep lines with ts > this (null = keep all)
-	 * @returns {{displayText: string, lastTimestamp: string|null}}
-	 */
-	processLines: function (text, afterTimestamp) {
-		if (!text) return { displayText: '', lastTimestamp: null };
-
-		const lines = text.split('\n');
-		const result = [];
-		let lastTimestamp = null;
-
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
-			const match = line.match(TIMESTAMP_RE);
-
-			if (match) {
-				const ts = match[1];
-				if (afterTimestamp && ts <= afterTimestamp) continue;
-				lastTimestamp = ts;
-				result.push(line.substring(match[0].length));
-			} else {
-				result.push(line);
-			}
-		}
-
-		return {
-			displayText: result.join('\n'),
-			lastTimestamp: lastTimestamp
-		};
-	},
-
-	/**
-	 * Refresh logs manually (non-streaming, fetch last N lines)
-	 */
-	refreshLogs: function () {
-		const output = document.getElementById('logs-output');
-		if (!output) return;
-
-		const linesInput = document.getElementById('log-lines');
-		const lines = linesInput ? parseInt(linesInput.value) || 100 : 100;
-
-		output.textContent = _('Loading logs...');
-
-		this.fetchLogs(lines).then((text) => {
-			const cleanText = this.stripAnsi(this.stripTimestamps(text || ''));
-			if (cleanText.trim().length > 0) {
-				output.textContent = cleanText;
-			} else {
-				output.textContent = _('No logs available');
-			}
-			output.scrollTop = output.scrollHeight;
-		}).catch((err) => {
-			output.textContent = _('Failed to load logs: %s').format(err.message);
-		});
-	},
-
-	stripAnsi: function (text) {
-		if (!text) return text;
-		return text.replace(/\x1B\[[\?]?[0-9;]*[a-zA-Z]/g, '');
-	},
-
-	stripTimestamps: function (text) {
-		if (!text) return text;
-		return text.replace(TIMESTAMP_RE_GLOBAL, '');
-	},
-
-	clearLogs: function () {
-		const output = document.getElementById('logs-output');
-		if (output) {
-			output.textContent = '';
+	async onTabActive() {
+		// Running: auto-start live stream. Stopped: load historical logs on demand via play button.
+		if (this.container.isRunning()) {
+			this.startStream();
 		}
 	},
 
-	toggleLogStream: function (ev) {
-		if (ev.target.checked) {
-			this.startLogStream();
-			return;
-		}
-		this.stopLogStream();
+	async onTabInactive() {
+		this.stopStream();
 	},
 
-	/**
-	 * Start log streaming: load initial lines, then poll with tail+dedupe
-	 */
-	startLogStream: function () {
-		if (this.isStartingStream) {
+	async startStream() {
+		if (!this.container || this.logsStream) {
 			return;
 		}
 
-		this.isStartingStream = true;
+		this.logLinesInput.disabled = true;
+		this.logSinceInput.disabled = true;
+		this.logUntilInput.disabled = true;
+		this.playButton.querySelector('.cbi-button').classList.add('cbi-button-active');
+		this.stopButton.querySelector('.cbi-button').classList.remove('cbi-button-active');
 
-		const output = document.getElementById('logs-output');
-		if (!output) {
-			this.isStartingStream = false;
-			return;
-		}
+		this.logViewer.textContent = '';
 
-		const linesInput = document.getElementById('log-lines');
-		const lines = linesInput ? parseInt(linesInput.value) || 100 : 100;
+		const toUnixSince = (val) => val ? new Date(val + 'T00:00:00').getTime() / 1000 : null;
+		const toUnixUntil = (val) => val ? new Date(val + 'T23:59:59').getTime() / 1000 : null;
 
-		output.textContent = _('Loading logs...');
+		this.logsStream = this.container.streamLogs((data) => {
+			if (!data || !data.raw) return;
 
-		this.fetchLogs(lines).then((text) => {
-			const cleanText = this.stripAnsi(text || '');
-			const { displayText, lastTimestamp } = this.processLines(cleanText, null);
+			const line = data.raw
+				.replace(TIMESTAMP_RE_GLOBAL, '')
+				.replace(ANSI_REGEX, '')
+				.trim();
 
-			this.lastTimestamp = lastTimestamp;
+			if (!line) return;
 
-			output.textContent = displayText.trim().length > 0 ? displayText : '';
-			output.scrollTop = output.scrollHeight;
-
-			this.pollNewLogs();
-			this.isStartingStream = false;
-		}).catch((err) => {
-			output.textContent = _('Failed to start log stream: %s').format(err.message);
-			const checkbox = document.getElementById('log-stream-toggle');
-			if (checkbox) checkbox.checked = false;
-			this.isStartingStream = false;
+			this.logViewer.textContent += line + '\n';
+			this.trimLogOutput();
+			this.logViewer.scrollTop = this.logViewer.scrollHeight;
+		}, {
+			tail:   this.logLinesInput.value || 100,
+			since:  toUnixSince(this.logSinceInput.value),
+			until:  toUnixUntil(this.logUntilInput.value),
+			follow: this.container.isRunning(),
 		});
 	},
 
-	/**
-	 * Convert ISO 8601 timestamp to Unix epoch seconds.
-	 * @param {string} isoTs - ISO timestamp (e.g. "2026-02-28T19:06:57.123+01:00")
-	 * @returns {number} Unix epoch seconds (0 if parse fails)
-	 */
-	isoToEpoch: function (isoTs) {
-		if (!isoTs) return 0;
-		const ms = Date.parse(isoTs);
-		return isNaN(ms) ? 0 : Math.floor(ms / 1000);
+	async stopStream() {
+		if (!this.logsStream) return;
+
+		this.logLinesInput.disabled = false;
+		this.logSinceInput.disabled = false;
+		this.logUntilInput.disabled = false;
+		this.playButton.querySelector('.cbi-button').classList.remove('cbi-button-active');
+		this.stopButton.querySelector('.cbi-button').classList.add('cbi-button-active');
+
+		this.logsStream.stop();
+		this.logsStream = null;
 	},
 
-	/**
-	 * Poll for new log lines.
-	 */
-	pollNewLogs: function () {
-		const outputEl = document.getElementById('logs-output');
-		const view = this;
+	renderLogToolbar() {
+		// Fields start disabled only for running containers (stream auto-starts and locks them).
+		// For stopped containers they start enabled so the user can set filters before fetching.
+		const initialDisabled = this.container.isRunning();
+		const linesField = new podmanUI.Numberfield(100, { id: 'log-lines', min: '10', max: '250', disabled: initialDisabled }).render();
+		const sinceField = new podmanUI.Datefield(null, { id: 'log-since', disabled: initialDisabled }).render();
+		const untilField = new podmanUI.Datefield(null, { id: 'log-until', disabled: initialDisabled }).render();
 
-		this.logPollFn = function () {
-			if (!view.logPollFn) return Promise.resolve();
+		this.logLinesInput = linesField.querySelector('input');
+		this.logSinceInput = sinceField.querySelector('input');
+		this.logUntilInput = untilField.querySelector('input');
 
-			// Skip when logs tab is not visible
-			const el = document.getElementById('tab-logs-content');
-			if (!el || !el.offsetParent)
-				return Promise.resolve();
+		this.stopButton = new podmanUI.ButtonNew('&#9724;', {
+			click: () => this.stopStream(),
+			type: ' stop-button',
+			tooltip: _('Stop stream'),
+		}).render();
 
-			const sinceEpoch = view.isoToEpoch(view.lastTimestamp);
-			return view.fetchLogs(POLL_TAIL_LINES, sinceEpoch).then((text) => {
-				const cleanText = view.stripAnsi(text || '');
-				if (cleanText.trim().length === 0) return;
+		this.playButton = new podmanUI.ButtonNew('&#9658;', {
+			click: () => this.startStream(),
+			type: 'active play-button',
+			tooltip: _('Start stream'),
+		}).render();
 
-				const { displayText, lastTimestamp } = view.processLines(cleanText, view.lastTimestamp);
+		return E('div', { class: 'd-flex align-center mb-sm' }, [
+			E('label', { class: 'mr-xs' }, _('Number of lines')),
+			linesField,
+			'',
+			E('label', { class: 'ml-xs mr-xs' }, _('Since')),
+			sinceField,
 
-				if (lastTimestamp) {
-					view.lastTimestamp = lastTimestamp;
-				}
+			E('label', { class: 'ml-xs mr-xs' }, _('Until')),
+			untilField,
 
-				if (displayText.trim().length > 0 && outputEl) {
-					outputEl.textContent += displayText;
-					outputEl.scrollTop = outputEl.scrollHeight;
-				}
-			}).catch((err) => {
-				console.error('Poll error:', err);
-			});
-		};
+			E('div', { class: 'ml-xs' }, ''),
 
-		poll.add(this.logPollFn, constants.POLL_INTERVAL);
+			new podmanUI.ButtonNew('🗑️', {
+				click: () => this.logViewer.textContent = '',
+				tooltip: _('Clear logs'),
+			}).render(),
+			this.stopButton,
+			this.playButton,
+		]);
 	},
 
-	stopLogStream: function () {
-		if (this.logPollFn) {
-			try { poll.remove(this.logPollFn); } catch (e) {}
-			this.logPollFn = null;
+	trimLogOutput() {
+		const lines = this.logViewer.textContent.split('\n');
+		if (lines.length > MAX_LOG_LINES) {
+			this.logViewer.textContent = lines.slice(lines.length - MAX_LOG_LINES).join('\n');
 		}
-		this.lastTimestamp = null;
 	},
-
-	cleanup: function () {
-		this.stopLogStream();
-	}
 });

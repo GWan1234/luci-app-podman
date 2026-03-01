@@ -72,5 +72,49 @@
 			"type": "view",
 			"path": "podman/secrets"
 		}
+	},
+	"admin/podman/stream/logs/*": {
+		"action": {
+			"type": "function",
+			"module": "luci.controller.podman",
+			"function": "container_logs"
+		},
+		"auth": {
+			"methods": ["cookie:sysauth_https", "cookie:sysauth_http"],
+			"login": true
+		}
+	},
+	"admin/podman/stream/top/*": {
+		"action": {
+			"type": "function",
+			"module": "luci.controller.podman",
+			"function": "container_top"
+		},
+		"auth": {
+			"methods": ["cookie:sysauth_https", "cookie:sysauth_http"],
+			"login": true
+		}
+	},
+	"admin/podman/stream/stats/*": {
+		"action": {
+			"type": "function",
+			"module": "luci.controller.podman",
+			"function": "container_stats"
+		},
+		"auth": {
+			"methods": ["cookie:sysauth_https", "cookie:sysauth_http"],
+			"login": true
+		}
+	},
+	"admin/podman/stream/pull": {
+		"action": {
+			"type": "function",
+			"module": "luci.controller.podman",
+			"function": "image_pull"
+		},
+		"auth": {
+			"methods": ["cookie:sysauth_https", "cookie:sysauth_http"],
+			"login": true
+		}
 	}
 }

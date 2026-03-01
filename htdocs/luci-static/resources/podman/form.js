@@ -1,129 +1,156 @@
 'use strict';
 
 'require baseclass';
-'require poll';
 'require ui';
 'require form';
-'require uci';
-'require network';
-'require session';
 
-'require podman.rpc as podmanRPC';
-'require podman.utils as utils';
+'require podman.ui as podmanUI';
+'require podman.utils as podmanUtil';
 
-'require podman.form.container as FormContainer';
-'require podman.form.image as FormImage';
-'require podman.form.network as FormNetwork';
-'require podman.form.network-connect as FormNetworkConnect';
-'require podman.form.pod as FormPod';
-'require podman.form.resource as FormResource';
-'require podman.form.secret as FormSecret';
-'require podman.form.volume as FormVolume';
+const FormMemoryValue = form.Value.extend({
+	placeholder: '512m, 1g, -1',
+	validate(_section_id, value) {
+		if (!value) return true;
+		if (value === '-1' || value === '0') return true;
+		if (!/^\d+(?:\.\d+)?\s*[kmg]b?$/i.test(value)) {
+			return _('Invalid format.') + ' ' + _('Use: 512m, 1g, or -1 for unlimited');
+		}
+		return true;
+	},
+});
 
 /**
- * Checkbox column for row selection in GridSection tables
+ *
+ */
+const FormDummyValue = form.DummyValue.extend({
+	__name__: 'Podman.Form.DummyValue',
+
+	cfgformatter: (cfg, _data) => cfg,
+	cfgdatavalue: (_data) => '',
+	cfgtt: (_cfg, _data) => '',
+
+	cfgvalue(section_id, set_value) {
+		if (section_id == null)
+			L.error('TypeError', 'Section ID required');
+
+		const data = this.map.data.data[section_id];
+		const dataValue = this.cfgdatavalue(data);
+
+		if (dataValue) {
+			return this._renderValue(dataValue, data);
+		}
+
+		if (arguments.length === 2 && set_value) {
+			this.data ??= {};
+			this.data[section_id] = set_value;
+		}
+
+		return this._renderValue(this.data?.[section_id], data);
+	},
+
+	_renderValue(value, data) {
+		const tooltip = this.cfgtt(value, data);
+		const formatted = this.cfgformatter(value, data);
+		return tooltip ? new podmanUI.Tooltip(formatted, tooltip).render() : formatted;
+	},
+});
+
+/**
+ *
  */
 const FormSelectDummyValue = form.DummyValue.extend({
-	__name__: 'CBI.SelectDummyValue',
+	__name__: 'Podman.Form.SelectDummyValue',
 
-	/**
-	 * Render checkbox for row selection
-	 * @param {string} sectionId - Section identifier
-	 * @returns {HTMLElement} Checkbox element
-	 */
-	cfgvalue: function(sectionId) {
+	cfgvalue(sectionId) {
 		return new ui.Checkbox(0, { hiddenname: sectionId }).render();
 	}
 });
 
-const FormContainerMobileActionsValue = form.DummyValue.extend({
-	__name__: 'CBI.ContainerMobileActionsValue',
-});
-
 /**
- * Data display column that extracts and formats a property from row data
+ *
  */
-const FormDataDummyValue = form.DummyValue.extend({
-	__name__: 'CBI.DataDummyValue',
+const FormLinkDummyValue = FormDummyValue.extend({
+	__name__: 'Podman.Form.LinkDummyValue',
 
-	containerProperty: '',
-	cfgdefault: _('Unknown'),
-	cfgtitle: null,
-	cfgformatter: (cfg) => cfg,
+	url: '#',
+	click: undefined,
 
-	/**
-	 * Extract and format data from container object
-	 * @param {string} sectionId - Section identifier
-	 * @returns {HTMLElement} Formatted data element
-	 */
-	cfgvalue: function(sectionId) {
-		const property = this.containerProperty || this.option;
-		if (!property) return '';
-
-		const container = this.map.data.data[sectionId];
-		const cfg = container &&
-			container[property] || container[property.toLowerCase()] ?
-			container[property] || container[property.toLowerCase()] :
-			this.cfgdefault;
-
-		let cfgtitle = null;
-
-		if (this.cfgtitle) {
-			cfgtitle = this.cfgtitle(cfg);
-		}
-
-		return E('span', {
-			title: cfgtitle
-		}, this.cfgformatter(cfg));
-	}
-});
-
-/**
- * Clickable link column that renders data as an anchor element
- */
-const FormLinkDataDummyValue = form.DummyValue.extend({
-	__name__: 'CBI.LinkDataDummyValue',
-
-	text: (_data) => '',
-	click: (_data) => null,
-	linktitle: (_data) => null,
-
-	/**
-	 * Render clickable link with data from container object
-	 * @param {string} sectionId - Section identifier
-	 * @returns {HTMLElement} Link element
-	 */
-	cfgvalue: function(sectionId) {
-		const data = this.map.data.data[sectionId];
+	cfgformatter(cfg, model) {
 		return E('a', {
-			href: '#',
-			title: this.linktitle(data),
+			class: 'text-bold',
+			href: this.url,
 			click: (ev) => {
-				ev.preventDefault();
-				this.click(data);
+				if (typeof this.click === 'function') {
+					ev.preventDefault();
+					this.click(cfg, model);
+				}
 			}
-		}, this.text(data));
+		}, cfg);
 	}
 });
 
 /**
- * Form components registry - exports all form modules and custom field types
+ *
  */
-const PodmanForm = baseclass.extend({
-	Container: FormContainer,
-	Image: FormImage,
-	Network: FormNetwork,
-	Pod: FormPod,
-	Secret: FormSecret,
-	Volume: FormVolume,
-	Resource: FormResource,
-	NetworkConnect: FormNetworkConnect,
+const FormDateDummyValue = FormDummyValue.extend({
+	__name__: 'Podman.Form.DateDummyValue',
+	cfgformatter: podmanUtil.format.date,
+});
+
+/**
+ *
+ */
+const FormTimestampDummyValue = FormDateDummyValue.extend({
+	__name__: 'Podman.Form.TimestampDummyValue',
+	cfgformatter: (value) => podmanUtil.format.date(parseInt(value)),
+});
+
+/**
+ *
+ */
+const FormByteDummyValue = FormDummyValue.extend({
+	__name__: 'Podman.Form.ByteDummyValue',
+	cfgformatter: podmanUtil.format.bytes,
+});
+
+const FormEditableField = baseclass.extend({
+	__name__: 'Podman.Form.EditableField',
+	name: null,
+	formField: null,
+
+	__init__(name, formField, onSubmit) {
+		this.name = name;
+		this.formField = formField;
+		if (onSubmit) {
+			this.onSubmit = onSubmit;
+		}
+	},
+
+	render() {
+		return E('div', { class: `editable-field editable-field-${this.name}` }, [
+			this.formField,
+			new podmanUI.Button(
+				_('Update'),
+				() => this.onSubmit(document.querySelector(`.editable-field-${this.name} [name="${this.name}"]`).value),
+				'apply'
+			).render()
+		]);
+	},
+
+	onSubmit(_value) {}
+});
+
+return baseclass.extend({
+	__name__: 'Podman.Form',
+
+	EditableField: FormEditableField,
 	field: {
-		ContainerMobileActionsValue: FormContainerMobileActionsValue,
-		DataDummyValue: FormDataDummyValue,
-		LinkDataDummyValue: FormLinkDataDummyValue,
+		MemoryValue: FormMemoryValue,
+		DummyValue: FormDummyValue,
+		ByteDummyValue: FormByteDummyValue,
+		DateDummyValue: FormDateDummyValue,
+		LinkDummyValue: FormLinkDummyValue,
 		SelectDummyValue: FormSelectDummyValue,
+		TimestampDummyValue: FormTimestampDummyValue,
 	},
 });
-
-return PodmanForm;

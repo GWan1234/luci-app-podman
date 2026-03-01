@@ -6,32 +6,31 @@
 //   Configuration, validation, HTTP client, helpers
 //
 // RPC Methods (line 228+)
-//   Containers:   list(232) inspect(245) start(254) stop(263) restart(272)
-//                 remove(281) stats(291) create(300) rename(311) update(322)
-//                 healthcheck(358) top(367) logs(379) recreate(414)
-//   Images:       list(464) inspect(471) remove(480) manifest_inspect(489)
-//                 pull(498)
-//   Networks:     list(539) inspect(546) remove(555) create(564) connect(575)
-//                 disconnect(586)
-//   Volumes:      list(599) inspect(606) remove(615) create(624)
-//   Pods:         list(637) inspect(644) start(653) stop(662) restart(671)
-//                 pause(680) unpause(689) remove(698) create(707) stats(718)
-//   Secrets:      list(729) inspect(736) create(745) remove(757)
-//   System:       df(768) prune(775) version(783) info(790) debug(799)
-//   Init Scripts: generate(922) show(951) status(965) set_enabled(986)
-//                 remove(1011)
+//   Containers:   list inspect start stop restart remove stats create rename
+//                 update healthcheck top recreate
+//   Images:       list inspect remove manifest_inspect pull
+//   Networks:     list inspect remove create connect disconnect
+//   Volumes:      list inspect remove create import
+//   Pods:         list inspect start stop restart pause unpause remove create stats
+//   Secrets:      list inspect create remove
+//   System:       df prune version info debug
+//   Init Scripts: generate show status set_enabled remove
+//                 (exempt from socket check — operate on /etc/init.d/ only)
 //
-// Socket wrapper (line 1035)
+// Socket wrapper (end of file)
 
 import { connect } from 'socket';
-import { readfile, writefile, popen, stat, chmod, unlink } from 'fs';
+import { readfile, writefile, popen, stat, chmod, unlink, glob, access } from 'fs';
 import { cursor } from 'uci';
 import { urlencode, ENCODE_FULL } from 'lucihttp';
+import { init_enabled, init_action } from 'luci.sys';
 
 // --- Configuration ---
 
 const uci = cursor();
 const SOCKET = uci.get('podman', 'globals', 'socket_path') || '/run/podman/podman.sock';
+const _prio = uci.get('podman', 'globals', 'init_start_priority');
+const INIT_START_PRIORITY = (_prio && match(_prio, /^([0-9]|[1-9][0-9]|100)$/)) ? _prio : '100';
 uci.unload('podman');
 
 const API_BASE = '/v5.0.0/libpod';
@@ -44,7 +43,7 @@ function validate_id(id) {
 }
 
 function validate_container_name(name) {
-	if (!name || !match(name, /^[a-zA-Z0-9_-]+$/))
+	if (!name || !match(name, /^[a-zA-Z0-9_.-]+$/))
 		return 'Invalid container name format';
 }
 
@@ -216,15 +215,6 @@ function init_script_path(name) {
 	return `/etc/init.d/container-${name}`;
 }
 
-function get_start_priority() {
-	let uci_ctx = cursor();
-	let val = uci_ctx.get('podman', 'globals', 'init_start_priority');
-	uci_ctx.unload('podman');
-	if (val && match(val, /^([0-9]|[1-9][0-9]|100)$/))
-		return val;
-	return '100';
-}
-
 // --- RPC Methods ---
 
 const methods = {
@@ -374,89 +364,6 @@ const methods = {
 			if (req.args.ps_args && req.args.ps_args !== '')
 				path += `?ps_args=${encode_id(req.args.ps_args)}`;
 			return podman_request('GET', path);
-		}
-	},
-
-	container_logs: {
-		args: { id: '', lines: 0, since: 0 },
-		call: function(req) {
-			let err = require_param('id', req.args.id) || validate_id(req.args.id);
-			if (err) return { error: err };
-
-			let path = `${API_BASE}/containers/${encode_id(req.args.id)}/logs?stdout=true&stderr=true&timestamps=true&follow=false`;
-			if (req.args.lines > 0)
-				path += `&tail=${req.args.lines}`;
-			if (req.args.since > 0)
-				path += `&since=${req.args.since}`;
-
-			let resp = podman_request('GET', path, null, true);
-			if (resp.error) return resp;
-
-			// Parse Docker multiplexed stream format
-			// Each frame: [type(1)][pad(3)][size(4 BE)][payload(size)]
-			let body = resp.body;
-			let output = '';
-			let offset = 0;
-			while (offset + 8 <= length(body)) {
-				let frame_size = (ord(body, offset + 4) << 24) |
-					(ord(body, offset + 5) << 16) |
-					(ord(body, offset + 6) << 8) |
-					ord(body, offset + 7);
-				offset += 8;
-				if (offset + frame_size > length(body)) break;
-				output += substr(body, offset, frame_size);
-				offset += frame_size;
-			}
-
-			return { logs: output };
-		}
-	},
-
-	container_recreate: {
-		args: { command: [] },
-		call: function(req) {
-			let cmd = req.args.command;
-			if (!cmd || type(cmd) !== 'array' || length(cmd) < 2)
-				return { error: 'Failed to parse command array' };
-
-			let first = cmd[0];
-			if (first !== 'podman' && first !== '/usr/bin/podman')
-				return { error: 'Invalid command: must start with podman', details: `got: ${first}` };
-
-			let second = cmd[1];
-			if (second !== 'run' && second !== 'create')
-				return { error: 'Invalid command: only run/create subcommands allowed', details: `got: ${second}` };
-
-			if (length(cmd) > 256)
-				return { error: 'Invalid command: too many arguments' };
-
-			// Build shell script with properly escaped arguments
-			let script = '#!/bin/sh\n/usr/bin/podman';
-			for (let i = 1; i < length(cmd); i++) {
-				let escaped = replace(cmd[i], regexp("'", "g"), "'\\''");
-				script += ` '${escaped}'`;
-			}
-			script += '\n';
-
-			let tp = popen('mktemp /tmp/podman_recreate_XXXXXX', 'r');
-			let tmppath = tp ? trim(tp.read('all') || '') : '';
-			if (tp) tp.close();
-			if (!tmppath)
-				return { error: 'Failed to create temp file' };
-
-			writefile(tmppath, script);
-			chmod(tmppath, 0700);
-
-			let p = popen(`${tmppath} 2>&1`, 'r');
-			let result = p ? p.read('all') : '';
-			let exit_code = p ? p.close() : -1;  // null = success, int = failure
-
-			unlink(tmppath);
-
-			if (exit_code)
-				return { error: 'Command failed', details: trim(result || ''), code: `${exit_code}` };
-
-			return { success: true };
 		}
 	},
 
@@ -630,6 +537,45 @@ const methods = {
 			if (err) return { error: err };
 			let body = (type(data) === 'string') ? data : sprintf('%J', data);
 			return podman_request('POST', `${API_BASE}/volumes/create`, body);
+		}
+	},
+
+	volume_import: {
+		args: { name: '', compressed: false },
+		call: function(req) {
+			let name = req.args.name;
+			let err = require_param('name', name) || validate_volume_name(name);
+			if (err) return { error: err };
+
+			let filepath = '/tmp/podman-import';
+			if (!stat(filepath))
+				return { error: 'Upload file not found' };
+
+			let p = popen(sprintf('/usr/bin/podman volume exists "%s" 2>/dev/null; echo $?', name), 'r');
+			let rc = trim(p.read('all') || '');
+			p.close();
+
+			if (rc !== '0') {
+				p = popen(sprintf('/usr/bin/podman volume create "%s" 2>/dev/null', name), 'r');
+				if (p) { p.read('all'); p.close(); }
+			}
+
+			let cmd;
+			if (req.args.compressed === true || req.args.compressed === 1)
+				cmd = sprintf('gunzip -c "%s" | /usr/bin/podman volume import "%s" - 2>&1', filepath, name);
+			else
+				cmd = sprintf('/usr/bin/podman volume import "%s" "%s" 2>&1', name, filepath);
+
+			p = popen(cmd, 'r');
+			let output = p ? trim(p.read('all') || '') : '';
+			let exit_code = p ? p.close() : 1;
+
+			unlink(filepath);
+
+			if (exit_code)
+				return { error: output || 'Import failed' };
+
+			return {};
 		}
 	},
 
@@ -872,12 +818,10 @@ const methods = {
 			// 8. Podman API helper
 			let api_helper = '/usr/libexec/podman-api';
 			let helper_stat = stat(api_helper);
-			if (helper_stat) {
-				if (helper_stat.perm && (helper_stat.perm.user_exec || helper_stat.perm.group_exec || helper_stat.perm.other_exec)) {
-					push(checks, { name: 'podman_api_helper', label: 'Podman API Helper', status: 'ok', detail: api_helper, message: 'Executable' });
-				} else {
-					push(checks, { name: 'podman_api_helper', label: 'Podman API Helper', status: 'warn', detail: api_helper, message: 'Exists but not executable' });
-				}
+			if (access(api_helper, 'x')) {
+				push(checks, { name: 'podman_api_helper', label: 'Podman API Helper', status: 'ok', detail: api_helper, message: 'Executable' });
+			} else if (stat(api_helper)) {
+				push(checks, { name: 'podman_api_helper', label: 'Podman API Helper', status: 'warn', detail: api_helper, message: 'Exists but not executable' });
 			} else {
 				push(checks, { name: 'podman_api_helper', label: 'Podman API Helper', status: 'warn', detail: api_helper, message: 'Not found - volume export/import will fail' });
 			}
@@ -906,9 +850,7 @@ const methods = {
 			let net_dir = '/etc/containers/networks';
 			let nd_stat = stat(net_dir);
 			if (nd_stat && nd_stat.type === 'directory') {
-				let p = popen('ls -1 /etc/containers/networks/*.json 2>/dev/null | wc -l', 'r');
-				let count = p ? trim(p.read('all') || '0') : '0';
-				if (p) p.close();
+				let count = length(glob('/etc/containers/networks/*.json') ?? []);
 				push(checks, { name: 'network_config_dir', label: 'Network Config Dir', status: 'ok', detail: net_dir, message: `${count} network(s)` });
 			} else {
 				push(checks, { name: 'network_config_dir', label: 'Network Config Dir', status: 'warn', detail: net_dir, message: 'Not found' });
@@ -927,7 +869,7 @@ const methods = {
 			if (err) return { error: err };
 
 			let name = req.args.name;
-			let start_priority = get_start_priority();
+			let start_priority = INIT_START_PRIORITY;
 			let script_name = `container-${name}`;
 			let script_path = init_script_path(name);
 
@@ -955,11 +897,12 @@ const methods = {
 			let err = require_param('name', req.args.name) || validate_container_name(req.args.name);
 			if (err) return { error: err };
 
-			let content = readfile(init_script_path(req.args.name));
+			let path = init_script_path(req.args.name);
+			let content = readfile(path);
 			if (content == null)
 				return { error: 'Init script not found' };
 
-			return { content: content };
+			return { content: content, path: path };
 		}
 	},
 
@@ -973,12 +916,8 @@ const methods = {
 			let exists = !!stat(script_path);
 			let enabled = false;
 
-			if (exists) {
-				let p = popen(`${script_path} enabled >/dev/null 2>&1; echo $?`, 'r');
-				let rc = p ? trim(p.read('all') || '') : '';
-				if (p) p.close();
-				enabled = (rc === '0');
-			}
+			if (exists)
+				enabled = init_enabled(`container-${req.args.name}`);
 
 			return { exists: exists, enabled: enabled };
 		}
@@ -995,14 +934,8 @@ const methods = {
 				return { error: 'Init script not found. Generate it first.' };
 
 			let action = (req.args.enabled === true || req.args.enabled === 1) ? 'enable' : 'disable';
-			let p = popen(`${script_path} ${action} 2>&1; echo $?`, 'r');
-			let output = p ? trim(p.read('all') || '') : '';
-			if (p) p.close();
-
-			// Last line is the exit code
-			let lines = split(output, '\n');
-			let rc = pop(lines);
-			if (rc !== '0')
+			let rc = init_action(`container-${req.args.name}`, action);
+			if (rc)
 				return { error: `Failed to ${action} service` };
 
 			return { success: true, enabled: (action === 'enable') };
@@ -1020,7 +953,7 @@ const methods = {
 				return { success: true, message: 'Init script does not exist' };
 
 			// Disable before removing
-			popen(`${script_path} disable >/dev/null 2>&1`, 'r')?.close();
+			init_action(`container-${req.args.name}`, 'disable');
 			unlink(script_path);
 
 			if (stat(script_path))
@@ -1034,7 +967,14 @@ const methods = {
 // --- Socket check wrapper ---
 // Wrap all methods except system_debug with a socket availability check
 
-const no_socket_check = { system_debug: true };
+const no_socket_check = {
+	system_debug: true,
+	init_script_generate: true,
+	init_script_show: true,
+	init_script_status: true,
+	init_script_set_enabled: true,
+	init_script_remove: true
+};
 
 const wrapped_methods = {};
 for (let name in methods) {

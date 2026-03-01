@@ -1,322 +1,204 @@
 'use strict';
 
-'require view';
-'require poll';
 'require ui';
-'require form';
-'require session';
+'require dom';
 
-'require podman.container-util as ContainerUtil';
-'require podman.rpc as podmanRPC';
-'require podman.utils as utils';
 'require podman.ui as podmanUI';
 'require podman.form as podmanForm';
-'require podman.format as format';
-'require podman.openwrt-network as openwrtNetwork';
+'require podman.view as podmanView';
+'require podman.model.Container as Container';
+'require podman.form.resource as PodmanFormResource';
 
-'require view.podman.container-tab.info as containerInfo';
-'require view.podman.container-tab.stats as containerStats';
-'require view.podman.container-tab.logs as containerLogs';
-'require view.podman.container-tab.health as containerHealth';
-
-utils.addPodmanCss().addCss('view/podman/container.css');
+'require view.podman.container-tab.info as ContainerInfoTab';
+'require view.podman.container-tab.stats as ContainerStatsTab';
+'require view.podman.container-tab.processes as ContainerProcessesTab';
+'require view.podman.container-tab.logs as ContainerLogsTab';
 
 /**
  * Container detail view with tabbed interface
  */
-return view.extend({
-	handleSaveApply: null,
-	handleSave: null,
-	handleReset: null,
+return podmanView.base.extend({
+	container: null,
+	data: null,
 
-	/**
-	 * Load container data on view initialization
-	 * Networks are loaded asynchronously in info tab for faster initial render
-	 * @returns {Promise<Object>} Container inspect data
-	 */
-	load: async function () {
+	async load() {
 		// Extract container ID from URL path
 		// URL format: /cgi-bin/luci/admin/podman/container/<id>
-		const path = window.location.pathname;
+		const path = L.location();
 		const matches = path.match(/container\/([a-f0-9]+)/i);
 
 		if (!matches || !matches[1]) {
-			return Promise.resolve({
-				error: _('No container ID in URL')
-			});
+			this.redirectToList();
+			return;
 		}
 
 		const containerId = matches[1];
+		const container = Container.getSingleton({ Id: containerId });
 
-		return podmanRPC.container.inspect(containerId)
-			.then((container) => {
-				return {
-					containerId,
-					container,
-					networks: null // Loaded async in info tab
-				};
-			}).catch((err) => {
-				return {
-					error: err.message || _('Failed')
-				};
+		return container.inspect()
+			.then((inspectData) => {
+				this.data = inspectData;
+				return Container.getSingleton(inspectData);
 			});
 	},
 
-	/**
-	 * Render the container detail view
-	 * @param {Object} data - Container and network data from load()
-	 * @returns {Element} Container detail view element
-	 */
-	render: function (data) {
-		// Handle errors from load() - redirect to containers list
-		// Check for error, missing container, or invalid container data (no Id means container doesn't exist)
-		if (data && data.error || !data.container || !data.container.Id) {
-			podmanUI.warningTimeNotification(data.error || _('Not found'));
-
-			window.location.href = L.url('admin/podman/containers');
-
-			return E('div', {}, _('Redirecting to containers list...'));
+	async render(container) {
+		if (!container) {
+			this.redirectToList();
+			return;
 		}
 
-		// Store data for use in methods
-		this.containerId = data.containerId;
-		this.containerData = data.container;
-		this.networksData = data.networks;
+		this.container = container;
 
-		// Create header with container name and status
-		const name = this.containerData.Name ?
-			this.containerData.Name.replace(/^\//, '')
-			:
-			this.containerId.substring(0, 12);
-		const state = this.containerData.State || {};
-		const status = state.Status || _('Unknown').toLowerCase();
-
-		const header = E('div', {
-			'style': 'margin-bottom: 20px;'
-		}, [
-			E('h2', {}, [
-				name,
-				' ',
-				E('span', {
-					'class': 'container-status container-status-' + status.toLowerCase(),
-				}, status)
-			]),
-			E('div', {
-				'style': 'margin-top: 10px;'
-			}, [
-				this.createActionButtons(this.containerId, name, status === 'running')
-			])
-		]);
-
-		// Build tabs using podmanUI.Tabs helper
 		const tabs = new podmanUI.Tabs('info');
 		tabs
-			.addTab('info', _('Info'), 'tab-info-content')
-			.addTab('resources', _('Resources'), 'tab-resources-content')
-			.addTab('stats', _('Stats'), E('div', {
-				'id': 'tab-stats-content'
-			}, [
-				E('p', {}, _('Loading...'))
-			]))
-			.addTab('logs', _('Logs'), E('div', {
-				'id': 'tab-logs-content'
-			}, [
-				E('p', {}, _('Loading...'))
-			]))
-			.addTab('health', _('Health'), E('div', {
-				'id': 'tab-health-content'
-			}, [
-				E('p', {}, _('Loading...'))
-			]))
-			.addTab('inspect', _('Inspect'), 'tab-inspect-content')
-			.addTab('console', _('Console'), E('div', {
-				'id': 'tab-console-content'
-			}, [
-				E('p', {}, _('Terminal access coming soon...'))
-			]));
+			.addTab('info', _('Info'))
+			.addTab('resources', _('Resources'))
+			.addTab('stats', _('Stats'))
+			.addTab('ps', _('Processes'))
+			.addTab('logs', _('Logs'))
+			// .addTab('health', _('Health'))
+			.addTab('inspect', _('Inspect'))
+			// .addTab('console', _('Console'))
+		;
 
-		// Render tab container (includes automatic tab initialization)
-		const tabContainer = tabs.render();
-
-		// Load tab contents after DOM is ready
 		requestAnimationFrame(() => {
 			this.renderInfoTab();
 			this.renderResourcesTab();
 			this.renderStatsTab();
+			this.renderProcessesTab();
 			this.renderLogsTab();
-			this.renderHealthTab();
 			this.renderInspectTab();
 		});
 
-		return E('div', {}, [header, tabContainer]);
+		window.addEventListener('pagehide', () => this.stopStreams(), { once: true });
+
+		return E('div', {}, [ this.createHeader(), tabs.render() ]);
 	},
 
-	/**
-	 * Create action buttons for container
-	 * @param {string} id - Container ID
-	 * @param {string} name - Container name
-	 * @param {boolean} isRunning - Whether container is running
-	 * @returns {Element} Button group
-	 */
-	createActionButtons: function (id, name, isRunning) {
-		const buttons = [];
+	stopStreams() {
+		this.getTabInstance('stats')?.onTabInactive();
+		this.getTabInstance('ps')?.onTabInactive();
+		this.getTabInstance('logs')?.onTabInactive();
+	},
 
-		if (isRunning) {
-			buttons.push(new podmanUI.Button(_('Stop'), () => this.handleStop(id), 'negative')
-				.render());
-		} else {
-			buttons.push(new podmanUI.Button(_('Start'), () => this.handleStart(id), 'positive')
-				.render());
+	redirectToList() {
+		this.stopStreams();
+		window.location.href = L.url('admin/podman/containers');
+	},
+
+	getTabInstance(name) {
+		const tabNode = document.querySelector(`.tab-pane[data-tab="${name}"]`);
+		return tabNode ? dom.findClassInstance(tabNode) : null;
+	},
+
+	createHeader() {
+		return E('div', { class: 'mb-sm container-toolbar' }, [
+			E('div', { class: 'd-flex align-start' }, [
+				E('h2', { class: 'mb-sm' }, [ this.container.getName() ]),
+				new podmanUI.ButtonNew('&#128281;', {
+					click: () => {
+						this.redirectToList();
+					},
+					type: 'none',
+				}).render(),
+			]),
+			E('div', { class: 'd-flex align-center' }, [
+				new podmanUI.ButtonNew('&#9658;', {
+					click: ui.createHandlerFn(this, 'handleStart'),
+					type: this.container.getState() === 'running' ? 'active' : '',
+				}).render(),
+				new podmanUI.ButtonNew('&#9724;', {
+					click: ui.createHandlerFn(this, 'handleStop'),
+					type: this.container.getState() === 'exited' || this.container.getState() === 'created' ? 'active' : '',
+				}).render(),
+				new podmanUI.ButtonNew('&#8635;', {
+					click: ui.createHandlerFn(this, 'handleRestart'),
+				}).render(),
+				new podmanUI.ButtonNew(_('Delete'), {
+					click: ui.createHandlerFn(this, 'handleRemove'),
+					type: 'negative',
+				}).render(),
+			]),
+		]);
+	},
+
+	async renderTab(tab, content, description) {
+		const tabContainer = document.querySelector(`.tab-pane[data-tab="${tab}"]`);
+		const tabContainerNode = tabContainer?.querySelector('.cbi-section-node');
+
+		if (!tabContainerNode) return;
+
+		if (description) {
+			tabContainer.insertBefore(E('div', {
+				class: 'cbi-section-descr'
+			}, description), tabContainer.firstChild);
 		}
 
-		buttons.push(' ');
-		buttons.push(new podmanUI.Button(_('Restart'), () => this.handleRestart(id)).render());
-
-		buttons.push(' ');
-		buttons.push(new podmanUI.Button(_('Remove'), () => this.handleRemove(id, name), 'remove')
-			.render());
-
-		buttons.push(' ');
-
-		// Determine back button destination from query parameter
-		const urlParams = new URLSearchParams(window.location.search);
-		const from = urlParams.get('from');
-		let backUrl = L.url('admin/podman/containers');
-		let backText = _('Back to Containers');
-
-		if (from === 'pods') {
-			backUrl = L.url('admin/podman/pods');
-			backText = _('Back to Pods');
-		}
-
-		buttons.push(new podmanUI.Button(backText, backUrl).render());
-
-		return E('div', {}, buttons);
+		dom.content(tabContainerNode, content);
 	},
 
-	/**
-	 * Render Info tab with container details and configuration
-	 */
-	renderInfoTab: async function () {
-		const container = document.getElementById('tab-info-content');
-		if (!container) return;
-
-		containerInfo.render(container, this.containerId, this.containerData, this.networksData);
+	async renderInfoTab() {
+		ContainerInfoTab.render(this.container)
+			.then((content) => this.renderTab('info', content));
 	},
 
-	/**
-	 * Render Resources tab with CPU, memory, and I/O limit configuration
-	 */
-	renderResourcesTab: function () {
-		const container = document.getElementById('tab-resources-content');
-		if (!container) return;
-
-		const editor = new podmanForm.Resource.init();
-		editor.render(this.containerId, this.containerData).then((renderedForm) => {
-			const wrapper = E('div', {
-				'class': 'cbi-section'
-			}, [
-				E('div', {
-					'class': 'cbi-section-descr'
-				}, _(
-					'Configure resource limits for this container. Changes will be applied immediately.'
-				)),
-				renderedForm
-			]);
-			container.appendChild(wrapper);
-		});
+	async renderResourcesTab() {
+		new PodmanFormResource.init().render(this.container)
+			.then((resourceForm) =>
+				this.renderTab('resources', resourceForm, _('Configure resource limits for this container.')));
 	},
 
-	/**
-	 * Render Stats tab with resource usage metrics
-	 */
-	renderStatsTab: function () {
-		const content = document.getElementById('tab-stats-content');
-		if (!content) return;
-
-		containerStats.render(content, this.containerId, this.containerData);
+	async renderStatsTab() {
+		ContainerStatsTab.render(this.container)
+			.then((content) => this.renderTab('stats', content));
 	},
 
-	/**
-	 * Render Logs tab with streaming and non-streaming log viewer
-	 */
-	renderLogsTab: function () {
-		const content = document.getElementById('tab-logs-content');
-		if (!content) return;
-
-		containerLogs.render(content, this.containerId);
+	async renderProcessesTab() {
+		ContainerProcessesTab.render(this.container)
+			.then((content) => this.renderTab('ps', content));
 	},
 
-	/**
-	 * Render Health tab with health check status, history, and configuration (read-only)
-	 */
-	renderHealthTab: function () {
-		const content = document.getElementById('tab-health-content');
-		if (!content) return;
-
-		containerHealth.render(content, this.containerId, this.containerData);
+	async renderLogsTab() {
+		ContainerLogsTab.render(this.container)
+			.then((content) => this.renderTab('logs', content));
 	},
 
-	/**
-	 * Render Inspect tab with full JSON container data
-	 */
-	renderInspectTab: function () {
-		const container = document.getElementById('tab-inspect-content');
-		if (!container) return;
-
-		const data = this.containerData;
-
-		const jsonSection = new podmanUI.Section();
-		jsonSection.addNode(
-			'',
-			'',
-			E('pre', { 'class': 'code-area' }, JSON.stringify(data, null, 2))
-		);
-
-		container.appendChild(jsonSection.render());
+	async renderInspectTab() {
+		this.renderTab('inspect', new podmanUI.JsonArea(this.data).render());
 	},
 
-	/**
-	 * Handle container start action
-	 * @param {string} id - Container ID
-	 */
-	handleStart: function (id) {
-		ContainerUtil.startContainers(id).then(() => {
-			window.location.reload();
-		});
-	},
-
-	/**
-	 * Handle container stop action
-	 * @param {string} id - Container ID
-	 */
-	handleStop: function (id) {
-		ContainerUtil.stopContainers(id).then(() => {
-			window.location.reload();
-		});
-	},
-
-	/**
-	 * Handle container restart action
-	 * @param {string} id - Container ID
-	 */
-	handleRestart: function (id) {
-		ContainerUtil.restartContainers(id).then(() => {
-			window.location.reload();
-		});
-	},
-
-	/**
-	 * Handle container remove action
-	 * @param {string} id - Container ID
-	 * @param {string} name - Container name
-	 */
-	handleRemove: function (id, name) {
-		if (!confirm(_('Are you sure you want to delete %s?').format(name)))
+	async handleStart() {
+		if (this.container.getState() === 'running') {
 			return;
+		}
 
-		ContainerUtil.removeContainers(id).then(() => {
-			window.location.href = L.url('admin/podman/containers');
+		this.loading(_('Start container'));
+		this.container.start().then(() => window.location.reload());
+	},
+
+	async handleStop() {
+		if (this.container.getState() === 'exited' || this.container.getState() === 'created') {
+			return;
+		}
+
+		this.loading(_('Stop container'));
+		this.stopStreams();
+		this.container.stop().then(() => window.location.reload());
+	},
+
+	async handleRestart() {
+		this.loading(_('Restart container'));
+		this.container.restart().then(() => window.location.reload());
+	},
+
+	async handleRemove() {
+		this.confirm([
+			E('p', {}, _('Are you sure to remove container?')),
+		], async () => {
+			this.loading(_('Remove container'));
+			this.container.remove().then(() => this.redirectToList());
 		});
+
 	},
 });
