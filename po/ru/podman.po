@@ -1,0 +1,1493 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-podman\n"
+"Report-Msgid-Bugs-To: https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/issues\n"
+"POT-Creation-Date: 2026-04-12 00:00+0000\n"
+"PO-Revision-Date: 2026-04-12 00:00+0300\n"
+"Last-Translator: Your Name <your.email@example.com>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 3.4\n"
+
+msgid "-- Select %s --"
+msgstr "-- Выберите %s --"
+
+msgid "%d consecutive failures"
+msgstr "%d последовательных неудач"
+
+msgid "%s (%d/%d):"
+msgstr "%s (%d/%d):"
+
+msgid "%s auto-start for %s"
+msgstr "%s автозапуск для %s"
+
+msgid "%s created successfully"
+msgstr "%s успешно создан"
+
+msgid "%s Information"
+msgstr "Информация о %s"
+
+msgid "%s started successfully"
+msgstr "%s успешно запущен"
+
+msgid "%s stopped successfully"
+msgstr "%s успешно остановлен"
+
+msgid "1-253 characters: letters, numbers, underscore (_), hyphen (-) only"
+msgstr "1-253 символа: только буквы, цифры, подчёркивание (_) и дефис (-)"
+
+msgid "Access via host port mapping"
+msgstr "Доступ через маппинг портов хоста"
+
+msgid "All volumes exported successfully"
+msgstr "Все тома успешно экспортированы"
+
+msgid "Allocate container IP from this range"
+msgstr "Выделить IP контейнера из этого диапазона"
+
+msgid "Allocate TTY (-t)"
+msgstr "Выделить TTY (-t)"
+
+msgid "Already configured:"
+msgstr "Уже настроено:"
+
+msgid "Already up-to-date: %s"
+msgstr "Уже актуально: %s"
+
+msgid "Always"
+msgstr "Всегда"
+
+msgid "API Version"
+msgstr "Версия API"
+
+msgid "Are you sure you want to delete %d %s?\n%s"
+msgstr "Вы уверены, что хотите удалить %d %s?\n%s"
+
+msgid "Are you sure you want to delete %s?"
+msgstr "Вы уверены, что хотите удалить %s?"
+
+msgid "Auto Remove (--rm)"
+msgstr "Автоудаление (--rm)"
+
+msgid "Auto-start"
+msgstr "Автозапуск"
+
+msgid "Auto-Update"
+msgstr "Автообновление"
+
+msgid "Automatically configure OpenWrt network interface, bridge, and firewall zone. <strong>Highly recommended</strong> for proper container networking on OpenWrt."
+msgstr "Автоматически настроить сетевой интерфейс OpenWrt, мост и зону брандмауэра. <strong>Настоятельно рекомендуется</strong> для правильной работы сети контейнеров на OpenWrt."
+
+msgid "Automatically start the container after it is created"
+msgstr "Автоматически запускать контейнер после создания"
+
+msgid "Automatically update container when newer image is available. Adds label: io.containers.autoupdate=registry"
+msgstr "Автоматически обновлять контейнер при наличии нового образа. Добавляет метку: `io.containers.autoupdate=registry`"
+
+msgid "Back to Containers"
+msgstr "Назад к контейнерам"
+
+msgid "Back to Pods"
+msgstr "Назад к подам"
+
+msgid "Basic Information"
+msgstr "Основная информация"
+
+msgid "Block I/O"
+msgstr "Блочный ввод/вывод"
+
+msgid "Block IO Weight"
+msgstr "Вес блочного ввода/вывода"
+
+msgid "Block IO weight (relative weight), 10-1000. 0 = use default."
+msgstr "Вес блочного ввода/вывода (относительный вес), 10-1000. 0 = использовать по умолчанию."
+
+msgid "Bridge"
+msgstr "Мост"
+
+msgid "Bridge \"%s\" is already used by interface \"%s\""
+msgstr "Мост \"%s\" уже используется интерфейсом \"%s\""
+
+msgid "Bridge device"
+msgstr "Устройство моста"
+
+msgid "Bridge Interface Name"
+msgstr "Имя интерфейса моста"
+
+msgid "Bridge name is required"
+msgstr "Требуется имя моста"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Cannot setup OpenWrt integration: Network \"%s\" does not have subnet and gateway configured"
+msgstr "Не удалось настроить интеграцию с OpenWrt: для сети \"%s\" не настроены подсеть и шлюз"
+
+msgid "Check for Updates"
+msgstr "Проверить обновления"
+
+msgid "Checking %d containers for updates..."
+msgstr "Проверка %d контейнеров на обновления..."
+
+msgid "Checking %s (%d/%d)..."
+msgstr "Проверка %s (%d/%d)..."
+
+msgid "Choose firewall zone for this network. New zones use safe defaults: input DROP, output ACCEPT, forward REJECT. You can customize zone policies later in Firewall settings."
+msgstr "Выберите зону брандмауэра для этой сети. Новые зоны используют безопасные настройки по умолчанию: вход DROP, выход ACCEPT, пересылка REJECT. Вы можете настроить политики зоны позже в настройках брандмауэра."
+
+msgid "Clean Up Now"
+msgstr "Очистить сейчас"
+
+msgid "Cleanup / Prune"
+msgstr "Очистка / Удаление неиспользуемого"
+
+msgid "Cleanup Complete"
+msgstr "Очистка завершена"
+
+msgid "Cleanup failed: %s"
+msgstr "Ошибка очистки: %s"
+
+msgid "Cleanup successful!"
+msgstr "Очистка успешна!"
+
+msgid "Cleanup Unused Resources"
+msgstr "Очистка неиспользуемых ресурсов"
+
+msgid "Clear"
+msgstr "Очистить"
+
+msgid "Click to load detailed disk usage information for containers, images, and volumes. This may take several seconds with many resources."
+msgstr "Нажмите для загрузки подробной информации об использовании диска контейнерами, образами и томами. Это может занять несколько секунд при большом количестве ресурсов."
+
+msgid "Click to reveal/hide value"
+msgstr "Нажмите для отображения/скрытия значения"
+
+msgid "Close"
+msgstr "Закрыть"
+
+msgid "CMD runs command directly, CMD-SHELL runs command in shell"
+msgstr "CMD запускает команду напрямую, CMD-SHELL запускает команду в оболочке"
+
+msgid "Command"
+msgstr "Команда"
+
+msgid "Command copied to clipboard"
+msgstr "Команда скопирована в буфер обмена"
+
+msgid "Command to run (space-separated)"
+msgstr "Команда для запуска (разделённая пробелами)"
+
+msgid "Command to run for health check. Exit code 0 = healthy, 1 = unhealthy"
+msgstr "Команда для проверки состояния. Код выхода 0 = исправен, 1 = неисправен"
+
+msgid "Configuration"
+msgstr "Конфигурация"
+
+msgid "Configure health check to monitor container health status"
+msgstr "Настройте проверку состояния для мониторинга статуса контейнера"
+
+msgid "Configure resource limits for this container. Changes will be applied immediately."
+msgstr "Настройте ограничения ресурсов для этого контейнера. Изменения будут применены немедленно."
+
+msgid "Connect"
+msgstr "Подключить"
+
+msgid "Connect to"
+msgstr "Подключить к"
+
+msgid "Connect to Network"
+msgstr "Подключить к сети"
+
+msgid "Connected to network successfully"
+msgstr "Успешно подключено к сети"
+
+msgid "Connecting container to network..."
+msgstr "Подключение контейнера к сети..."
+
+msgid "Connecting to Network"
+msgstr "Подключение к сети"
+
+msgid "Console"
+msgstr "Консоль"
+
+msgid "Container"
+msgstr "Контейнер"
+
+msgid "Container created and auto-start configured"
+msgstr "Контейнер создан и настроен автозапуск"
+
+msgid "Container created and started successfully"
+msgstr "Контейнер успешно создан и запущен"
+
+msgid "Container created but failed to start: %s"
+msgstr "Контейнер создан, но не удалось запустить: %s"
+
+msgid "Container created, started, and auto-start configured"
+msgstr "Контейнер создан, запущен и настроен автозапуск"
+
+msgid "Container does not have CreateCommand"
+msgstr "Контейнер не имеет команды создания"
+
+msgid "Container image to use"
+msgstr "Образ контейнера для использования"
+
+msgid "Container must be running to view processes"
+msgstr "Контейнер должен быть запущен для просмотра процессов"
+
+msgid "Container Name"
+msgstr "Имя контейнера"
+
+msgid "Container not running"
+msgstr "Контейнер не запущен"
+
+msgid "Container renamed successfully"
+msgstr "Контейнер успешно переименован"
+
+msgid "Containers"
+msgstr "Контейнеры"
+
+msgid "Copy Command"
+msgstr "Копировать команду"
+
+msgid "Count"
+msgstr "Количество"
+
+msgid "CPU"
+msgstr "ЦП"
+
+msgid "CPU Limit"
+msgstr "Ограничение ЦП"
+
+msgid "CPU shares (relative weight), default is 1024. 0 = use default."
+msgstr "Доли ЦП (относительный вес), по умолчанию 1024. 0 = использовать по умолчанию."
+
+msgid "CPU Shares Weight"
+msgstr "Вес долей ЦП"
+
+msgid "CPU Usage"
+msgstr "Использование ЦП"
+
+msgid "Create %s"
+msgstr "Создать %s"
+
+msgid "Create new zone (will be named: podman_<network-name>)"
+msgstr "Создать новую зону (будет названа: podman_<имя-сети>)"
+
+msgid "Created"
+msgstr "Создано"
+
+msgid "Creating %s"
+msgstr "Создание %s"
+
+msgid "Creating %s..."
+msgstr "Создание %s..."
+
+msgid "Creating auto-start configuration for %s"
+msgstr "Создание конфигурации автозапуска для %s"
+
+msgid "Creating container from image %s..."
+msgstr "Создание контейнера из образа %s..."
+
+msgid "Creating new container..."
+msgstr "Создание нового контейнера..."
+
+msgid "Delete Selected"
+msgstr "Удалить выбранное"
+
+msgid "Deleting %d selected %s..."
+msgstr "Удаление %d выбранных %s..."
+
+msgid "Deleting %s"
+msgstr "Удаление %s"
+
+msgid "Destination"
+msgstr "Назначение"
+
+msgid "Direct access to container on OpenWrt-integrated network"
+msgstr "Прямой доступ к контейнеру в интегрированной сети OpenWrt"
+
+msgid "Disable"
+msgstr "Отключить"
+
+msgid "Disabled"
+msgstr "Отключено"
+
+msgid "Disabling"
+msgstr "Отключение"
+
+msgid "Disconnect"
+msgstr "Отключить"
+
+msgid "Disconnect from network %s?"
+msgstr "Отключить от сети %s?"
+
+msgid "Disconnected from network successfully"
+msgstr "Успешно отключено от сети"
+
+msgid "Disconnecting container from network..."
+msgstr "Отключение контейнера от сети..."
+
+msgid "Disconnecting from Network"
+msgstr "Отключение от сети"
+
+msgid "Disk Usage"
+msgstr "Использование диска"
+
+msgid "dnsmasq exclusion"
+msgstr "исключение dnsmasq"
+
+msgid "Driver"
+msgstr "Драйвер"
+
+msgid "Driver-specific options (comma-separated, e.g., type=tmpfs,o=size=100m)"
+msgstr "Опции драйвера (разделённые запятыми, например, type=tmpfs,o=size=100m)"
+
+msgid "Driver: %s"
+msgstr "Драйвер: %s"
+
+msgid "Enable"
+msgstr "Включить"
+
+msgid "Enable Health Check"
+msgstr "Включить проверку состояния"
+
+msgid "Enable IPv6"
+msgstr "Включить IPv6"
+
+msgid "Enable IPv6 networking"
+msgstr "Включить сеть IPv6"
+
+msgid "Enabled"
+msgstr "Включено"
+
+msgid "Enabling"
+msgstr "Включение"
+
+msgid "Ended"
+msgstr "Завершено"
+
+msgid "Enter secret data (password, token, key, etc.)"
+msgstr "Введите секретные данные (пароль, токен, ключ и т.д.)"
+
+msgid "Enter volume name"
+msgstr "Введите имя тома"
+
+msgid "Entrypoint"
+msgstr "Точка входа"
+
+msgid "Environment Variables"
+msgstr "Переменные окружения"
+
+msgid "Error"
+msgstr "Ошибка"
+
+msgid "Error loading details: %s"
+msgstr "Ошибка загрузки деталей: %s"
+
+msgid "Error polling log stream: %s"
+msgstr "Ошибка опроса потока логов: %s"
+
+msgid "Errors checking: %s"
+msgstr "Ошибки проверки: %s"
+
+msgid "Existing physical interface to use as parent. Required for macvlan/ipvlan networks."
+msgstr "Существующий физический интерфейс для использования в качестве родительского. Требуется для сетей macvlan/ipvlan."
+
+msgid "Export"
+msgstr "Экспорт"
+
+msgid "Export selected volumes"
+msgstr "Экспортировать выбранные тома"
+
+msgid "Exporting selected volumes..."
+msgstr "Экспорт выбранных томов..."
+
+msgid "Exporting Volumes"
+msgstr "Экспорт томов"
+
+msgid "Exposed Ports"
+msgstr "Открытые порты"
+
+msgid "Failed"
+msgstr "Не удалось"
+
+msgid "Failed to check for updates: %s"
+msgstr "Не удалось проверить обновления: %s"
+
+msgid "Failed to connect to network: %s"
+msgstr "Не удалось подключиться к сети: %s"
+
+msgid "Failed to create %s: %s"
+msgstr "Не удалось создать %s: %s"
+
+msgid "Failed to decode logs"
+msgstr "Не удалось декодировать логи"
+
+msgid "Failed to delete %d %s"
+msgstr "Не удалось удалить %d %s"
+
+msgid "Failed to disconnect from network: %s"
+msgstr "Не удалось отключиться от сети: %s"
+
+msgid "Failed to enable init script"
+msgstr "Не удалось включить скрипт инициализации"
+
+msgid "Failed to export volume %s: %s"
+msgstr "Не удалось экспортировать том %s: %s"
+
+msgid "Failed to generate init script"
+msgstr "Не удалось сгенерировать скрипт инициализации"
+
+msgid "Failed to import volume: %s"
+msgstr "Не удалось импортировать том: %s"
+
+msgid "Failed to inspect: %s"
+msgstr "Не удалось проверить: %s"
+
+msgid "Failed to load data: %s"
+msgstr "Не удалось загрузить данные: %s"
+
+msgid "Failed to load disk usage: %s"
+msgstr "Не удалось загрузить использование диска: %s"
+
+msgid "Failed to load init script"
+msgstr "Не удалось загрузить скрипт инициализации"
+
+msgid "Failed to load logs: %s"
+msgstr "Не удалось загрузить логи: %s"
+
+msgid "Failed to load process list: %s"
+msgstr "Не удалось загрузить список процессов: %s"
+
+msgid "Failed to load resources: %s"
+msgstr "Не удалось загрузить ресурсы: %s"
+
+msgid "Failed to parse command: %s"
+msgstr "Не удалось разобрать команду: %s"
+
+msgid "Failed to pull %d %s"
+msgstr "Не удалось загрузить %d %s"
+
+msgid "Failed to pull image"
+msgstr "Не удалось загрузить образ"
+
+msgid "Failed to pull image: %s"
+msgstr "Не удалось загрузить образ: %s"
+
+msgid "Failed to pull some images: %s"
+msgstr "Не удалось загрузить некоторые образы: %s"
+
+msgid "Failed to read file"
+msgstr "Не удалось прочитать файл"
+
+msgid "Failed to refresh: %s"
+msgstr "Не удалось обновить: %s"
+
+msgid "Failed to remove %d %s"
+msgstr "Не удалось удалить %d %s"
+
+msgid "Failed to rename container: %s"
+msgstr "Не удалось переименовать контейнер: %s"
+
+msgid "Failed to restart %d %s"
+msgstr "Не удалось перезапустить %d %s"
+
+msgid "Failed to run health checks on %d %s"
+msgstr "Не удалось выполнить проверки состояния для %d %s"
+
+msgid "Failed to setup auto-start: %s"
+msgstr "Не удалось настроить автозапуск: %s"
+
+msgid "Failed to setup OpenWrt integration: %s"
+msgstr "Не удалось настроить интеграцию с OpenWrt: %s"
+
+msgid "Failed to start %d %s"
+msgstr "Не удалось запустить %d %s"
+
+msgid "Failed to start image pull"
+msgstr "Не удалось начать загрузку образа"
+
+msgid "Failed to start log stream: %s"
+msgstr "Не удалось запустить поток логов: %s"
+
+msgid "Failed to start some pods: %s"
+msgstr "Не удалось запустить некоторые поды: %s"
+
+msgid "Failed to stop %d %s"
+msgstr "Не удалось остановить %d %s"
+
+msgid "Failed to stop some pods: %s"
+msgstr "Не удалось остановить некоторые поды: %s"
+
+msgid "Failed to update init script"
+msgstr "Не удалось обновить скрипт инициализации"
+
+msgid "Failed to update resources: %s"
+msgstr "Не удалось обновить ресурсы: %s"
+
+msgid "Failed to update restart policy: %s"
+msgstr "Не удалось обновить политику перезапуска: %s"
+
+msgid "Failed to update:"
+msgstr "Не удалось обновить:"
+
+msgid "Failed to validate: %s"
+msgstr "Не удалось проверить: %s"
+
+msgid "Failing Streak"
+msgstr "Серия неудач"
+
+msgid "Fetch a container image using Podman."
+msgstr "Загрузить образ контейнера с помощью Podman."
+
+msgid "Fetching information..."
+msgstr "Получение информации..."
+
+msgid "Fetching script"
+msgstr "Получение скрипта"
+
+msgid "Finding containers with auto-update label..."
+msgstr "Поиск контейнеров с меткой автообновления..."
+
+msgid "Firewall Zone"
+msgstr "Зона брандмауэра"
+
+msgid "Gateway"
+msgstr "Шлюз"
+
+msgid "Gateway is required"
+msgstr "Требуется шлюз"
+
+msgid "Gateway must be a valid IP address"
+msgstr "Шлюз должен быть корректным IP-адресом"
+
+msgid "Gateway: %s"
+msgstr "Шлюз: %s"
+
+msgid "Generate"
+msgstr "Сгенерировать"
+
+msgid "Generating Init Script"
+msgstr "Генерация скрипта инициализации"
+
+msgid "Getting container configuration..."
+msgstr "Получение конфигурации контейнера..."
+
+msgid "Grace period before health checks count toward failures. Default: 0s"
+msgstr "Грейс-период до того, как проверки состояния учитываются как неудачи. По умолчанию: 0с"
+
+msgid "Graph Root"
+msgstr "Корень графа"
+
+msgid "Health"
+msgstr "Состояние"
+
+msgid "Health Check Command"
+msgstr "Команда проверки состояния"
+
+msgid "Health Check Configuration"
+msgstr "Конфигурация проверки состояния"
+
+msgid "Health check configuration is set at container creation and cannot be modified. To change it, you must recreate the container."
+msgstr "Конфигурация проверки состояния устанавливается при создании контейнера и не может быть изменена. Для изменения необходимо пересоздать контейнер."
+
+msgid "Health Check Type"
+msgstr "Тип проверки состояния"
+
+msgid "Health checks completed successfully"
+msgstr "Проверки состояния успешно завершены"
+
+msgid "Health Status"
+msgstr "Статус состояния"
+
+msgid "Hostname"
+msgstr "Имя хоста"
+
+msgid "Hostname to assign to the pod"
+msgstr "Имя хоста для назначения поду"
+
+msgid "Id"
+msgstr "ID"
+
+msgid "Image"
+msgstr "Образ"
+
+msgid "Image ID"
+msgstr "ID образа"
+
+msgid "Image pulled successfully"
+msgstr "Образ успешно загружен"
+
+msgid "Images"
+msgstr "Образы"
+
+msgid "Import"
+msgstr "Импорт"
+
+msgid "Import from Compose File"
+msgstr "Импорт из файла Compose"
+
+msgid "Import from Run Command"
+msgstr "Импорт из команды запуска"
+
+msgid "Import Volume"
+msgstr "Импортировать том"
+
+msgid "Import volume from archive: %s"
+msgstr "Импортировать том из архива: %s"
+
+msgid "Importing Volume"
+msgstr "Импорт тома"
+
+msgid "Importing volume..."
+msgstr "Импорт тома..."
+
+msgid "Info"
+msgstr "Инфо"
+
+msgid "Information"
+msgstr "Информация"
+
+msgid "Infra ID"
+msgstr "Infra ID"
+
+msgid "Init Script"
+msgstr "Скрипт инициализации"
+
+msgid "Init script created and enabled for %s"
+msgstr "Скрипт инициализации создан и включён для %s"
+
+msgid "Init script disabled for %s"
+msgstr "Скрипт инициализации отключён для %s"
+
+msgid "Init script enabled for %s"
+msgstr "Скрипт инициализации включён для %s"
+
+msgid "Inspect"
+msgstr "Проверить"
+
+msgid "Interactive"
+msgstr "Интерактивный"
+
+msgid "Interactive (-i)"
+msgstr "Интерактивный (-i)"
+
+msgid "Internal Network"
+msgstr "Внутренняя сеть"
+
+msgid "Interval"
+msgstr "Интервал"
+
+msgid "Interval during start period (podman 4.8+). Default: 5s"
+msgstr "Интервал в течение периода запуска (podman 4.8+). По умолчанию: 5с"
+
+msgid "Invalid format."
+msgstr "Неверный формат."
+
+msgid "Invalid format. Use: 5s, 10s, 30s"
+msgstr "Неверный формат. Используйте: 5с, 10с, 30с"
+
+msgid "Invalid format. Use: 5s, 30s, 1m, 1h"
+msgstr "Неверный формат. Используйте: 5с, 30с, 1м, 1ч"
+
+msgid "IP (optional)"
+msgstr "IP (опционально)"
+
+msgid "IP Address"
+msgstr "IP-адрес"
+
+msgid "IP Range (CIDR)"
+msgstr "Диапазон IP (CIDR)"
+
+msgid "IPv4 Gateway"
+msgstr "Шлюз IPv4"
+
+msgid "IPv4 gateway address"
+msgstr "Адрес шлюза IPv4"
+
+msgid "IPv4 Subnet (CIDR)"
+msgstr "Подсеть IPv4 (CIDR)"
+
+msgid "IPv4 subnet in CIDR notation"
+msgstr "Подсеть IPv4 в нотации CIDR"
+
+msgid "Labels"
+msgstr "Метки"
+
+msgid "Labels in key=value format, one per line"
+msgstr "Метки в формате key=value, по одной на строку"
+
+msgid "Last check: %s"
+msgstr "Последняя проверка: %s"
+
+msgid "Leave empty for automatic IP assignment"
+msgstr "Оставьте пустым для автоматического назначения IP"
+
+msgid "Leave empty for unlimited."
+msgstr "Оставьте пустым для неограниченно."
+
+msgid "Leave empty to auto-generate"
+msgstr "Оставьте пустым для автогенерации"
+
+msgid "Lines: "
+msgstr "Строк: "
+
+msgid "Links"
+msgstr "Ссылки"
+
+msgid "Live Stream"
+msgstr "Живой поток"
+
+msgid "Load Disk Usage Statistics"
+msgstr "Загрузить статистику использования диска"
+
+msgid "Loading %s Details"
+msgstr "Загрузка деталей %s"
+
+msgid "Loading %s..."
+msgstr "Загрузка %s..."
+
+msgid "Loading disk usage data..."
+msgstr "Загрузка данных использования диска..."
+
+msgid "Loading Init Script"
+msgstr "Загрузка скрипта инициализации"
+
+msgid "Loading logs..."
+msgstr "Загрузка логов..."
+
+msgid "Loading process list..."
+msgstr "Загрузка списка процессов..."
+
+msgid "Loading..."
+msgstr "Загрузка..."
+
+msgid "Log stream ended with error"
+msgstr "Поток логов завершился с ошибкой"
+
+msgid "Logs"
+msgstr "Логи"
+
+msgid "Manage Podman %s"
+msgstr "Управление Podman %s"
+
+msgid "Maximum time for health check to complete. Default: 30s"
+msgstr "Максимальное время для завершения проверки состояния. По умолчанию: 30с"
+
+msgid "Memory"
+msgstr "Память"
+
+msgid "Memory %"
+msgstr "Память %"
+
+msgid "Memory + Swap Limit"
+msgstr "Память + Ограничение Swap"
+
+msgid "Memory Limit"
+msgstr "Ограничение памяти"
+
+msgid "Memory limit (e.g., 512m, 1g)"
+msgstr "Ограничение памяти (например, 512м, 1г)"
+
+msgid "Memory limit (e.g., 512m, 1g). Use -1 or 0 to remove limit."
+msgstr "Ограничение памяти (например, 512м, 1г). Используйте -1 или 0 для снятия ограничения."
+
+msgid "Memory Usage"
+msgstr "Использование памяти"
+
+msgid "Mode"
+msgstr "Режим"
+
+msgid "Mount Options"
+msgstr "Опции монтирования"
+
+msgid "Mountpoint"
+msgstr "Точка монтирования"
+
+msgid "Mounts"
+msgstr "Монтирования"
+
+msgid "Must be 0 or between 10 and 1000"
+msgstr "Должно быть 0 или между 10 и 1000"
+
+msgid "Must be between 0 and 262144"
+msgstr "Должно быть между 0 и 262144"
+
+msgid "N/A"
+msgstr "Н/Д"
+
+msgid "Name"
+msgstr "Имя"
+
+msgid "Name for the network"
+msgstr "Имя для сети"
+
+msgid "Name for the pod"
+msgstr "Имя для пода"
+
+msgid "Name of the bridge interface (e.g., podman0, mynet0). Leave empty to use: &lt;network-name&gt;0. Note: If the generated name conflicts with an existing interface, OpenWrt will auto-increment it."
+msgstr "Имя интерфейса моста (например, podman0, mynet0). Оставьте пустым для использования: &lt;имя-сети&gt;0. Примечание: Если сгенерированное имя конфликтует с существующим интерфейсом, OpenWrt автоматически увеличит его."
+
+msgid "Network"
+msgstr "Сеть"
+
+msgid "Network and OpenWrt integration created successfully"
+msgstr "Сеть и интеграция с OpenWrt успешно созданы"
+
+msgid "Network created but OpenWrt integration failed: %s. You may need to configure OpenWrt manually."
+msgstr "Сеть создана, но интеграция с OpenWrt не удалась: %s. Возможно, потребуется настроить OpenWrt вручную."
+
+msgid "Network driver"
+msgstr "Сетевой драйвер"
+
+msgid "Network I/O"
+msgstr "Сетевой ввод/вывод"
+
+msgid "Network interface"
+msgstr "Сетевой интерфейс"
+
+msgid "Network interface \"%s\" already exists with proto \"%s\""
+msgstr "Сетевой интерфейс \"%s\" уже существует с протоколом \"%s\""
+
+msgid "Network Mode"
+msgstr "Сетевой режим"
+
+msgid "Network Name"
+msgstr "Имя сети"
+
+msgid "Network name is required"
+msgstr "Требуется имя сети"
+
+msgid "Network: %s"
+msgstr "Сеть: %s"
+
+msgid "Networks"
+msgstr "Сети"
+
+msgid "Networks deleted but OpenWrt integration removal failed for: %s"
+msgstr "Сети удалены, но не удалось удалить интеграцию с OpenWrt для: %s"
+
+msgid "Networks deleted but OpenWrt integration removal failed for: %s (%s)"
+msgstr "Сети удалены, но не удалось удалить интеграцию с OpenWrt для: %s (%s)"
+
+msgid "Never"
+msgstr "Никогда"
+
+msgid "No"
+msgstr "Нет"
+
+msgid "No %s selected"
+msgstr "%s не выбрано"
+
+msgid "No auto-start configured"
+msgstr "Автозапуск не настроен"
+
+msgid "No container ID in URL"
+msgstr "Нет ID контейнера в URL"
+
+msgid "No containers selected"
+msgstr "Контейнеры не выбраны"
+
+msgid "No containers with auto-update label found."
+msgstr "Контейнеры с меткой автообновления не найдены."
+
+msgid "No data received"
+msgstr "Данные не получены"
+
+msgid "No failures"
+msgstr "Нет неудач"
+
+msgid "No health check configured."
+msgstr "Проверка состояния не настроена."
+
+msgid "No I/O"
+msgstr "Нет ввода/вывода"
+
+msgid "No logs available"
+msgstr "Логи недоступны"
+
+msgid "No process data available"
+msgstr "Данные о процессах недоступны"
+
+msgid "No running processes"
+msgstr "Нет запущенных процессов"
+
+msgid "No selected containers have health checks configured"
+msgstr "Ни один из выбранных контейнеров не имеет настроенной проверки состояния"
+
+msgid "No suitable interfaces found"
+msgstr "Подходящие интерфейсы не найдены"
+
+msgid "No suitable parent interfaces available on this system"
+msgstr "На этой системе нет доступных подходящих родительских интерфейсов"
+
+msgid "No unused resources found"
+msgstr "Неиспользуемые ресурсы не найдены"
+
+msgid "Not available (no restart policy)"
+msgstr "Недоступно (нет политики перезапуска)"
+
+msgid "Not configured"
+msgstr "Не настроено"
+
+msgid "Not found"
+msgstr "Не найдено"
+
+msgid "Note: %d %s have OpenWrt integration that will also be removed."
+msgstr "Примечание: %d %s имеют интеграцию с OpenWrt, которая также будет удалена."
+
+msgid "Number of consecutive failures before marking unhealthy. Default: 3"
+msgstr "Количество последовательных неудач перед отметкой как неисправный. По умолчанию: 3"
+
+msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0)"
+msgstr "Количество ЦП (например, 0.5, 1.0, 2.0)"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "On Failure"
+msgstr "При ошибке"
+
+msgid "Once created, secret data cannot be viewed or retrieved"
+msgstr "После создания секретные данные нельзя просмотреть или получить"
+
+msgid "One per line, format: host:container"
+msgstr "По одному на строку, формат: хост:контейнер"
+
+msgid "One per line, format: key=value"
+msgstr "По одному на строку, формат: key=value"
+
+msgid "One per line, format: source:destination"
+msgstr "По одному на строку, формат: источник:назначение"
+
+msgid "OpenWrt integration for network \"%s\" created successfully"
+msgstr "Интеграция с OpenWrt для сети \"%s\" успешно создана"
+
+msgid "OpenWrt integration incomplete. Click to setup. Missing: %s"
+msgstr "Интеграция с OpenWrt неполная. Нажмите для настройки. Отсутствует: %s"
+
+msgid "OpenWrt integration requires subnet to be specified"
+msgstr "Интеграция с OpenWrt требует указания подсети"
+
+msgid "Output"
+msgstr "Вывод"
+
+msgid "Overview"
+msgstr "Обзор"
+
+msgid "Parent Interface"
+msgstr "Родительский интерфейс"
+
+msgid "Parent interface is required for macvlan/ipvlan networks"
+msgstr "Родительский интерфейс требуется для сетей macvlan/ipvlan"
+
+msgid "Paste a docker or podman run command below:"
+msgstr "Вставьте команду docker или podman run ниже:"
+
+msgid "PIDs"
+msgstr "PID"
+
+msgid "Please enter a run command"
+msgstr "Пожалуйста, введите команду запуска"
+
+msgid "Please enter an image name"
+msgstr "Пожалуйста, введите имя образа"
+
+msgid "Please select a network"
+msgstr "Пожалуйста, выберите сеть"
+
+msgid "Pod"
+msgstr "Под"
+
+msgid "Pod Name"
+msgstr "Имя пода"
+
+msgid "Podman Version"
+msgstr "Версия Podman"
+
+msgid "Pods"
+msgstr "Поды"
+
+msgid "Port Mappings"
+msgstr "Маппинг портов"
+
+msgid "Privileged"
+msgstr "Привилегированный"
+
+msgid "Privileged Mode"
+msgstr "Привилегированный режим"
+
+msgid "Publish ports, one per line (host:container format)"
+msgstr "Опубликовать порты, по одному на строку (формат хост:контейнер)"
+
+msgid "Pull Image"
+msgstr "Загрузить образ"
+
+msgid "Pull Latest"
+msgstr "Загрузить последнюю версию"
+
+msgid "Pull latest version of %d %s?\n%s"
+msgstr "Загрузить последнюю версию %d %s?\n%s"
+
+msgid "Pulling Image"
+msgstr "Загрузка образа"
+
+msgid "Pulling Images"
+msgstr "Загрузка образов"
+
+msgid "Pulling images and comparing digests..."
+msgstr "Загрузка образов и сравнение дайджестов..."
+
+msgid "Pulling latest version of %d %s..."
+msgstr "Загрузка последней версии %d %s..."
+
+msgid "Read: %s / Write: %s"
+msgstr "Чтение: %s / Запись: %s"
+
+msgid "Recent Checks (Last 10)"
+msgstr "Последние проверки (последние 10)"
+
+msgid "Reclaimable"
+msgstr "Возвращаемое"
+
+msgid "Redirecting to containers list..."
+msgstr "Перенаправление к списку контейнеров..."
+
+msgid "Refresh"
+msgstr "Обновить"
+
+msgid "Refreshing %s..."
+msgstr "Обновление %s..."
+
+msgid "Registries"
+msgstr "Реестры"
+
+msgid "Registry"
+msgstr "Реестр"
+
+msgid "Remove"
+msgstr "Удалить"
+
+msgid "Remove all unused images (not just dangling)"
+msgstr "Удалить все неиспользуемые образы (не только висячие)"
+
+msgid "Remove unused volumes"
+msgstr "Удалить неиспользуемые тома"
+
+msgid "Removed %d %s successfully"
+msgstr "Удалено %d %s успешно"
+
+msgid "Removed: %s"
+msgstr "Удалено: %s"
+
+msgid "Removing %d %s..."
+msgstr "Удаление %d %s..."
+
+msgid "Removing old container..."
+msgstr "Удаление старого контейнера..."
+
+msgid "Removing unused resources, please wait..."
+msgstr "Удаление неиспользуемых ресурсов, пожалуйста, подождите..."
+
+msgid "Renaming container..."
+msgstr "Переименование контейнера..."
+
+msgid "Repository"
+msgstr "Репозиторий"
+
+msgid "Resource Limits"
+msgstr "Ограничения ресурсов"
+
+msgid "Resource Usage"
+msgstr "Использование ресурсов"
+
+msgid "Resources"
+msgstr "Ресурсы"
+
+msgid "Resources updated successfully"
+msgstr "Ресурсы успешно обновлены"
+
+msgid "Restart"
+msgstr "Перезапустить"
+
+msgid "Restart Policy"
+msgstr "Политика перезапуска"
+
+msgid "Restart policy set but no init script"
+msgstr "Политика перезапуска установлена, но нет скрипта инициализации"
+
+msgid "Restart policy set but no init script. Click to generate."
+msgstr "Политика перезапуска установлена, но нет скрипта инициализации. Нажмите для генерации."
+
+msgid "Restart policy updated successfully"
+msgstr "Политика перезапуска успешно обновлена"
+
+msgid "Restart selected %s"
+msgstr "Перезапустить выбранные %s"
+
+msgid "Restarted %d %s successfully"
+msgstr "Перезапущено %d %s успешно"
+
+msgid "Restarting %d %s..."
+msgstr "Перезапуск %d %s..."
+
+msgid "Restrict external access to the network"
+msgstr "Ограничить внешний доступ к сети"
+
+msgid "Result"
+msgstr "Результат"
+
+msgid "Retries"
+msgstr "Попытки"
+
+msgid "RPC call failure: "
+msgstr "Ошибка вызова RPC: "
+
+msgid "Run Check"
+msgstr "Выполнить проверку"
+
+msgid "Run Health Check Now"
+msgstr "Выполнить проверку состояния сейчас"
+
+msgid "Run health checks on selected containers"
+msgstr "Выполнить проверки состояния для выбранных контейнеров"
+
+msgid "Run Root"
+msgstr "Корень запуска"
+
+msgid "running"
+msgstr "запущен"
+
+msgid "Running health checks on %d %s..."
+msgstr "Выполнение проверок состояния для %d %s..."
+
+msgid "Running Processes"
+msgstr "Запущенные процессы"
+
+msgid "Secret"
+msgstr "Секрет"
+
+msgid "Secret Data"
+msgstr "Секретные данные"
+
+msgid "Secret data is stored encrypted"
+msgstr "Секретные данные хранятся в зашифрованном виде"
+
+msgid "Secret Name"
+msgstr "Имя секрета"
+
+msgid "Secret name can only contain letters, numbers, underscores, and hyphens"
+msgstr "Имя секрета может содержать только буквы, цифры, подчёркивания и дефисы"
+
+msgid "Secrets"
+msgstr "Секреты"
+
+msgid "Secrets can only be used by containers, not displayed"
+msgstr "Секреты могут использоваться только контейнерами, не отображаются"
+
+msgid "Security Notice:"
+msgstr "Уведомление о безопасности:"
+
+msgid "Select network for the container. User-created networks provide better isolation and DNS resolution between containers."
+msgstr "Выберите сеть для контейнера. Пользовательские сети обеспечивают лучшую изоляцию и разрешение DNS между контейнерами."
+
+msgid "Select what to clean up:"
+msgstr "Выберите, что очистить:"
+
+msgid "Sensitive data is hidden for security reasons."
+msgstr "Конфиденциальные данные скрыты по соображениям безопасности."
+
+msgid "Set a restart policy to enable auto-start"
+msgstr "Установите политику перезапуска для включения автозапуска"
+
+msgid "Setting up auto-start"
+msgstr "Настройка автозапуска"
+
+msgid "Setting up Integration"
+msgstr "Настройка интеграции"
+
+msgid "Setting up OpenWrt integration..."
+msgstr "Настройка интеграции с OpenWrt..."
+
+msgid "Setup"
+msgstr "Настроить"
+
+msgid "Setup OpenWrt Integration"
+msgstr "Настроить интеграцию с OpenWrt"
+
+msgid "Setup OpenWrt integration for network \"%s\"?"
+msgstr "Настроить интеграцию с OpenWrt для сети \"%s\"?"
+
+msgid "Show"
+msgstr "Показать"
+
+msgid "Size"
+msgstr "Размер"
+
+msgid "Socket Path"
+msgstr "Путь к сокету"
+
+msgid "Source"
+msgstr "Источник"
+
+msgid "Space freed: %s"
+msgstr "Освобождено места: %s"
+
+msgid "Start"
+msgstr "Запустить"
+
+msgid "Start after creation"
+msgstr "Запустить после создания"
+
+msgid "Start Interval"
+msgstr "Интервал запуска"
+
+msgid "Start Period"
+msgstr "Период запуска"
+
+msgid "Start selected %s"
+msgstr "Запустить выбранные %s"
+
+msgid "Started"
+msgstr "Запущено"
+
+msgid "Started %d %s successfully"
+msgstr "Запущено %d %s успешно"
+
+msgid "Starting %d %s..."
+msgstr "Запуск %d %s..."
+
+msgid "Starting %s"
+msgstr "Запуск %s"
+
+msgid "Starting %s..."
+msgstr "Запуск %s..."
+
+msgid "Starting container..."
+msgstr "Запуск контейнера..."
+
+msgid "Starting image pull..."
+msgstr "Начало загрузки образа..."
+
+msgid "Starting selected %s..."
+msgstr "Запуск выбранных %s..."
+
+msgid "Starting updates..."
+msgstr "Начало обновлений..."
+
+msgid "Starting..."
+msgstr "Запуск..."
+
+msgid "Static IP (Optional)"
+msgstr "Статический IP (опционально)"
+
+msgid "Stats"
+msgstr "Статистика"
+
+msgid "Status"
+msgstr "Статус"
+
+msgid "Stop"
+msgstr "Остановить"
+
+msgid "Stop selected %s"
+msgstr "Остановить выбранные %s"
+
+msgid "Stopped %d %s successfully"
+msgstr "Остановлено %d %s успешно"
+
+msgid "Stopping %d %s..."
+msgstr "Остановка %d %s..."
+
+msgid "Stopping %s"
+msgstr "Остановка %s"
+
+msgid "Stopping container..."
+msgstr "Остановка контейнера..."
+
+msgid "Stopping selected %s..."
+msgstr "Остановка выбранных %s..."
+
+msgid "Subnet"
+msgstr "Подсеть"
+
+msgid "Subnet is required"
+msgstr "Требуется подсеть"
+
+msgid "Subnet must be in CIDR notation (e.g., 10.129.0.0/24)"
+msgstr "Подсеть должна быть в нотации CIDR (например, 10.129.0.0/24)"
+
+msgid "Subnet: %s"
+msgstr "Подсеть: %s"
+
+msgid "Success"
+msgstr "Успешно"
+
+msgid "Successfully deleted %d %s"
+msgstr "Успешно удалено %d %s"
+
+msgid "Successfully pulled %d %s"
+msgstr "Успешно загружено %d %s"
+
+msgid "Successfully updated: %s"
+msgstr "Успешно обновлено: %s"
+
+msgid "System Maintenance"
+msgstr "Обслуживание системы"
+
+msgid "Tag"
+msgstr "Тег"
+
+msgid "Terminal access coming soon..."
+msgstr "Доступ к терминалу скоро будет доступен..."
+
+msgid "Test Command"
+msgstr "Тестовая команда"
+
+msgid "The sensitive data to store securely"
+msgstr "Конфиденциальные данные для безопасного хранения"
+
+msgid "This typically occurs with many containers. The operation may have timed out."
+msgstr "Это обычно происходит при большом количестве контейнеров. Операция могла превысить время ожидания."
+
+msgid "This will permanently delete unused containers, images, networks, and optionally volumes."
+msgstr "Это навсегда удалит неиспользуемые контейнеры, образы, сети и опционально тома."
+
+msgid "Time between health checks (e.g., 30s, 1m, 5m). Default: 30s"
+msgstr "Время между проверками состояния (например, 30с, 1м, 5м). По умолчанию: 30с"
+
+msgid "Timeout"
+msgstr "Таймаут"
+
+msgid "To enable auto-update for a container, add the label: io.containers.autoupdate=registry"
+msgstr "Для включения автообновления контейнера добавьте метку: `io.containers.autoupdate=registry`"
+
+msgid "To manually recreate, run:"
+msgstr "Для ручного пересоздания выполните:"
+
+msgid "To update a secret, delete and recreate it"
+msgstr "Для обновления секрета удалите и создайте его заново"
+
+msgid "total"
+msgstr "всего"
+
+msgid "Total memory limit (memory + swap). -1 for unlimited swap."
+msgstr "Общее ограничение памяти (память + swap). -1 для неограниченного swap."
+
+msgid "Try Again"
+msgstr "Попробовать снова"
+
+msgid "TTY"
+msgstr "TTY"
+
+msgid "Type"
+msgstr "Тип"
+
+msgid "Unknown"
+msgstr "Неизвестно"
+
+msgid "Unknown error"
+msgstr "Неизвестная ошибка"
+
+msgid "Unless Stopped"
+msgstr "Пока не остановлен"
+
+msgid "Unlimited"
+msgstr "Неограниченно"
+
+msgid "Update"
+msgstr "Обновить"
+
+msgid "Update Check Results"
+msgstr "Результаты проверки обновлений"
+
+msgid "Update complete"
+msgstr "Обновление завершено"
+
+msgid "Update Complete"
+msgstr "Обновление завершено"
+
+msgid "Update failed: %s"
+msgstr "Ошибка обновления: %s"
+
+msgid "Update Resources"
+msgstr "Обновить ресурсы"
+
+msgid "Update Selected"
+msgstr "Обновить выбранное"
+
+msgid "Updates available:"
+msgstr "Доступны обновления:"
+
+msgid "Updating Container"
+msgstr "Обновление контейнера"
+
+msgid "Updating container resources..."
+msgstr "Обновление ресурсов контейнера..."
+
+msgid "Updating Containers"
+msgstr "Обновление контейнеров"
+
+msgid "Updating Init Script"
+msgstr "Обновление скрипта инициализации"
+
+msgid "Updating Resources"
+msgstr "Обновление ресурсов"
+
+msgid "Updating restart policy..."
+msgstr "Обновление политики перезапуска..."
+
+msgid "Use: 512m, 1g"
+msgstr "Используйте: 512м, 1г"
+
+msgid "Use: 512m, 1g, or -1 for unlimited"
+msgstr "Используйте: 512м, 1г или -1 для неограниченно"
+
+msgid "Use: 512m, 1g, or -1 for unlimited swap"
+msgstr "Используйте: 512м, 1г или -1 для неограниченного swap"
+
+msgid "User"
+msgstr "Пользователь"
+
+msgid "Value"
+msgstr "Значение"
+
+msgid "Variable"
+msgstr "Переменная"
+
+msgid "Volume"
+msgstr "Том"
+
+msgid "Volume driver to use"
+msgstr "Драйвер тома для использования"
+
+msgid "Volume imported successfully"
+msgstr "Том успешно импортирован"
+
+msgid "Volume Name"
+msgstr "Имя тома"
+
+msgid "Volume name is required"
+msgstr "Требуется имя тома"
+
+msgid "Volume name. Leave empty to auto-generate."
+msgstr "Имя тома. Оставьте пустым для автогенерации."
+
+msgid "Volumes"
+msgstr "Тома"
+
+msgid "Warning:"
+msgstr "Предупреждение:"
+
+msgid "Will be added:"
+msgstr "Будет добавлено:"
+
+msgid "Working Directory"
+msgstr "Рабочая директория"
+
+msgid "Yes"
+msgstr "Да"
