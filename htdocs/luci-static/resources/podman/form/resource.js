@@ -44,14 +44,15 @@ const PodmanFormResource = podmanView.form.extend({
 		field = this.section.option(form.Value, 'cpuLimit', _('CPU Limit'));
 		field.datatype = 'ufloat';
 		field.placeholder = '0.5, 1.0, 2.0';
-		field.description = _('Number of CPUs (e.g., 0.5, 1.0, 2.0)') + ' ' + _('Leave empty for unlimited.');
+		field.description = _('Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited.');
 
 		field = this.section.option(form.Value, 'cpuShares', _('CPU Shares Weight'));
 		field.datatype = 'uinteger';
 		field.placeholder = '1024';
 		field.validate = (_section_id, value) => {
-			if (value && (parseInt(value) < 0 || parseInt(value) > 262144)) {
-				return _('Must be between 0 and 262144');
+			if (value) {
+				const n = parseInt(value);
+				if (n < 0 || n > 262144) return _('Must be between 0 and 262144');
 			}
 			return true;
 		};
@@ -81,19 +82,11 @@ const PodmanFormResource = podmanView.form.extend({
 			},
 		};
 
-		let memory;
-		if (!data.memory || data.memory === '-1' || data.memory === '0') {
-			memory = -1;
-		} else {
-			memory = podmanUtil.format.parseMemory(data.memory);
-		}
+		const parseMemory = (val) =>
+			(!val || val === '-1' || val === '0') ? -1 : podmanUtil.format.parseMemory(val);
 
-		let memorySwap;
-		if (!data.memorySwap || data.memorySwap === '-1' || data.memorySwap === '0') {
-			memorySwap = -1;
-		} else {
-			memorySwap = podmanUtil.format.parseMemory(data.memorySwap);
-		}
+		const memory = parseMemory(data.memory);
+		const memorySwap = parseMemory(data.memorySwap);
 
 		if (data.cpuLimit) {
 			const period = 100000;
@@ -101,19 +94,16 @@ const PodmanFormResource = podmanView.form.extend({
 			updateData.cpu.period = period;
 		}
 
-		if (memory !== null) {
-			updateData.memory = { limit: memory };
-
-			if (memory === -1 || memorySwap === -1) {
-				updateData.memory.swap = -1;
-			} else if (memorySwap > 0) {
-				updateData.memory.swap = memorySwap;
-			} else if (!memorySwap || memorySwap === 0) {
-				updateData.memory.swap = null;
-			}
+		updateData.memory = { limit: memory };
+		if (memory === -1 || memorySwap === -1) {
+			updateData.memory.swap = -1;
+		} else if (memorySwap > 0) {
+			updateData.memory.swap = memorySwap;
+		} else {
+			updateData.memory.swap = null;
 		}
 
-		const createFn = async () => this.container.update(updateData);
+		const createFn = () => this.container.update(updateData);
 
 		return this.super('handleCreate', [ createFn, _('Saving resource'), _('Updating container'), _('Container updated successfully') ]);
 	},

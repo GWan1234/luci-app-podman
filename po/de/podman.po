@@ -1405,3 +1405,18 @@ msgstr "Arbeitsverzeichnis"
 
 msgid "Yes"
 msgstr "Ja"
+
+msgid "%s: %d/%d"
+msgstr "%s: %d/%d"
+
+msgid "Error: %s"
+msgstr "Fehler: %s"
+
+msgid "Exporting selected volumes: %d/%d"
+msgstr "Ausgewählte Volumes werden exportiert: %d/%d"
+
+msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
+msgstr "Anzahl der CPUs (z. B. 0.5, 1.0, 2.0). Leer lassen für unbegrenzt."
+
+msgid "Start script missing\n\nClick to generate"
+msgstr "Startskript fehlt\n\nKlicken zum Generieren"

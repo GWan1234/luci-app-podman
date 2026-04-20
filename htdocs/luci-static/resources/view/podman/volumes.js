@@ -39,7 +39,7 @@ return podmanView.list.extend({
 
 		o = this.section.option(podmanForm.field.LinkDummyValue, 'VolumeName', _('Name'));
 		o.cfgdatavalue = (volume) => utils.truncate(volume.getName(), 20);
-		o.cfgtt = (_cfg, volume) => volume.getName().length >= 20 ? volume.getName() : '';
+		o.cfgtt = (_cfg, volume) => volume.getName().length > 20 ? volume.getName() : '';
 		o.click = (_cfg, volume) => this.section.handleInspect(volume);
 
 		o = this.section.option(podmanForm.field.DummyValue, 'Driver', _('Driver'));
@@ -61,29 +61,26 @@ return podmanView.list.extend({
 			class: 'hidden'
 		});
 
-		const sectionSelect = this.section;
-		fileInput.addEventListener('change', (ev) => {
+		fileInput.addEventListener('change', async (ev) => {
 			document.body.removeChild(fileInput);
 			const file = ev.target.files[0];
 			if (!file) return;
 
 			const importForm = new PodmanFormVolumeImport.init();
-
-			importForm.render(file).then((formContent) => {
-				const title = _('Import from archive: %s').format(file.name);
-				const modal = new podmanUI.Modal(title, [ formContent ]);
-				modal.getButtons = () => [
-					modal.getCloseButton(),
-					new podmanUI.ButtonNew(_('Import'), {
-						click: async () => {
-							await importForm.handleCreate()
-							await sectionSelect.handleRefresh();
-						},
-						type: 'positive',
-					}).render(),
-				];
-				modal.render();
-			});
+			const formContent = await importForm.render(file);
+			const title = _('Import from archive: %s').format(file.name);
+			const modal = new podmanUI.Modal(title, [ formContent ]);
+			modal.getButtons = () => [
+				modal.getCloseButton(),
+				new podmanUI.ButtonNew(_('Import'), {
+					click: async () => {
+						await importForm.handleCreate();
+						await this.section.handleRefresh();
+					},
+					type: 'positive',
+				}).render(),
+			];
+			modal.render();
 		});
 
 		document.body.appendChild(fileInput);
@@ -99,7 +96,7 @@ return podmanView.list.extend({
 
 		let errors = 0;
 		for (const [index, volume] of selected.entries()) {
-			this.loading(`${_('Exporting selected volumes')}: ${index+1}/${selected.length}`);
+			this.loading(_('Exporting selected volumes: %d/%d').format(index + 1, selected.length));
 
 			const volumeName = volume.getName();
 			try {
@@ -110,9 +107,9 @@ return podmanView.list.extend({
 				document.body.appendChild(a);
 				a.click();
 				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
+				setTimeout(() => URL.revokeObjectURL(url), 100);
 			} catch (err) {
-				podmanUI.alert(`${_('Error')}: ${err.message}`, 'error');
+				podmanUI.alert(_('Error: %s').format(err.message), 'error');
 				errors++;
 			}
 		}

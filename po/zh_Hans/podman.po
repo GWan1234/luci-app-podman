@@ -1489,3 +1489,18 @@ msgstr "工作目录"
 
 msgid "Yes"
 msgstr "是"
+
+msgid "%s: %d/%d"
+msgstr "%s：%d/%d"
+
+msgid "Error: %s"
+msgstr "错误：%s"
+
+msgid "Exporting selected volumes: %d/%d"
+msgstr "正在导出选定的卷：%d/%d"
+
+msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
+msgstr "CPU 数量（例如 0.5, 1.0, 2.0）。留空表示无限制。"
+
+msgid "Start script missing\n\nClick to generate"
+msgstr "启动脚本缺失\n\n点击生成"

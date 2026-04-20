@@ -1405,3 +1405,18 @@ msgstr "Répertoire de travail"
 
 msgid "Yes"
 msgstr "Oui"
+
+msgid "%s: %d/%d"
+msgstr "%s : %d/%d"
+
+msgid "Error: %s"
+msgstr "Erreur : %s"
+
+msgid "Exporting selected volumes: %d/%d"
+msgstr "Exportation des volumes sélectionnés : %d/%d"
+
+msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
+msgstr "Nombre de CPUs (ex: 0.5, 1.0, 2.0). Laisser vide pour illimité."
+
+msgid "Start script missing\n\nClick to generate"
+msgstr "Script de démarrage manquant\n\nCliquez pour générer"

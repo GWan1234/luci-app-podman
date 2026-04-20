@@ -1,6 +1,5 @@
 'use strict';
 
-'require form';
 'require dom';
 'require ui';
 
@@ -83,24 +82,20 @@ return podmanView.list.extend({
 				if (initScriptStatus === 'missing') {
 					initScriptIcon = new podmanUI.Tooltip(
 						initScriptIcon,
-						`${_('Start script missing')}\n\n${_('Click to generate')}`,
+						_('Start script missing\n\nClick to generate'),
 						{
 							class: 'border-0',
 							click: ui.createHandlerFn(this, 'handleGenerateInitScript')
 						}
 					).render();
-				}
-
-				if (initScriptStatus === 'disabled') {
+				} else if (initScriptStatus === 'disabled') {
 					initScriptIcon = new podmanUI.Tooltip(initScriptIcon, _('Start script disabled'), { class: 'border-0' }).render();
-				}
-
-				if (initScriptStatus === 'enabled') {
+				} else if (initScriptStatus === 'enabled') {
 					initScriptIcon = new podmanUI.Tooltip(initScriptIcon, _('Start on boot'), { class: 'border-0' }).render();
 				}
 
 				if (iconEl) iconEl.replaceWith(initScriptIcon);
-			});
+			}).catch(() => {});
 		}
 	},
 
@@ -115,35 +110,31 @@ return podmanView.list.extend({
 		this.section.handleRefresh();
 	},
 
-	async handleStart() {
-		return this.updateContainersStatus(async (container) => container.start(), _('Start container'));
+	handleStart() {
+		return this.updateContainersStatus((container) => container.start(), _('Start container'));
 	},
 
-	async handleStop() {
-		return this.updateContainersStatus(async (container) => container.stop(), _('Stop container'));
+	handleStop() {
+		return this.updateContainersStatus((container) => container.stop(), _('Stop container'));
 	},
 
-	async handleRestart() {
-		return this.updateContainersStatus(async (container) => container.restart(), _('Restart container'));
+	handleRestart() {
+		return this.updateContainersStatus((container) => container.restart(), _('Restart container'));
 	},
 
 	async updateContainersStatus(statusFunction, textLoad) {
-		const selected = this.getSection().getSelectedData();
+		const section = this.getSection();
+		const selected = section.getSelectedData();
 		if (selected.length === 0) {
-			return this.getSection().showNoneSelectedWarning();
+			return section.showNoneSelectedWarning();
 		}
 
-		let i = 1;
-
-		for (const container of selected) {
-			this.loading(`${textLoad}: ${i}/${selected.length}`);
-
+		for (const [i, container] of selected.entries()) {
+			this.loading(_('%s: %d/%d').format(textLoad, i + 1, selected.length));
 			await statusFunction(container);
-
-			i++;
 		}
 
 		ui.hideModal();
-		this.getSection().handleRefresh();
+		section.handleRefresh();
 	},
 });

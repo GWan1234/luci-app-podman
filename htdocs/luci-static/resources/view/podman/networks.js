@@ -1,6 +1,5 @@
 'use strict';
 
-'require form';
 'require network';
 'require ui';
 
@@ -37,26 +36,24 @@ return podmanView.list.extend({
 		o.click = (_value, net) => this.section.handleInspect(net);
 
 		o = this.section.option(podmanForm.field.DummyValue, 'Int', _('Int'));
-		o.cfgdatavalue = async (net) => await this.getIntegrationIcon(net);
+		o.cfgdatavalue = (net) => this.getIntegrationIcon(net);
 		o.width = '5%';
 
 		o = this.section.option(podmanForm.field.DummyValue, 'driver', _('Driver'));
 		o.width = '10%';
 
-		o = this.section.option(podmanForm.field.DummyValue, 'Subnet', _('Subnet'));
-		o.cfgdatavalue = (net) => E('div', {}, [
-			E('span', {}, net.getSubnetIP4() || '-'),
+		const ipPairCell = (getV4, getV6) => (net) => E('div', {}, [
+			E('span', {}, getV4(net) || '-'),
 			E('br'),
-			E('span', {}, net.getSubnetIP6() || '-'),
+			E('span', {}, getV6(net) || '-'),
 		]);
+
+		o = this.section.option(podmanForm.field.DummyValue, 'Subnet', _('Subnet'));
+		o.cfgdatavalue = ipPairCell(n => n.getSubnetIP4(), n => n.getSubnetIP6());
 		o.width = '20%';
 
 		o = this.section.option(podmanForm.field.DummyValue, 'Gateway', _('Gateway'));
-		o.cfgdatavalue = (net) => E('div', {}, [
-			E('span', {}, net.getGatewayIP4() || '-'),
-			E('br'),
-			E('span', {}, net.getGatewayIP6() || '-'),
-		]);
+		o.cfgdatavalue = ipPairCell(n => n.getGatewayIP4(), n => n.getGatewayIP6());
 		o.width = '20%';
 
 		o = this.section.option(podmanForm.field.DateDummyValue, 'created', _('Created'));
@@ -82,16 +79,13 @@ return podmanView.list.extend({
 				E('label', { for: checkboxId }, _('Remove OpenWrt integration')),
 			]),
 		], async () => {
-			let i = 1;
-			for (const item of selected) {
-				this.loading(_('Deleting records: %s/%s').format(i, selected.length));
+			for (const [i, item] of selected.entries()) {
+				this.loading(_('Deleting records: %s/%s').format(i + 1, selected.length));
 
 				await item.remove();
 				if (checkboxRemoveIntegration.getValue() === '1') {
 					await item.integrationRemove();
 				}
-
-				i++;
 			}
 
 			ui.hideModal();
@@ -108,7 +102,8 @@ return podmanView.list.extend({
 					this.confirm([
 						E('p', {}, _('Are you sure to remove integration?')),
 					], async () => {
-						net.integrationRemove().then(() => this.section.handleRefresh());
+						await net.integrationRemove();
+						this.section.handleRefresh();
 					});
 				},
 			}).render();

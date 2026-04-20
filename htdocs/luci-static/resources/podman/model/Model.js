@@ -15,7 +15,6 @@ function checkResponse(response) {
 
 function catchError(err) {
 	const msg = err?.message || String(err);
-	const code = err?.code || 0;
 	if (msg.includes('Access denied') || msg.includes('session is expired')) {
 		window.location.href = L.url('admin');
 		return;
@@ -23,7 +22,7 @@ function catchError(err) {
 	ui.hideModal();
 	document.body.scrollTop = 0;
 	document.documentElement.scrollTop = 0;
-	podmanUI.alert(`${code}: ${msg}`, 'error');
+	podmanUI.alert(msg, 'error');
 	throw err;
 }
 
@@ -50,6 +49,9 @@ const Model = baseclass.extend({
 		let currentController = null;
 
 		const doStream = async () => {
+			const decoder = new TextDecoder();
+			let backoff = 1000;
+
 			while (!stopped) {
 				currentController = new AbortController();
 				try {
@@ -59,26 +61,27 @@ const Model = baseclass.extend({
 						return;
 					}
 					const reader = response.body?.getReader();
-					const decoder = new TextDecoder();
 					let buffer = '';
 
 					while (!stopped) {
 						const { done, value } = await reader.read();
 						if (done) {
 							// Flush any trailing line the server sent without a final '\n'
-							if (buffer.trim() && !stopped) {
-								try { onData(JSON.parse(buffer)); } catch(e) { onData({ raw: buffer }); }
-							}
+							if (buffer.trim() && !stopped)
+								processLines(buffer + '\n', onData);
 							break;
 						}
 						buffer += decoder.decode(value, { stream: true });
 						buffer = processLines(buffer, onData);
 					}
 
+					backoff = 1000;
 					if (!stopped) onDone?.();
 				} catch (err) {
 					if (stopped) break; // AbortController fired from stop()
-					// network error — reconnect immediately
+					// network error — reconnect with backoff
+					await new Promise(r => setTimeout(r, backoff));
+					backoff = Math.min(backoff * 2, 30000);
 				}
 			}
 		};

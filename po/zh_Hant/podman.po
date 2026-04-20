@@ -2502,3 +2502,18 @@ msgstr "儲存區成功匯入"
 #: htdocs/luci-static/resources/view/podman/volumes.js:307
 msgid "Failed to read file"
 msgstr "無法讀取檔案"
+
+msgid "%s: %d/%d"
+msgstr "%s：%d/%d"
+
+msgid "Error: %s"
+msgstr "錯誤：%s"
+
+msgid "Exporting selected volumes: %d/%d"
+msgstr "正在匯出選定的儲存區：%d/%d"
+
+msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
+msgstr "CPU 數量（例如 0.5、1.0、2.0）。留空表示無上限。"
+
+msgid "Start script missing\n\nClick to generate"
+msgstr "啟動腳本缺失\n\n點擊生成"

@@ -2,10 +2,8 @@
 
 'require baseclass';
 'require form';
-'require ui';
 'require request';
 
-'require podman.ui as podmanUI';
 'require podman.rpc as podmanRPC';
 'require podman.view as podmanView';
 
@@ -61,14 +59,14 @@ const PodmanFormVolumeImport = podmanView.form.extend({
 
 			const response = await request.post(L.env.cgi_base + '/cgi-upload', formData);
 			if (!response.ok)
-				throw new Error(_('Upload failed: ') + response.statusText);
+				throw new Error(_('Upload failed: %s').format(response.statusText));
 
 			this.loading(_('Importing volume...'));
 
 			await podmanRPC.volumes.import(name, this.isCompressed);
 			this.success(_('Volume imported successfully'));
 		} catch (err) {
-			this.error(`${_('Error')}: ${err.message}`);
+			this.error(_('Error: %s').format(err.message));
 		}
 	},
 });
