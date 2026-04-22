@@ -274,6 +274,10 @@ const FormTableSelectSection = form.TableSection.extend({
 		rows.forEach((row, index) => {
 			const checkbox = row.querySelector('input[type=checkbox]');
 
+			if (!checkbox) {
+				return;
+			}
+
 			row.addEventListener('click', (ev) => {
 				const clickedInteractiveElement = ev.target.closest('button, a, input, .cbi-tooltip-container');
 

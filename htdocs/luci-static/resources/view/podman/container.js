@@ -4,7 +4,6 @@
 'require dom';
 
 'require podman.ui as podmanUI';
-'require podman.form as podmanForm';
 'require podman.view as podmanView';
 'require podman.model.Container as Container';
 'require podman.form.resource as PodmanFormResource';
@@ -35,11 +34,9 @@ return podmanView.base.extend({
 		const containerId = matches[1];
 		const container = Container.getSingleton({ Id: containerId });
 
-		return container.inspect()
-			.then((inspectData) => {
-				this.data = inspectData;
-				return Container.getSingleton(inspectData);
-			});
+		const inspectData = await container.inspect();
+		this.data = inspectData;
+		return Container.getSingleton(inspectData);
 	},
 
 	async render(container) {
@@ -93,24 +90,24 @@ return podmanView.base.extend({
 	},
 
 	createHeader() {
+		const state = this.container.getState();
+
 		return E('div', { class: 'mb-sm container-toolbar' }, [
 			E('div', { class: 'd-flex align-start' }, [
 				E('h2', { class: 'mb-sm' }, [ this.container.getName() ]),
 				new podmanUI.ButtonNew('&#128281;', {
-					click: () => {
-						this.redirectToList();
-					},
+					click: () => this.redirectToList(),
 					type: 'none',
 				}).render(),
 			]),
 			E('div', { class: 'd-flex align-center' }, [
 				new podmanUI.ButtonNew('&#9658;', {
 					click: ui.createHandlerFn(this, 'handleStart'),
-					type: this.container.getState() === 'running' ? 'active' : '',
+					type: state === 'running' ? 'active' : '',
 				}).render(),
 				new podmanUI.ButtonNew('&#9724;', {
 					click: ui.createHandlerFn(this, 'handleStop'),
-					type: this.container.getState() === 'exited' || this.container.getState() === 'created' ? 'active' : '',
+					type: state === 'exited' || state === 'created' ? 'active' : '',
 				}).render(),
 				new podmanUI.ButtonNew('&#8635;', {
 					click: ui.createHandlerFn(this, 'handleRestart'),
@@ -123,7 +120,7 @@ return podmanView.base.extend({
 		]);
 	},
 
-	async renderTab(tab, content, description) {
+	renderTab(tab, content, description) {
 		const tabContainer = document.querySelector(`.tab-pane[data-tab="${tab}"]`);
 		const tabContainerNode = tabContainer?.querySelector('.cbi-section-node');
 
@@ -139,32 +136,31 @@ return podmanView.base.extend({
 	},
 
 	async renderInfoTab() {
-		ContainerInfoTab.render(this.container)
-			.then((content) => this.renderTab('info', content));
+		const content = await ContainerInfoTab.render(this.container);
+		this.renderTab('info', content);
 	},
 
 	async renderResourcesTab() {
-		new PodmanFormResource.init().render(this.container)
-			.then((resourceForm) =>
-				this.renderTab('resources', resourceForm, _('Configure resource limits for this container.')));
+		const resourceForm = await new PodmanFormResource.init().render(this.container);
+		this.renderTab('resources', resourceForm, _('Configure resource limits for this container.'));
 	},
 
 	async renderStatsTab() {
-		ContainerStatsTab.render(this.container)
-			.then((content) => this.renderTab('stats', content));
+		const content = await ContainerStatsTab.render(this.container);
+		this.renderTab('stats', content);
 	},
 
 	async renderProcessesTab() {
-		ContainerProcessesTab.render(this.container)
-			.then((content) => this.renderTab('ps', content));
+		const content = await ContainerProcessesTab.render(this.container);
+		this.renderTab('ps', content);
 	},
 
 	async renderLogsTab() {
-		ContainerLogsTab.render(this.container)
-			.then((content) => this.renderTab('logs', content));
+		const content = await ContainerLogsTab.render(this.container);
+		this.renderTab('logs', content);
 	},
 
-	async renderInspectTab() {
+	renderInspectTab() {
 		this.renderTab('inspect', new podmanUI.JsonArea(this.data).render());
 	},
 

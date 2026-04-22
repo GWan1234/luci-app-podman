@@ -131,14 +131,12 @@ const ViewList = ViewBase.extend({
 const ViewForm = baseclass.extend({
 	...ViewDefault,
 	__name__: 'Podman.View.Form',
-	sectionName: '',
 
 	map: null,
 	section: null,
 
 	__init__() {
-		this.map = new form.JSONMap(this.makeData(), '', '');
-		this.section = this.map.section(form.NamedSection, this.sectionName, this.sectionName);
+
 	},
 
 	makeData() {
@@ -146,32 +144,72 @@ const ViewForm = baseclass.extend({
 	},
 
 	async render() {
-		this.map.data.data = this.makeData();
-		this.createForm();
+		const data = this.makeData();
+		console.log('data')
+		const sectionName = Object.keys(data)[0];
+		console.log('data', data, sectionName);
+		this.map = new form.JSONMap(data, '', '');
+		this.section = this.map.section(form.TypedSection, sectionName, '');
+
+		// this.map.data.data = this.makeData();
+		await this.createForm();
 
 		return this.map.render();
 	},
 
 	createForm() {},
 
+	getField(name) {
+		return this.section?.getOption(name);
+	},
+
+	getFields() {
+		return this.section?.getOption() || {};
+	},
+
+	// getUIElement(name) {
+	// 	return this.section?.getUIElement(this.section?.section, name) || {};
+	// },
+
+	// getUIElements() {
+	// 	return this.section?.getUIElement(this.section?.section) || {};
+	// },
+
 	getFieldValue(name) {
-		return this.section?.getOption(name)?.formvalue(this.section.section);
+		return this.getField(name)?.formvalue(this.section?.sectiontype);
 	},
 
 	getFieldValues() {
 		const values = {};
-		const fields = this.section?.getOption() || {};
+		const fields = this.getFields();
 
 		Object.keys(fields).forEach((name) => {
-			values[name] = fields[name].formvalue(this.section.section);
+			values[name] = fields[name].formvalue(this.section?.sectiontype);
 		});
 
 		return values;
 	},
 
+	isValid() {
+		const fields = this.getFields();
+		const sectionId = this.section.sectiontype;
+
+		for (const [_key, field] of Object.entries(fields)) {
+			if (field.isValid(sectionId) === false) {
+				return false;
+			}
+		}
+
+		return true;
+	},
+
+	scrollToInvalid() {
+		const invalidElement = this.map.root.querySelector('.cbi-input-invalid');
+		invalidElement.scrollIntoView();
+	},
+
 	async save() {
-		await this.map.parse();
-		await this.map.save();
+		return this.map.save(() => {}, true);
 	},
 
 	async handleCreate(createFn, title, textLoading, textSuccess) {

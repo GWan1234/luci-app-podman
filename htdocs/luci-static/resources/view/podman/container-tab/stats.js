@@ -6,14 +6,11 @@
 'require podman.view as podmanView';
 'require podman.utils as podmanUtil';
 
-/**
- * Container stats tab - displays real-time CPU, memory, network, and process info
- */
 return podmanView.tabContent.extend({
 	tab: 'stats',
 	container: null,
 
-	async render(container) {
+	render(container) {
 		this.container = container;
 
 		if (!this.container.isRunning()) {
@@ -25,7 +22,7 @@ return podmanView.tabContent.extend({
 		]);
 	},
 
-	async onTabActive() {
+	onTabActive() {
 		if (!this.container || !this.container.isRunning() || this.statsStream) {
 			return;
 		}
@@ -35,9 +32,9 @@ return podmanView.tabContent.extend({
 		});
 	},
 
-	async onTabInactive() {
+	onTabInactive() {
 		if (!this.statsStream) {
-			return
+			return;
 		}
 
 		this.statsStream.stop();
@@ -60,7 +57,7 @@ return podmanView.tabContent.extend({
 		return table.render();
 	},
 
-	async updateStatsDisplay(stats) {
+	updateStatsDisplay(stats) {
 		if (!stats) return;
 
 		if (!this.statElements) {
@@ -81,7 +78,8 @@ return podmanView.tabContent.extend({
 		];
 
 		for (const [key, value] of updates) {
-			dom.content(this.statElements[key], value);
+			if (this.statElements[key])
+				dom.content(this.statElements[key], value);
 		}
 	},
 

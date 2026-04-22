@@ -36,7 +36,7 @@ return podmanUI.Modal.extend({
 	},
 
 	setContainers(containers) {
-		this.containers = containers || this.containers;
+		this.containers = containers ?? [];
 		return this;
 	},
 
@@ -110,7 +110,7 @@ return podmanUI.Modal.extend({
 		modal.getButtons = () => [
 			this.getCloseButton(),
 			new podmanUI.ButtonNew(_('Update'), {
-				click: () => {
+				click: async () => {
 					const selectedUpdates = Object.values(checkboxes)
 						.filter(({ checkbox }) => checkbox.isChecked())
 						.map(({ container }) => container);
@@ -119,7 +119,7 @@ return podmanUI.Modal.extend({
 						return;
 					}
 
-					this.handleUpdate(selectedUpdates);
+					await this.handleUpdate(selectedUpdates);
 				},
 				type: 'positive',
 			}).render()

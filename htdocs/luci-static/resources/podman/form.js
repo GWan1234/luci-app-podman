@@ -13,7 +13,7 @@ const FormMemoryValue = form.Value.extend({
 		if (!value) return true;
 		if (value === '-1' || value === '0') return true;
 		if (!/^\d+(?:\.\d+)?\s*[kmg]b?$/i.test(value)) {
-			return _('Invalid format.') + ' ' + _('Use: 512m, 1g, or -1 for unlimited');
+			return _('Expecting: %s').format(_('512m, 1g, or -1 for unlimited'));
 		}
 		return true;
 	},

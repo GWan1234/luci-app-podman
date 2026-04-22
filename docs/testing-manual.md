@@ -2,32 +2,32 @@
 
 ## 0. Authentication
 
-- [ ] **0.1** Navigate to `http://<router>/cgi-bin/luci` → Redirected to login page
-- [ ] **0.2** Submit correct credentials → Redirected to LuCI dashboard
-- [ ] **0.3** Navigate to `/admin/podman` → Overview page loads without re-auth
-- [ ] **0.4** Open browser Console tab → No JS errors
+- [x] **0.1** Navigate to `http://<router>/cgi-bin/luci` → Redirected to login page
+- [x] **0.2** Submit correct credentials → Redirected to LuCI dashboard
+- [x] **0.3** Navigate to `/admin/podman` → Overview page loads without re-auth
+- [x] **0.4** Open browser Console tab → No JS errors
 
 ---
 
 ## 1. Overview (`/admin/podman`)
 
-- [ ] **1.1** Load overview → Page loads; all counters visible (0 is fine)
-- [ ] **1.2** Podman version string visible → Not empty, not "undefined"
+- [x] **1.1** Load overview → Page loads; all counters visible (0 is fine)
+- [x] **1.2** Podman version string visible → Not empty, not "undefined"
 - [ ] **1.3** System status indicator visible → Shows running (socket available)
-- [ ] **1.4** Note all current counts → Baseline for comparison after later steps
+- [x] **1.4** Note all current counts → Baseline for comparison after later steps
 
 ---
 
 ## 2. Images (`/admin/podman/images`)
 
-- [ ] **2.1** Load images list → Page loads (may be empty)
-- [ ] **2.2** Click "Pull Image" → Form/modal appears with name input
-- [ ] **2.3** Submit empty form → Validation error, no request sent
-- [ ] **2.4** Pull nonexistent image (e.g. `this-does-not-exist:fake`) → Error notification shown, list unchanged
-- [ ] **2.5** Pull `alpine:latest` → Progress indicator → success notification → `alpine` appears in list
+- [x] **2.1** Load images list → Page loads (may be empty)
+- [x] **2.2** Click "Pull Image" → Form/modal appears with name input
+- [x] **2.3** Submit empty form → Validation error, no request sent
+- [x] **2.4** Pull nonexistent image (e.g. `this-does-not-exist:fake`) → Error notification shown, list unchanged
+- [x] **2.5** Pull `alpine:latest` → Progress indicator → success notification → `alpine` appears in list
 - [ ] **2.6** Pull `alpine:latest` again (already exists) → Graceful result (no crash, may show "already up to date")
-- [ ] **2.7** Click inspect on `alpine` → Modal opens with JSON image data
-- [ ] **2.8** Return to overview → Image count incremented by 1
+- [x] **2.7** Click inspect on `alpine` → Modal opens with JSON image data
+- [x] **2.8** Return to overview → Image count incremented by 1
 
 ---
 
@@ -37,7 +37,7 @@
 
 ### 3a. Create
 
-- [ ] **3.1** Load containers list → Page loads (may be empty)
+- [x] **3.1** Load containers list → Page loads (may be empty)
 - [ ] **3.2** Click "Create Container" → Form modal opens
 - [ ] **3.3** Submit empty form → Validation errors on required fields
 - [ ] **3.4** Fill name: `test-alpine`, image: `alpine:latest`, no other changes → Submit → Container created; `test-alpine` visible in list

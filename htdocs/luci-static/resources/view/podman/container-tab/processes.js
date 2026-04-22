@@ -5,14 +5,11 @@
 'require podman.ui as podmanUI';
 'require podman.view as podmanView';
 
-/**
- * Container processes tab
- */
 return podmanView.tabContent.extend({
 	tab: 'ps',
 	container: null,
 
-	async render(container) {
+	render(container) {
 		this.container = container;
 
 		if (!this.container.isRunning()) {
@@ -26,7 +23,7 @@ return podmanView.tabContent.extend({
 		]);
 	},
 
-	async onTabActive() {
+	onTabActive() {
 		if (!this.container || !this.container.isRunning() || this.processStream) {
 			return;
 		}
@@ -36,14 +33,14 @@ return podmanView.tabContent.extend({
 		});
 	},
 
-	async onTabInactive() {
+	onTabInactive() {
 		if (!this.processStream) return;
 
 		this.processStream.stop();
 		this.processStream = null;
 	},
 
-	async updateProcessList(ps) {
+	updateProcessList(ps) {
 		if (!ps || !ps.Titles || !ps.Processes || ps.Titles.length === 0) {
 			return;
 		}

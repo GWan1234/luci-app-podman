@@ -14,16 +14,12 @@
  */
 const PodmanFormContainer = podmanView.form.extend({
 	__name__: 'Podman.Form.Container',
-	sectionName: 'container',
-
-	images: null,
-	networks: null,
 
 	makeData() {
 		return {
 			container: {
-				name: null,
-				image: null,
+				name: '',
+				image: '',
 				command: null,
 				ports: null,
 				env: null,
@@ -47,17 +43,12 @@ const PodmanFormContainer = podmanView.form.extend({
 		};
 	},
 
-	async render() {
-		[this.images, this.networks] = await Promise.all([
+	async createForm() {
+		const [images, networks] = await Promise.all([
 			podmanRPC.images.list(),
 			podmanRPC.networks.list()
 		]);
-		this.map.data.data = this.makeData();
-		this.createForm();
-		return this.map.render();
-	},
 
-	createForm() {
 		let field;
 		field = this.section.option(form.Value, 'name', _('Container Name'));
 		field.placeholder = 'my-container';
@@ -67,7 +58,7 @@ const PodmanFormContainer = podmanView.form.extend({
 
 		field = this.section.option(form.ListValue, 'image', _('Image'));
 		field.value('', _('-- Select %s --').format(_('Image')));
-		this.images.forEach((img) => {
+		images.forEach((img) => {
 			img.getRepoTags().forEach((tag) => {
 				if (tag !== '<none>:<none>') {
 					field.value(tag, tag);
@@ -75,6 +66,13 @@ const PodmanFormContainer = podmanView.form.extend({
 			});
 		});
 		field.rmempty = false;
+		field.optional = false;
+		field.validate = (_section_id, value) => {
+			if (!value) {
+				return _('Expecting: %s').format(_('non-empty value'));
+			}
+			return true;
+		};
 		field.description = _('Container image to use');
 
 		field = this.section.option(form.Value, 'command', _('Command'));
@@ -109,7 +107,7 @@ const PodmanFormContainer = podmanView.form.extend({
 		field.value('bridge', 'bridge (default)');
 		field.value('host', 'host');
 		field.value('none', 'none');
-		this.networks.forEach((net) => {
+		networks.forEach((net) => {
 			const name = net.getName();
 			if (name && name !== 'bridge' && name !== 'host' && name !== 'none') {
 				field.value(name, name);
@@ -177,10 +175,13 @@ const PodmanFormContainer = podmanView.form.extend({
 	},
 
 	async handleCreate() {
+		if (!this.isValid()) {
+			return this.scrollToInvalid();
+		}
+
 		await this.save();
 
 		const data = this.getFieldValues();
-
 		const spec = {
 			image: data.image,
 			privileged: Boolean(parseInt(data.privileged)),

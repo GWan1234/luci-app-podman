@@ -11,7 +11,7 @@ return podmanView.tabContent.extend({
 	tab: 'logs',
 	container: null,
 
-	async render(container) {
+	render(container) {
 		this.container = container;
 
 		this.logViewer = E('pre', { id: 'log-viewer', class: 'terminal-area' }, []);
@@ -22,27 +22,31 @@ return podmanView.tabContent.extend({
 		]);
 	},
 
-	async onTabActive() {
+	onTabActive() {
 		// Running: auto-start live stream. Stopped: load historical logs on demand via play button.
 		if (this.container.isRunning()) {
 			this.startStream();
 		}
 	},
 
-	async onTabInactive() {
+	onTabInactive() {
 		this.stopStream();
 	},
 
-	async startStream() {
+	_setStreamActive(active) {
+		this.logLinesInput.disabled = active;
+		this.logSinceInput.disabled = active;
+		this.logUntilInput.disabled = active;
+		this.playButton.querySelector('.cbi-button').classList.toggle('cbi-button-active', active);
+		this.stopButton.querySelector('.cbi-button').classList.toggle('cbi-button-active', !active);
+	},
+
+	startStream() {
 		if (!this.container || this.logsStream) {
 			return;
 		}
 
-		this.logLinesInput.disabled = true;
-		this.logSinceInput.disabled = true;
-		this.logUntilInput.disabled = true;
-		this.playButton.querySelector('.cbi-button').classList.add('cbi-button-active');
-		this.stopButton.querySelector('.cbi-button').classList.remove('cbi-button-active');
+		this._setStreamActive(true);
 
 		this.logViewer.textContent = '';
 
@@ -70,14 +74,10 @@ return podmanView.tabContent.extend({
 		});
 	},
 
-	async stopStream() {
+	stopStream() {
 		if (!this.logsStream) return;
 
-		this.logLinesInput.disabled = false;
-		this.logSinceInput.disabled = false;
-		this.logUntilInput.disabled = false;
-		this.playButton.querySelector('.cbi-button').classList.remove('cbi-button-active');
-		this.stopButton.querySelector('.cbi-button').classList.add('cbi-button-active');
+		this._setStreamActive(false);
 
 		this.logsStream.stop();
 		this.logsStream = null;

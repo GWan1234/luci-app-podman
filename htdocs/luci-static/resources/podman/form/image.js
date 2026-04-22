@@ -13,7 +13,6 @@
  */
 const PodmanFormImage = podmanView.form.extend({
 	__name__: 'Podman.Form.Image',
-	sectionName: 'image',
 
 	makeData() {
 		return {
@@ -71,7 +70,7 @@ const PodmanFormImage = podmanView.form.extend({
 			closeButton.classList.remove('d-none');
 			podmanUI.alert(_('Image pulled successfully'), 'success', true);
 		} catch (error) {
-			this.error(_('Error: %s').format(error));
+			this.error(error);
 		}
 	},
 
