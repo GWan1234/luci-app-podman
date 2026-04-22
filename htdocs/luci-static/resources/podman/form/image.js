@@ -38,14 +38,14 @@ const PodmanFormImage = podmanView.form.extend({
 	},
 
 	async handleCreate() {
+		if (!this.isValid()) {
+			return this.scrollToInvalid();
+		}
+
 		await this.save();
 
 		const registry = this.getFieldValue('registry');
 		const image = this.getFieldValue('image');
-
-		if (!image) {
-			return;
-		}
 
 		const imageName = this.buildImageName(registry, image);
 		const imageModel = Image.getSingleton({ RepoTags: [imageName] });

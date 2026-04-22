@@ -38,23 +38,23 @@
 ### 3a. Create
 
 - [x] **3.1** Load containers list → Page loads (may be empty)
-- [ ] **3.2** Click "Create Container" → Form modal opens
-- [ ] **3.3** Submit empty form → Validation errors on required fields
-- [ ] **3.4** Fill name: `test-alpine`, image: `alpine:latest`, no other changes → Submit → Container created; `test-alpine` visible in list
-- [ ] **3.5** Return to overview → Container count incremented
+- [x] **3.2** Click "Create Container" → Form modal opens
+- [x] **3.3** Submit empty form → Validation errors on required fields
+- [x] **3.4** Fill name: `test-alpine`, image: `alpine:latest`, no other changes → Submit → Container created; `test-alpine` visible in list
+- [x] **3.5** Return to overview → Container count incremented
 
 ### 3b. List operations
 
-- [ ] **3.6** Verify `test-alpine` row shows correct Name, Image, State
-- [ ] **3.7** Select `test-alpine` checkbox → Only that row selected
-- [ ] **3.8** Click top "select all" checkbox → All rows selected
-- [ ] **3.9** Click top checkbox again → All deselected
+- [x] **3.6** Verify `test-alpine` row shows correct Name, Image, State
+- [x] **3.7** Select `test-alpine` checkbox → Only that row selected
+- [x] **3.8** Click top "select all" checkbox → All rows selected
+- [x] **3.9** Click top checkbox again → All deselected
 
 ### 3c. Start / Stop / Restart
 
-- [ ] **3.10** If container is stopped: select → Start → State changes to `Running`; success notification
-- [ ] **3.11** Select running container → Stop → State changes to `Exited`; success notification
-- [ ] **3.12** Select stopped container → Restart → State changes to `Running`
+- [x] **3.10** If container is stopped: select → Start → State changes to `Running`; success notification
+- [x] **3.11** Select running container → Stop → State changes to `Exited`; success notification
+- [x] **3.12** Select stopped container → Restart → State changes to `Running`
 
 ### 3d. Detail view — Info tab
 
