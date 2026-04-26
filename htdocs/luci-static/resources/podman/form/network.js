@@ -17,7 +17,6 @@
  */
 const PodmanFormNetwork = podmanView.form.extend({
 	__name__: 'Podman.Form.Network',
-	sectionName: 'network',
 
 	existingZones: null,
 	parentDevices: null,

@@ -10,11 +10,13 @@ const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
 function validate_id(id) {
+	if (type(id) != "string")
+		return;
 	return id && match(id, /^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$/);
 }
 
 function error_response(code, message) {
-	if (http.eoh) return;
+	if (http.eoh) return; // ucode-lsp disable
 	http.status(code, message);
 	http.header('Content-Type', 'text/plain');
 	http.write(message + '\n');
@@ -46,15 +48,11 @@ function session_timer(sid) {
 	let deadline  = +(sdat?.values?.podman_stream_deadline  ?? 0);
 	let last_seen = +(sdat?.values?.podman_stream_last_seen ?? 0);
 
-	// Fresh start if: no deadline yet, OR the stream was interrupted long enough
-	// that the gap exceeds script_timeout (normal reconnects fire every
-	// timeout_ms = script_timeout-5s, so their gap is always below this threshold).
 	let is_fresh = !deadline || (now - last_seen > script_timeout);
 
 	if (is_fresh)
 		deadline = now + sessiontime;
 
-	// Always persist deadline + last_seen so future calls can measure the gap.
 	uconn.call('session', 'set', {
 		ubus_rpc_session: sid,
 		values: { podman_stream_deadline: deadline, podman_stream_last_seen: now }
@@ -91,19 +89,10 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 	sock.send(sprintf('GET %s HTTP/1.0\r\nHost: localhost\r\n\r\n', api_path));
 
 	let t = get_timeouts();
-	// ka_ms: one keepalive write just before network_timeout would kill the connection.
-	// This gives the browser a clean done:true close every ~50s (with defaults),
-	// enabling session-expiry detection (403 on reconnect) without self-rearming timers.
 	let ka_ms = (t.network - 5) * 1000;
 
 	uloop.init();
 
-	// For logs (early_headers=true): send our response headers to the browser
-	// immediately, before Podman responds. Podman deliberately holds its own
-	// headers until it has data (follow=true), which would leave the browser's
-	// fetch() pending for up to 50s. Starting our response now lets the browser
-	// start reading the stream right away; log data arrives as Podman sends it.
-	// For stats: Podman always responds instantly, so we wait for it first.
 	let response_started = early_headers;
 	if (early_headers) {
 		http.status(200, 'OK');
@@ -117,7 +106,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 
 	let handle = uloop.handle(sock, () => {
 		let chunk = sock.recv(BLOCKSIZE);
-		if (chunk === null) return; // EAGAIN — keep waiting
+		if (chunk === null) return; // EAGAIN - keep waiting
 
 		if (!podman_headers_done) {
 			// Phase 1: consuming Podman's HTTP response headers
@@ -164,11 +153,6 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 		}
 	}, uloop.ULOOP_READ);
 
-	// Single keepalive write at ka_ms resets uhttpd's idle timer and unblocks
-	// reader.read() in the browser, ensuring a clean done:true on final close.
-	// For logs (early_headers): cap the stream at ka_ms*2 so our close always
-	// beats uhttpd's network_timeout (keepalive at ka_ms + network_timeout = 55s,
-	// we fire at 50s — 5s margin). Stats sends data every few seconds so no cap needed.
 	if (early_headers)
 		uloop.timer(ka_ms, () => http.write('\n'));
 
@@ -297,9 +281,7 @@ return {
 			error_response(400, 'Invalid or missing reference parameter');
 			return;
 		}
-		// A valid registry reference must contain at least one separator (/, : or @).
-		// Bare hex strings are local image IDs — they cannot be pulled from a registry
-		// and would cause a 10-minute worker timeout loop. Reject them early.
+
 		if (!match(reference, /[/:@]/)) {
 			error_response(400, 'Reference must be a registry reference (e.g. name:tag), not a raw image ID');
 			return;
@@ -329,11 +311,6 @@ return {
 		let lstat      = stat(logfile);
 		let has_unread = lstat && offset < lstat.size;
 
-		// If the worker has exited and the logfile ends with a completion marker
-		// ("images" or "error"), the previous pull finished.  Any new request for the same
-		// reference must start a fresh pull — resuming the old logfile would deliver the
-		// old image ID again.  (The logfile is NOT deleted when the client aborts the fetch
-		// after receiving chunk.images, so it survives between pull sessions.)
 		let is_completed_pull = false;
 		if (!is_running && lstat && lstat.size > 0) {
 			let f = open(logfile, 'r');
@@ -422,12 +399,12 @@ return {
 		};
 		uloop.timer(0, poll_fn);
 
-		// Self-rearming keepalive — prevents network_timeout during slow layer downloads
+		// Self-rearming keepalive - prevents network_timeout during slow layer downloads
 		let ka;
 		ka = () => { http.write('\n'); uloop.timer(ka_ms, ka); };
 		uloop.timer(ka_ms, ka);
 
-		// Session expiry timer — same pattern as other streams
+		// Session expiry timer - same pattern as other streams
 		uloop.timer(timer.timeout_ms, timer.on_expire);
 
 		uloop.run();

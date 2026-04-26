@@ -12,7 +12,6 @@
  */
 const PodmanFormResource = podmanView.form.extend({
 	__name__: 'Podman.Form.Resource',
-	sectionName: 'resources',
 
 	container: null,
 

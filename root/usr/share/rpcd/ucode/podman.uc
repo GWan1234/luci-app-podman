@@ -15,7 +15,7 @@
 //   Secrets:      list inspect create remove
 //   System:       df prune version info debug
 //   Init Scripts: generate show status set_enabled remove
-//                 (exempt from socket check — operate on /etc/init.d/ only)
+//                 (exempt from socket check - operate on /etc/init.d/ only)
 //
 // Socket wrapper (end of file)
 
@@ -148,7 +148,7 @@ function podman_request(method, path, body, raw) {
 			resp_body += chunk;
 		}
 	} else {
-		// No Content-Length — read until EOF
+		// No Content-Length - read until EOF
 		while (true) {
 			chunk = sock.recv(65536);
 			if (!chunk || length(chunk) === 0)
@@ -812,7 +812,7 @@ const methods = {
 				push(checks, { name: 'startup_template', label: 'Startup Template', status: 'warn', detail: template, message: 'Not found - init script generation will fail' });
 			}
 
-			// 7. RPC plugin (self-check — if we're running, we exist)
+			// 7. RPC plugin (self-check - if we're running, we exist)
 			push(checks, { name: 'rpc_plugin', label: 'RPC Plugin', status: 'ok', detail: '/usr/share/rpcd/ucode/podman.uc', message: 'Running (ucode)' });
 
 			// 8. Podman API helper

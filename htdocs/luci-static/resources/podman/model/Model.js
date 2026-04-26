@@ -79,7 +79,7 @@ const Model = baseclass.extend({
 					if (!stopped) onDone?.();
 				} catch (err) {
 					if (stopped) break; // AbortController fired from stop()
-					// network error — reconnect with backoff
+					// network error - reconnect with backoff
 					await new Promise(r => setTimeout(r, backoff));
 					backoff = Math.min(backoff * 2, 30000);
 				}

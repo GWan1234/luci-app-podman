@@ -166,7 +166,7 @@ return podmanUI.Modal.extend({
 				seen.add(id);
 
 				if (usedIds.has(id)) {
-					imageWarnings.push(_('Old image %s could not be removed — still in use by another container').format(name));
+					imageWarnings.push(_('Old image %s could not be removed - still in use by another container').format(name));
 				} else {
 					await image.remove();
 				}

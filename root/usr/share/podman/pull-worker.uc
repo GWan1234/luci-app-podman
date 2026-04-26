@@ -2,7 +2,7 @@
 
 import * as socket from 'socket';
 import { open, unlink } from 'fs';
-import { urlencode, ENCODE_FULL } from 'lucihttp';
+import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 
 const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
@@ -12,6 +12,9 @@ const reference = ARGV[0];
 const logfile   = ARGV[1];
 const pidfile   = ARGV[2];
 
+/**
+ * @param {string} msg
+ */
 function write_error(msg) {
 	let f = open(logfile, 'a');
 	if (f) {
@@ -21,6 +24,9 @@ function write_error(msg) {
 	}
 }
 
+/**
+ * @param {int} code
+ */
 function cleanup(code) {
 	unlink(pidfile);
 	exit(code ?? 0);
@@ -52,7 +58,7 @@ sock.send(sprintf(
 	API_BASE, encoded
 ));
 
-// Read HTTP response headers (blocking recv — no uloop needed in standalone process)
+// Read HTTP response headers (blocking recv - no uloop needed in standalone process)
 let buf = '';
 let lf  = null;
 
@@ -92,11 +98,11 @@ while (true) {
 	break;
 }
 
-// Stream response body to logfile — Podman sends NDJSON, we write it as-is
+// Stream response body to logfile - Podman sends NDJSON, we write it as-is
 while (true) {
 	let chunk = sock.recv(BLOCKSIZE);
 	if (chunk === null) continue;
-	if (!length(chunk)) break; // EOF — Podman finished
+	if (!length(chunk)) break; // EOF - Podman finished
 	lf.write(chunk);
 	lf.flush();
 }

@@ -11,7 +11,6 @@
  */
 const PodmanFormSecret = podmanView.form.extend({
 	__name__: 'Podman.Form.Secret',
-	sectionName: 'secret',
 
 	makeData() {
 		return {
@@ -28,7 +27,7 @@ const PodmanFormSecret = podmanView.form.extend({
 		field = this.section.option(form.Value, 'name', _('Secret Name'));
 		field.placeholder = 'my-secret';
 		field.rmempty = false;
-		field.datatype = 'rangelength(1,253)';
+		field.datatype = 'maxlength(253)';
 		field.validate = (_section_id, value) => {
 			if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
 				return _(
@@ -44,11 +43,14 @@ const PodmanFormSecret = podmanView.form.extend({
 		field.placeholder = _('Enter secret data (password, token, key, etc.)');
 		field.rmempty = false;
 		field.rows = 6;
-		field.datatype = 'minlength(1)';
 		field.description = _('The sensitive data to store securely');
 	},
 
 	async handleCreate() {
+		if (!this.isValid()) {
+			return this.scrollToInvalid();
+		}
+
 		await this.save();
 
 		const data = this.getFieldValues();

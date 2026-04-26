@@ -56,7 +56,7 @@
 - [x] **3.11** Select running container → Stop → State changes to `Exited`; success notification
 - [x] **3.12** Select stopped container → Restart → State changes to `Running`
 
-### 3d. Detail view — Info tab
+### 3d. Detail view - Info tab
 
 - [x] **3.13** Click `test-alpine` name link → Navigates to container detail page
 - [x] **3.14** Name, image, state displayed → Matches list view
@@ -69,20 +69,20 @@
 - [x] **3.21** Change restart policy to `no` → Save → Init script removed/disabled
 - [x] **3.22** Navigate back to list → Name shown as `test-alpine-renamed`
 
-### 3e. Detail view — Resources tab
+### 3e. Detail view - Resources tab
 
 - [x] **3.23** Click Resources tab → Tab activates; current limits shown
 - [ ] **3.24** Set CPU limit to `0.5` → Save → After page reload, Resources tab is active (tab persistence)
 - [x] **3.25** Set Memory limit to `64m` → Save → Value persisted
 - [x] **3.26** Enter invalid CPU value (e.g. `abc`) → Save → Validation error; no save
 
-### 3f. Detail view — Stats tab
+### 3f. Detail view - Stats tab
 
 - [x] **3.27** Start container (if stopped)
 - [x] **3.28** Click Stats tab → CPU%, Memory, Net I/O data appears
 - [x] **3.29** Stop container; click Stats tab → Graceful empty/zero state, no JS crash
 
-### 3g. Detail view — Logs tab
+### 3g. Detail view - Logs tab
 
 - [x] **3.30** Click Logs tab → Log output area visible (may be empty for alpine)
 - [x] **3.31** Change line count to `50` → Apply → Fetches last 50 lines
@@ -90,7 +90,7 @@
 - [x] **3.33** Disable live streaming → Streaming stops, toggle off
 - [x] **3.34** Click Clear → Log area clears
 
-### 3h. Detail view — Processes tab
+### 3h. Detail view - Processes tab
 
 - [x] **3.35** Start container; click Processes tab → Process table appears
 - [x] **3.36** Stop container; click Processes tab → Graceful empty/error state, no JS crash
@@ -126,7 +126,7 @@
 - [x] **5.4** Submit empty form → Validation error
 - [x] **5.5** Create `test_net`, subnet `10.220.0.0/24`, gateway `10.220.0.1`, OpenWrt integration checked → Network created; OpenWrt column shows `✓`
 - [x] **5.6** Verify UCI config created → SSH: `uci show network.test_net` returns values
-- [x] **5.7** Create `test_net_b` with no subnet, integration unchecked → Network created; OpenWrt column shows `—`
+- [x] **5.7** Create `test_net_b` with no subnet, integration unchecked → Network created; OpenWrt column shows `-`
 - [x] **5.8** If any network shows `X` (incomplete integration): click it → setup → icon changes to `✓`
 - [x] **5.9** Return to overview → Network count incremented
 - [x] **5.10** Select `test_net` → Delete → Confirmation mentions OpenWrt cleanup → confirm → network removed; UCI config removed
@@ -136,23 +136,12 @@
 
 ## 6. Secrets (`/admin/podman/secrets`)
 
-- [ ] **6.1** Load secrets list → Page loads (may be empty)
-- [ ] **6.2** Click "Create Secret" → Form with name + value fields
-- [ ] **6.3** Submit empty form → Validation error
-- [ ] **6.4** Create secret name `test-secret`, value `hunter2` → Appears in list; value NOT shown anywhere
-- [ ] **6.5** Click inspect on `test-secret` → Modal shows metadata; `SecretData` field hidden
-- [ ] **6.6** Return to overview → Secret count incremented
-- [ ] **6.7** Delete `test-secret` → Removed from list
-
----
-
-## 7. Pods (`/admin/podman/pods`)
-
-- [ ] **7.1** Load pods list → Page loads
-- [ ] **7.2** Create a pod (if form available) → Pod appears in list
-- [ ] **7.3** Start pod → State changes to running
-- [ ] **7.4** Stop pod → State changes to stopped
-- [ ] **7.5** Delete pod → Removed from list
+- [x] **6.1** Load secrets list → Page loads (may be empty)
+- [x] **6.2** Click "Create Secret" → Form with name + value fields
+- [x] **6.3** Submit empty form → Validation error
+- [x] **6.4** Create secret name `test-secret`, value `hunter2` → Appears in list; value NOT shown anywhere
+- [x] **6.5** Click inspect on `test-secret` → Modal shows metadata; `SecretData` field hidden
+- [x] **6.6** Delete `test-secret` → Removed from list
 
 ---
 
@@ -166,8 +155,8 @@
 
 ### Auto-Update Modal
 
-- [ ] **8.4** Open auto-update modal → Container list shown with current digest info
-- [ ] **8.5** Click "Check for Updates" → Digest comparison runs; up-to-date containers marked
+- [x] **8.4** Open auto-update modal → Container list shown with current digest info
+- [x] **8.5** Click "Check for Updates" → Digest comparison runs; up-to-date containers marked
 - [ ] **8.6** If outdated container detected → Update → Pulls new image, recreates container
 
 ---

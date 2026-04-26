@@ -48,7 +48,7 @@ const UtilIpv4 = baseclass.extend({
 	/**
 	 * Convert a CIDR string to a start/end IP range.
 	 * Works for both network addresses (10.89.0.0/24) and host addresses
-	 * within a subnet (10.89.0.5/24) — the mask normalises either to the
+	 * within a subnet (10.89.0.5/24) - the mask normalises either to the
 	 * full network range.
 	 * @param {string} cidr - CIDR notation (e.g., "10.89.0.128/25")
 	 * @returns {{start_ip: string, end_ip: string}|null} Range or null if invalid
