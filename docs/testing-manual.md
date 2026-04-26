@@ -149,7 +149,7 @@
 
 ### Prune Modal
 
-- [ ] **8.1** Open prune modal → Options shown: containers, images, volumes, networks
+- [x] **8.1** Open prune modal → Options shown: containers, images, volumes, networks
 - [ ] **8.2** Select only "Volumes" → Prune → Only unused volumes pruned (e.g. `test-vol-prune` from step 4.8); containers/images untouched
 - [ ] **8.3** Select "Containers" → Prune → Only stopped/exited containers removed
 
@@ -157,23 +157,23 @@
 
 - [x] **8.4** Open auto-update modal → Container list shown with current digest info
 - [x] **8.5** Click "Check for Updates" → Digest comparison runs; up-to-date containers marked
-- [ ] **8.6** If outdated container detected → Update → Pulls new image, recreates container
+- [x] **8.6** If outdated container detected → Update → Pulls new image, recreates container
 
 ---
 
 ## 9. Error Handling
 
 - [ ] **9.1** Stop Podman socket (`/etc/init.d/podman stop`), load any list view → Clear RPC error message; no JS crash, no blank page
-- [ ] **9.2** Navigate to `/admin/podman/container/nonexistent-id` → Graceful error, not a blank page
+- [x] **9.2** Navigate to `/admin/podman/container/nonexistent-id` → Graceful error, not a blank page
 - [ ] **9.3** Start Podman again (`/etc/init.d/podman start`); reload → Normal operation resumes
-- [ ] **9.4** Trigger two operations quickly in succession → No race-condition crash or duplicate requests
+- [x] **9.4** Trigger two operations quickly in succession → No race-condition crash or duplicate requests
 
 ---
 
 ## 10. Cleanup Verification
 
-- [ ] **10.1** Delete any remaining test containers (e.g. `test-alpine-renamed`)
-- [ ] **10.2** Delete `alpine` image
-- [ ] **10.3** Containers list → Empty (or back to pre-test state)
-- [ ] **10.4** Images list → Empty (or back to pre-test state)
-- [ ] **10.5** Overview counters → Match baseline from step 1.4
+- [x] **10.1** Delete any remaining test containers (e.g. `test-alpine-renamed`)
+- [x] **10.2** Delete `alpine` image
+- [x] **10.3** Containers list → Empty (or back to pre-test state)
+- [x] **10.4** Images list → Empty (or back to pre-test state)
+- [x] **10.5** Overview counters → Match baseline from step 1.4

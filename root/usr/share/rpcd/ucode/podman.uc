@@ -22,58 +22,69 @@
 import { connect } from 'socket';
 import { readfile, writefile, popen, stat, chmod, unlink, glob, access } from 'fs';
 import { cursor } from 'uci';
-import { urlencode, ENCODE_FULL } from 'lucihttp';
-import { init_enabled, init_action } from 'luci.sys';
+import { urlencode, ENCODE_FULL } from 'luci.http'; // ucode-lsp disable
+import { init_enabled, init_action } from 'luci.sys'; // ucode-lsp disable
 
 // --- Configuration ---
 
 const uci = cursor();
 const SOCKET = uci.get('podman', 'globals', 'socket_path') || '/run/podman/podman.sock';
 const _prio = uci.get('podman', 'globals', 'init_start_priority');
-const INIT_START_PRIORITY = (_prio && match(_prio, /^([0-9]|[1-9][0-9]|100)$/)) ? _prio : '100';
+const INIT_START_PRIORITY = (type(_prio) === 'string' && match(_prio, /^([0-9]|[1-9][0-9]|100)$/)) ? _prio : '100';
 uci.unload('podman');
 
 const API_BASE = '/v5.0.0/libpod';
 
 // --- Validation ---
 
+/** @param {string} id */
 function validate_id(id) {
-	if (!id || !match(id, /^[a-zA-Z0-9_.:-]+$/))
+	if (!id || type(id) !== 'string' || !match(id, /^[a-zA-Z0-9_.:-]+$/))
 		return 'Invalid id format';
 }
 
+/** @param {string} name */
 function validate_container_name(name) {
-	if (!name || !match(name, /^[a-zA-Z0-9_.-]+$/))
+	if (!name || type(name) !== 'string' || !match(name, /^[a-zA-Z0-9_.-]+$/))
 		return 'Invalid container name format';
 }
 
+/** @param {string} name */
 function validate_resource_name(name) {
-	if (!name || !match(name, /^[a-zA-Z0-9_.-]+$/))
+	if (!name || type(name) !== 'string' || !match(name, /^[a-zA-Z0-9_.-]+$/))
 		return 'Invalid resource name format';
 }
 
+/** @param {string} name */
 function validate_volume_name(name) {
-	if (!name || !match(name, /^[a-zA-Z0-9_.-]+$/))
+	if (!name || type(name) !== 'string' || !match(name, /^[a-zA-Z0-9_.-]+$/))
 		return 'Invalid volume name format';
 }
 
+/** @param {string} ref */
 function validate_image_ref(ref) {
-	if (!ref || !match(ref, /^[a-zA-Z0-9_.:\/@-]+$/))
+	if (!ref || type(ref) !== 'string' || !match(ref, /^[a-zA-Z0-9_.:\/@-]+$/))
 		return 'Invalid image reference';
 }
 
+/** @param {string} query */
 function validate_query_params(query) {
-	if (!query || !match(query, /^[a-zA-Z0-9=&_.,-]+$/))
+	if (!query || type(query) !== 'string' || !match(query, /^[a-zA-Z0-9=&_.,-]+$/))
 		return 'Invalid query parameters';
 }
 
 const VALID_RESTART_POLICIES = { 'no': true, 'always': true, 'on-failure': true, 'unless-stopped': true };
 
+/** @param {string} policy */
 function validate_restart_policy(policy) {
 	if (policy && !(policy in VALID_RESTART_POLICIES))
 		return 'Invalid restart policy';
 }
 
+/**
+ * @param {string} name
+ * @param {any} value
+ */
 function require_param(name, value) {
 	if (value == null || value === ''
 		|| (type(value) === 'object' && length(keys(value)) === 0))
@@ -82,32 +93,39 @@ function require_param(name, value) {
 
 // --- HTTP Client ---
 
+/**
+ * @param {string} method
+ * @param {string} path
+ * @param {string} body
+ * @param {bool} raw
+ */
 function podman_request(method, path, body, raw) {
 	let sock = connect(SOCKET);
 	if (!sock)
 		return { error: 'Failed to connect to Podman socket' };
 
+	let body_s = `${body}`;
 	let request = `${method} ${path} HTTP/1.0\r\nHost: localhost\r\n`;
-	if (body) {
-		request += `Content-Type: application/json\r\nContent-Length: ${length(body)}\r\n`;
+	if (body_s) {
+		request += `Content-Type: application/json\r\nContent-Length: ${length(body_s)}\r\n`;
 	}
 	request += '\r\n';
-	if (body)
-		request += body;
+	if (body_s)
+		request += body_s;
 
 	sock.send(request);
 
 	// Read response headers (until \r\n\r\n separator)
 	let header_buf = '';
 	let body_remainder = '';
-	let chunk;
+	let chunk = '';
 
 	while (true) {
 		chunk = sock.recv(65536);
-		if (!chunk || length(chunk) === 0)
+		if (!chunk)
 			break;
 
-		header_buf += chunk;
+		header_buf += `${chunk}`;
 		let sep = index(header_buf, '\r\n\r\n');
 		if (sep >= 0) {
 			body_remainder = substr(header_buf, sep + 4);
@@ -137,23 +155,22 @@ function podman_request(method, path, body, raw) {
 	let content_length = cl_match ? +cl_match[1] : -1;
 
 	// Read body
-	let resp_body = body_remainder;
-
+	let resp_body = `${body_remainder}`;
 	if (content_length >= 0) {
 		// Read exactly content_length bytes
 		while (length(resp_body) < content_length) {
 			chunk = sock.recv(65536);
-			if (!chunk || length(chunk) === 0)
+			if (!chunk)
 				break;
-			resp_body += chunk;
+			resp_body += `${chunk}`;
 		}
 	} else {
 		// No Content-Length - read until EOF
 		while (true) {
 			chunk = sock.recv(65536);
-			if (!chunk || length(chunk) === 0)
+			if (!chunk)
 				break;
-			resp_body += chunk;
+			resp_body += `${chunk}`;
 		}
 	}
 
@@ -163,11 +180,11 @@ function podman_request(method, path, body, raw) {
 	if (raw) {
 		if (status_code >= 400)
 			return { error: trim(resp_body || `HTTP ${status_code}`) };
-		return { status: status_code, body: resp_body || '' };
+		return { status: status_code, body: resp_body };
 	}
 
 	// Try to parse JSON body
-	if (resp_body != null && resp_body !== '') {
+	if (resp_body !== '') {
 		let parsed = null;
 		try { parsed = json(resp_body); } catch(e) {}
 
@@ -190,16 +207,23 @@ function podman_request(method, path, body, raw) {
 }
 
 // Helper: validate + urlencode an ID parameter
+/** @param {string} id */
 function encode_id(id) {
 	return urlencode(id, ENCODE_FULL);
 }
 
 // Helper: append ?force=true if force flag is set
+/**
+ * @param {string} path
+ * @param {bool} force
+ */
 function add_force(path, force) {
 	return (force === true || force === 1) ? `${path}?force=true` : path;
 }
 
-// Helper: build query string from boolean flags
+/**
+ * @param {object} params
+ */
 function build_bool_query(params) {
 	let parts = [];
 	for (let k in params) {
@@ -211,6 +235,9 @@ function build_bool_query(params) {
 
 // --- Init Script Helpers ---
 
+/**
+ * @param {string} name
+ */
 function init_script_path(name) {
 	return `/etc/init.d/container-${name}`;
 }
@@ -415,14 +442,14 @@ const methods = {
 
 			// Response is newline-delimited JSON: {"stream":"..."} lines
 			// Last line contains {"images":[...],"id":"..."}
-			let body = resp.body || '';
+			let body = `${resp.body || ''}`;
 			let output = '';
 			let images = null;
 			let id = null;
 
 			let lines = split(body, '\n');
 			for (let i = 0; i < length(lines); i++) {
-				let line = trim(lines[i]);
+				let line = trim(`${lines[i]}`);
 				if (line === '') continue;
 				let parsed = null;
 				try { parsed = json(line); } catch(e) {}
@@ -695,7 +722,7 @@ const methods = {
 			let err = require_param('name', req.args.name) || validate_resource_name(req.args.name)
 				|| require_param('data', req.args.data);
 			if (err) return { error: err };
-			let data_b64 = b64enc(req.args.data);
+			let data_b64 = b64enc(`${req.args.data}`);
 			let name_enc = encode_id(req.args.name);
 			return podman_request('POST', `${API_BASE}/secrets/create?name=${name_enc}`, `"${data_b64}"`);
 		}
@@ -751,9 +778,9 @@ const methods = {
 			// 1. Podman binary
 			let podman_stat = stat('/usr/bin/podman');
 			if (podman_stat) {
-				let p = popen('/usr/bin/podman --version 2>/dev/null', 'r');
-				let ver = p ? trim(p.read('line') || '') : '';
-				if (p) p.close();
+				let proc = popen('/usr/bin/podman --version 2>/dev/null', 'r');
+				let ver = proc ? trim(proc.read('line') || '') : '';
+				if (proc) proc.close();
 				push(checks, { name: 'podman_binary', label: 'Podman Binary', status: 'ok', detail: '/usr/bin/podman', message: ver });
 			} else {
 				push(checks, { name: 'podman_binary', label: 'Podman Binary', status: 'error', detail: '/usr/bin/podman', message: 'Not found or not executable' });
@@ -868,8 +895,8 @@ const methods = {
 			let err = require_param('name', req.args.name) || validate_container_name(req.args.name);
 			if (err) return { error: err };
 
-			let name = req.args.name;
-			let start_priority = INIT_START_PRIORITY;
+			let name = `${req.args.name}`;
+			let start_priority = `${INIT_START_PRIORITY}`;
 			let script_name = `container-${name}`;
 			let script_path = init_script_path(name);
 

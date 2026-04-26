@@ -1,4 +1,6 @@
-import { stdout, open, stat, unlink } from 'fs';
+'use strict';
+
+import { open, stat, unlink } from 'fs';
 import * as socket from 'socket';
 import * as uloop from 'uloop';
 import * as struct from 'struct';
@@ -9,14 +11,21 @@ const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
+let http, stdout, ctx;
+
+/**
+ * @param {string} id
+ */
 function validate_id(id) {
-	if (type(id) != "string")
-		return;
 	return id && match(id, /^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$/);
 }
 
+/**
+ * @param {int} code
+ * @param {string} message
+ */
 function error_response(code, message) {
-	if (http.eoh) return; // ucode-lsp disable
+	if (http.eoh) return;
 	http.status(code, message);
 	http.header('Content-Type', 'text/plain');
 	http.write(message + '\n');
@@ -32,6 +41,9 @@ function get_timeouts() {
 	};
 }
 
+/**
+ * @param {string} sid
+ */
 function session_timer(sid) {
 	let uci = cursor();
 	let script_timeout = +(uci.get('uhttpd', 'main', 'script_timeout') ?? 60);
@@ -79,6 +91,12 @@ function session_timer(sid) {
 	};
 }
 
+/**
+ * @param {string} api_path
+ * @param {function} on_data
+ * @param {boolean} early_headers
+ * @param {int} timer
+ */
 function stream_podman(api_path, on_data, early_headers, timer) {
 	let sock = socket.connect(PODMAN_SOCKET);
 	if (!sock) {
@@ -105,7 +123,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 	let podman_headers_done = false;
 
 	let handle = uloop.handle(sock, () => {
-		let chunk = sock.recv(BLOCKSIZE);
+		let chunk = `${sock.recv(BLOCKSIZE)}`;
 		if (chunk === null) return; // EAGAIN - keep waiting
 
 		if (!podman_headers_done) {
@@ -130,7 +148,8 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 				return;
 			}
 
-			let body_start = substr(buf, sep + 4);
+			sep = sep + 4;
+			let body_start = substr(buf, sep);
 			buf = '';
 			podman_headers_done = true;
 
@@ -175,10 +194,10 @@ return {
 		let timer = session_timer(ctx?.authsession);
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let tail   = http.formvalue('tail') || '100';
-		let since  = http.formvalue('since');
-		let until  = http.formvalue('until');
-		let follow = http.formvalue('follow') !== 'false';
+		let tail   = `${http.formvalue('tail')}` || '100';
+		let since  = `${http.formvalue('since')}`;
+		let until  = `${http.formvalue('until')}`;
+		let follow = `${http.formvalue('follow')}` !== 'false';
 
 		if (tail !== 'all' && !match(tail, /^[0-9]+$/)) {
 			error_response(400, 'Invalid tail parameter');
@@ -206,7 +225,7 @@ return {
 		let framebuf = '';
 
 		stream_podman(api_path, (chunk) => {
-			framebuf += chunk;
+			framebuf += `${chunk}`;
 			while (length(framebuf) >= 8) {
 				let hdr = struct.unpack('!BxxxI', substr(framebuf, 0, 8));
 				if (!hdr) break;
@@ -231,20 +250,21 @@ return {
 		let timer = session_timer(ctx?.authsession);
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let delay = http.formvalue('delay') || '5';
+		let delay = `${http.formvalue('delay')}` || '5';
+		let ps_args = `${http.formvalue('ps_args')}`;
+
 		if (!match(delay, /^[0-9]+$/) || +delay < 2) {
 			error_response(400, 'Invalid delay parameter');
 			return;
 		}
 
-		let ps_args = http.formvalue('ps_args');
 		if (ps_args && !match(ps_args, /^[-a-zA-Z0-9_, ]+$/)) {
 			error_response(400, 'Invalid ps_args parameter');
 			return;
 		}
 
-		let api_path = sprintf('%s/containers/%s/top?stream=true&delay=%s',
-			API_BASE, id, delay);
+		let api_path = sprintf('%s/containers/%s/top?stream=true&delay=%s', API_BASE, id, delay);
+
 		if (ps_args)
 			api_path += sprintf('&ps_args=%s', ps_args);
 
@@ -276,7 +296,7 @@ return {
 		let timer = session_timer(ctx?.authsession);
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let reference = http.formvalue('reference');
+		let reference = `${http.formvalue('reference')}`;
 		if (!reference || !match(reference, /^[a-zA-Z0-9._/:@-]+$/)) {
 			error_response(400, 'Invalid or missing reference parameter');
 			return;
