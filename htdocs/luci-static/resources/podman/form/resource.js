@@ -71,6 +71,10 @@ const PodmanFormResource = podmanView.form.extend({
 	},
 
 	async handleUpdate() {
+		if (!this.isValid()) {
+			return this.scrollToInvalid();
+		}
+
 		await this.save();
 
 		const data = this.getFieldValues();

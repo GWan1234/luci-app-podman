@@ -118,7 +118,10 @@ const Container = Model.base.extend({
 	},
 
 	getAutoUpdateLabel() {
-		return this.Config?.Labels['io.containers.autoupdate'];
+		if (!this.Config?.Labels) {
+			return false;
+		}
+		return this.Config?.Labels['io.containers.autoupdate'] || false;
 	},
 
 	getCmdString() {

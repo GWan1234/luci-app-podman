@@ -256,14 +256,15 @@ const Network = Model.base.extend({
 		const prefix = parseInt(subnet.split('/')[1], 10);
 		const netmask = network.prefixToMask(prefix);
 
-		uci.add('network', 'interface', networkName);
-		uci.set('network', networkName, 'proto', 'static');
-		if (deviceName) uci.set('network', networkName, 'device', deviceName);
-		uci.set('network', networkName, 'ipaddr', this.getGatewayIP4());
-		uci.set('network', networkName, 'netmask', netmask);
+		const sid = `${networkName}`;
+		uci.add('network', 'interface', sid);
+		uci.set('network', sid, 'proto', 'static');
+		if (deviceName) uci.set('network', sid, 'device', deviceName);
+		uci.set('network', sid, 'ipaddr', this.getGatewayIP4());
+		uci.set('network', sid, 'netmask', netmask);
 
 		if (this.ipv6_enabled) {
-			uci.set('network', networkName, 'ip6addr', this.getGatewayIP6() + '/64');
+			uci.set('network', sid, 'ip6addr', this.getGatewayIP6() + '/64');
 		}
 	},
 

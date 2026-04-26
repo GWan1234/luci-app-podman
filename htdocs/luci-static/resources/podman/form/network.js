@@ -62,7 +62,7 @@ const PodmanFormNetwork = podmanView.form.extend({
 
 		field = this.section.option(form.Value, 'name', _('Network Name'));
 		field.placeholder = 'my-network';
-		field.datatype = 'maxlength(253)';
+		field.datatype = 'and(uciname,maxlength(15))';
 		field.description = _('Name for the network');
 		field.rmempty = false;
 
@@ -89,7 +89,7 @@ const PodmanFormNetwork = podmanView.form.extend({
 		field.placeholder = '10.89.0.0/24';
 		field.datatype = 'cidr4';
 		field.description = _('IPv4 subnet in CIDR notation');
-		field.rmempty = false;
+		// field.rmempty = false;
 
 		field = this.section.option(form.Value, 'gateway', _('IPv4 Gateway'));
 		field.placeholder = '10.89.0.1';
@@ -143,10 +143,13 @@ const PodmanFormNetwork = podmanView.form.extend({
 	},
 
 	async handleCreate() {
-		await uci.load(['network', 'firewall']);
-		const ulaPrefix = uci.get('network', 'globals', 'ula_prefix');
+		if (!this.isValid()) {
+			return this.scrollToInvalid();
+		}
 
 		await this.save();
+		await uci.load(['network', 'firewall']);
+		const ulaPrefix = uci.get('network', 'globals', 'ula_prefix');
 
 		const podnetwork = this.getFieldValues();
 
@@ -168,10 +171,10 @@ const PodmanFormNetwork = podmanView.form.extend({
 			return;
 		}
 
-		if (setupOpenwrt && !podnetwork.subnet) {
-			this.error(_('OpenWrt integration requires subnet to be specified'));
-			return;
-		}
+		// if (setupOpenwrt && !podnetwork.subnet) {
+		// 	this.error(_('OpenWrt integration requires subnet to be specified'));
+		// 	return;
+		// }
 
 		if (!podnetwork.gateway && podnetwork.subnet) {
 			podnetwork.gateway = utils.ipv4.firstHost(podnetwork.subnet);
@@ -227,7 +230,7 @@ const PodmanFormNetwork = podmanView.form.extend({
 		}
 
 		const createFn = async () => {
-			await podmanRPC.networks.create(payload);
+			const newNetwork = await podmanRPC.networks.create(payload);
 
 			if (!setupOpenwrt) return;
 
@@ -237,6 +240,7 @@ const PodmanFormNetwork = podmanView.form.extend({
 			await NetworkModel.integrationCreateNetwork(deviceName);
 
 			if (await firewall.getZone(zoneName)) {
+				console.log('into existing zone');
 				const currentNetworks = uci.get('firewall', zoneName, 'network');
 				const networkList = Array.isArray(currentNetworks) ? currentNetworks
 					: currentNetworks ? [currentNetworks] : [];
@@ -245,6 +249,7 @@ const PodmanFormNetwork = podmanView.form.extend({
 					uci.set('firewall', zoneName, 'network', networkList);
 				}
 			} else {
+				console.log('new zone');
 				const zoneId = uci.add('firewall', 'zone');
 				uci.set('firewall', zoneId, 'name', zoneName);
 				uci.set('firewall', zoneId, 'input', 'DROP');

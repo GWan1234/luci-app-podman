@@ -145,13 +145,10 @@ const ViewForm = baseclass.extend({
 
 	async render() {
 		const data = this.makeData();
-		console.log('data')
 		const sectionName = Object.keys(data)[0];
-		console.log('data', data, sectionName);
 		this.map = new form.JSONMap(data, '', '');
 		this.section = this.map.section(form.TypedSection, sectionName, '');
 
-		// this.map.data.data = this.makeData();
 		await this.createForm();
 
 		return this.map.render();
@@ -166,14 +163,6 @@ const ViewForm = baseclass.extend({
 	getFields() {
 		return this.section?.getOption() || {};
 	},
-
-	// getUIElement(name) {
-	// 	return this.section?.getUIElement(this.section?.section, name) || {};
-	// },
-
-	// getUIElements() {
-	// 	return this.section?.getUIElement(this.section?.section) || {};
-	// },
 
 	getFieldValue(name) {
 		return this.getField(name)?.formvalue(this.section?.sectiontype);
@@ -209,7 +198,13 @@ const ViewForm = baseclass.extend({
 	},
 
 	async save() {
-		return this.map.save(() => {}, true);
+		try {
+			await this.map.save(() => {}, true);
+		} catch (error) {
+			return false;
+		}
+
+		return true;
 	},
 
 	async handleCreate(createFn, title, textLoading, textSuccess) {

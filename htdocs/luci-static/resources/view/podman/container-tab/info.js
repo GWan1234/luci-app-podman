@@ -171,13 +171,10 @@ return podmanView.tabContent.extend({
 		}
 
 		const podmanNetworks = await podmanRPC.networks.list();
-		const networkOptions = Object.assign({
-			'': _('-- Select %s --').format(_('Network'))
-		}, Object.fromEntries(podmanNetworks.map(item => [item.name, item.name])));
+		const networkOptions = Object.fromEntries(podmanNetworks.map(item => [item.name, item.name]));
 
-		const networkSelectWidget = new ui.Select('', networkOptions, { name: 'container-connect-network' });
-		const ipTextWidget = new ui.Textfield('', { name: 'container-connect-ip', placeholder: '192.168.1.100' });
-		ipTextWidget.datatype = 'ip4addr';
+		const networkSelectWidget = new ui.Select([''], networkOptions, { name: 'container-connect-network', optional: false });
+		const ipTextWidget = new ui.Textfield('', { name: 'container-connect-ip', placeholder: '192.168.1.100', datatype: 'ip4addr' });
 
 		table.addRow(_('Connect to'), [
 			E('div', { class: 'd-flex align-center container-connect' }, [
@@ -187,11 +184,12 @@ return podmanView.tabContent.extend({
 					const selectedNetwork = networkSelectWidget.getValue();
 					const selectedIp = ipTextWidget.getValue();
 
-					if (!selectedNetwork) {
-						return this.error(_('No network selected'));
-					}
+					networkSelectWidget.triggerValidation();
+					ipTextWidget.triggerValidation();
 
-					this.handleNetworkConnect(selectedNetwork, selectedIp);
+					if (!selectedNetwork || !ipTextWidget.isValid()) {
+						return;
+					}
 				}).render(),
 			]),
 		]);

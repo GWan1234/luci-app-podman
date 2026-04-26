@@ -52,6 +52,10 @@ const PodmanFormVolume = podmanView.form.extend({
 	},
 
 	async handleCreate() {
+		if (!this.isValid()) {
+			return this.scrollToInvalid();
+		}
+
 		await this.save();
 
 		const data = this.getFieldValues();
