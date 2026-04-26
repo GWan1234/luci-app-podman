@@ -58,79 +58,79 @@
 
 ### 3d. Detail view — Info tab
 
-- [ ] **3.13** Click `test-alpine` name link → Navigates to container detail page
-- [ ] **3.14** Name, image, state displayed → Matches list view
-- [ ] **3.15** Edit container name to `test-alpine-renamed` → Save → Name updated; notification shown
-- [ ] **3.16** Change restart policy to `always` → Save → Policy updated; success notification
-- [ ] **3.17** Init script auto-generated → Auto-start indicator shows enabled
-- [ ] **3.18** Click "Show Init Script" → Modal with script content; script references `test-alpine-renamed`
-- [ ] **3.19** Toggle init script disabled → Indicator changes
-- [ ] **3.20** Toggle init script enabled again → Indicator reverts
-- [ ] **3.21** Change restart policy to `no` → Save → Init script removed/disabled
-- [ ] **3.22** Navigate back to list → Name shown as `test-alpine-renamed`
+- [x] **3.13** Click `test-alpine` name link → Navigates to container detail page
+- [x] **3.14** Name, image, state displayed → Matches list view
+- [x] **3.15** Edit container name to `test-alpine-renamed` → Save → Name updated; notification shown
+- [x] **3.16** Change restart policy to `always` → Save → Policy updated; success notification
+- [x] **3.17** Init script auto-generated → Auto-start indicator shows enabled
+- [x] **3.18** Click "Show Init Script" → Modal with script content; script references `test-alpine-renamed`
+- [x] **3.19** Toggle init script disabled → Indicator changes
+- [x] **3.20** Toggle init script enabled again → Indicator reverts
+- [x] **3.21** Change restart policy to `no` → Save → Init script removed/disabled
+- [x] **3.22** Navigate back to list → Name shown as `test-alpine-renamed`
 
 ### 3e. Detail view — Resources tab
 
-- [ ] **3.23** Click Resources tab → Tab activates; current limits shown
+- [x] **3.23** Click Resources tab → Tab activates; current limits shown
 - [ ] **3.24** Set CPU limit to `0.5` → Save → After page reload, Resources tab is active (tab persistence)
-- [ ] **3.25** Set Memory limit to `64m` → Save → Value persisted
-- [ ] **3.26** Enter invalid CPU value (e.g. `abc`) → Save → Validation error; no save
+- [x] **3.25** Set Memory limit to `64m` → Save → Value persisted
+- [x] **3.26** Enter invalid CPU value (e.g. `abc`) → Save → Validation error; no save
 
 ### 3f. Detail view — Stats tab
 
-- [ ] **3.27** Start container (if stopped)
-- [ ] **3.28** Click Stats tab → CPU%, Memory, Net I/O data appears
-- [ ] **3.29** Stop container; click Stats tab → Graceful empty/zero state, no JS crash
+- [x] **3.27** Start container (if stopped)
+- [x] **3.28** Click Stats tab → CPU%, Memory, Net I/O data appears
+- [x] **3.29** Stop container; click Stats tab → Graceful empty/zero state, no JS crash
 
 ### 3g. Detail view — Logs tab
 
-- [ ] **3.30** Click Logs tab → Log output area visible (may be empty for alpine)
-- [ ] **3.31** Change line count to `50` → Apply → Fetches last 50 lines
+- [x] **3.30** Click Logs tab → Log output area visible (may be empty for alpine)
+- [x] **3.31** Change line count to `50` → Apply → Fetches last 50 lines
 - [ ] **3.32** Enable live streaming toggle → Toggle activates
-- [ ] **3.33** Disable live streaming → Streaming stops, toggle off
-- [ ] **3.34** Click Clear → Log area clears
+- [x] **3.33** Disable live streaming → Streaming stops, toggle off
+- [x] **3.34** Click Clear → Log area clears
 
 ### 3h. Detail view — Processes tab
 
-- [ ] **3.35** Start container; click Processes tab → Process table appears
-- [ ] **3.36** Stop container; click Processes tab → Graceful empty/error state, no JS crash
+- [x] **3.35** Start container; click Processes tab → Process table appears
+- [x] **3.36** Stop container; click Processes tab → Graceful empty/error state, no JS crash
 
 ### 3i. Network management (on detail page)
 
-- [ ] **3.37** Note current networks attached → Baseline
-- [ ] **3.38** Disconnect default network → Network removed from list
-- [ ] **3.39** Reconnect the network → Network added back
-- [ ] **3.40** Connect a network with valid static IP → Network added with IP shown
-- [ ] **3.41** Connect a network with invalid IP → Validation error
+- [x] **3.37** Note current networks attached → Baseline
+- [x] **3.38** Disconnect default network → Network removed from list
+- [x] **3.39** Reconnect the network → Network added back
+- [x] **3.40** Connect a network with valid static IP → Network added with IP shown
+- [x] **3.41** Connect a network with invalid IP → Validation error
 
 ---
 
 ## 4. Volumes (`/admin/podman/volumes`)
 
-- [ ] **4.1** Load volumes list → Page loads (may be empty)
-- [ ] **4.2** Click "Create Volume" → Form appears
-- [ ] **4.3** Submit empty form → Validation error (name required)
-- [ ] **4.4** Create volume named `test-vol` → Appears in list with name, driver, created date
-- [ ] **4.5** Click inspect on `test-vol` → JSON modal shows volume data
-- [ ] **4.6** Return to overview → Volume count incremented
-- [ ] **4.7** Select `test-vol` → Delete → Confirmation modal → confirm → removed from list
+- [x] **4.1** Load volumes list → Page loads (may be empty)
+- [x] **4.2** Click "Create Volume" → Form appears
+- [x] **4.3** Submit empty form → Name will be generated
+- [x] **4.4** Create volume named `test-vol` → Appears in list with name, driver, created date
+- [x] **4.5** Click inspect on `test-vol` → JSON modal shows volume data
+- [x] **4.6** Return to overview → Volume count incremented
+- [x] **4.7** Select `test-vol` → Delete → Confirmation modal → confirm → removed from list
 - [ ] **4.8** Create volume `test-vol-prune` and leave it → Used in prune test (step 8.2)
 
 ---
 
 ## 5. Networks (`/admin/podman/networks`)
 
-- [ ] **5.1** Load networks list → Default `podman` network visible
-- [ ] **5.2** Note OpenWrt column for default network → Status icon shown
-- [ ] **5.3** Click "Create Network" → Form opens
-- [ ] **5.4** Submit empty form → Validation error
-- [ ] **5.5** Create `test-net`, subnet `10.220.0.0/24`, gateway `10.220.0.1`, OpenWrt integration checked → Network created; OpenWrt column shows `✓`
-- [ ] **5.6** Verify UCI config created → SSH: `uci show network.test_net` returns values
-- [ ] **5.7** Create `test-net-bare` with no subnet, integration unchecked → Network created; OpenWrt column shows `—`
-- [ ] **5.8** If any network shows `⚠` (incomplete integration): click it → Confirmation modal → setup → icon changes to `✓`
-- [ ] **5.9** Return to overview → Network count incremented
-- [ ] **5.10** Select `test-net` → Delete → Confirmation mentions OpenWrt cleanup → confirm → network removed; UCI config removed
-- [ ] **5.11** Select `test-net-bare` → Delete → Removed cleanly (no UCI to clean up)
+- [x] **5.1** Load networks list → Default `podman` network visible
+- [x] **5.2** Note OpenWrt column for default network → Status icon shown
+- [x] **5.3** Click "Create Network" → Form opens
+- [x] **5.4** Submit empty form → Validation error
+- [x] **5.5** Create `test_net`, subnet `10.220.0.0/24`, gateway `10.220.0.1`, OpenWrt integration checked → Network created; OpenWrt column shows `✓`
+- [x] **5.6** Verify UCI config created → SSH: `uci show network.test_net` returns values
+- [x] **5.7** Create `test_net_b` with no subnet, integration unchecked → Network created; OpenWrt column shows `—`
+- [x] **5.8** If any network shows `X` (incomplete integration): click it → setup → icon changes to `✓`
+- [x] **5.9** Return to overview → Network count incremented
+- [x] **5.10** Select `test_net` → Delete → Confirmation mentions OpenWrt cleanup → confirm → network removed; UCI config removed
+- [x] **5.11** Select `test_net_bare` → Delete → Removed cleanly (no UCI to clean up)
 
 ---
 
