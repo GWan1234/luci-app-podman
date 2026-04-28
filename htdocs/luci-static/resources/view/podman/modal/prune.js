@@ -64,7 +64,7 @@ return podmanUI.Modal.extend({
 				reports.forEach((r) => {
 					if (r.Size > 0) freedSpace += r.Size;
 				});
-				deletedItems.push(_('%d %s').format(reports.length, type.label.toLowerCase()));
+				deletedItems.push('%d %s'.format(reports.length, type.label.toLowerCase()));
 			}
 		});
 

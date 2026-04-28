@@ -1,9 +1,6 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8\nLanguage: zh_Hant"
 
-msgid "%d %s"
-msgstr "%d %s"
-
 msgid "%d check(s) failed:"
 msgstr "%d 次檢查失敗："
 
