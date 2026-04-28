@@ -9,7 +9,6 @@ USE_PROCD=1
 NAME={script_name}
 PROG=/usr/bin/podman
 
-# safe literal container name check at runtime.
 case "{name}" in
 	*[!A-Za-z0-9._-]*|'')
 		logger -t "${NAME}" "Invalid container name '{name}'; only [A-Za-z0-9._-] allowed"

@@ -2,7 +2,7 @@
 
 import * as socket from 'socket';
 import { open, unlink } from 'fs';
-import { urlencode, ENCODE_FULL } from 'luci.http'; // ucode-lsp disable
+import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 
 const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
@@ -63,14 +63,13 @@ let buf = '';
 let lf  = null;
 
 while (true) {
-	let chunk = `${sock.recv(BLOCKSIZE)}`;
-	if (chunk === null) continue;
-	if (!length(chunk)) {
+	let chunk = sock.recv(BLOCKSIZE);
+	if (!chunk) {
 		write_error('Podman closed connection before responding');
 		sock.close();
 		cleanup(1);
 	}
-	buf += chunk;
+	buf += `${chunk}`;
 	let sep = index(buf, '\r\n\r\n');
 	if (sep < 0) continue;
 
@@ -100,9 +99,8 @@ while (true) {
 
 // Stream response body to logfile - Podman sends NDJSON, we write it as-is
 while (true) {
-	let chunk = `${sock.recv(BLOCKSIZE)}`;
-	if (chunk === null) continue;
-	if (!length(chunk)) break; // EOF - Podman finished
+	let chunk = sock.recv(BLOCKSIZE);
+	if (!chunk) break; // EOF or error - Podman finished
 	lf.write(chunk);
 	lf.flush();
 }

@@ -190,35 +190,27 @@ const UIJsonArea = baseclass.extend({
 	},
 
 	render() {
-		const data = JSON.stringify(this.data, null, 2);
-
-		return E('pre', { class: 'json-area' }, this.syntaxHighlight(data));
-	},
-
-	syntaxHighlight(json) {
-		json = json
-			.replace(/&/g, "&amp;")
-			.replace(/</g, "&lt;")
-			.replace(/>/g, "&gt;");
-
-		return json.replace(
+		const el = E('pre', { class: 'json-area' });
+		const json = JSON.stringify(this.data, null, 2);
+		const nodes = [];
+		let last = 0;
+		json.replace(
 			/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-			(match) => {
-				let cls = "number";
-				if (/^"/.test(match)) {
-					if (/:$/.test(match)) {
-						cls = "key";
-					} else {
-						cls = "string";
-					}
-				} else if (/true|false/.test(match)) {
-					cls = "boolean";
-				} else if (/null/.test(match)) {
-					cls = "null";
-				}
-				return '<span class="' + cls + '">' + match + "</span>";
+			(match, _p1, _p2, _p3, _p4, offset) => {
+				if (offset > last)
+					nodes.push(document.createTextNode(json.slice(last, offset)));
+				let cls = 'number';
+				if (/^"/.test(match))          cls = /:$/.test(match) ? 'key' : 'string';
+				else if (/true|false/.test(match)) cls = 'boolean';
+				else if (/null/.test(match))       cls = 'null';
+				nodes.push(E('span', { 'class': cls }, match));
+				last = offset + match.length;
 			}
 		);
+		if (last < json.length)
+			nodes.push(document.createTextNode(json.slice(last)));
+		for (const node of nodes) el.appendChild(node);
+		return el;
 	},
 });
 
@@ -232,20 +224,27 @@ const UIBashCodeArea = baseclass.extend({
 	},
 
 	render() {
-		return E('pre', { class: 'code-area bash' }, this.syntaxHighlight(this.code));
-	},
-
-	syntaxHighlight(code) {
-		const bashRegex = /(#.*)|("(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*')|(\$\w+|\$\{[^}]+\})|\b(if|then|else|elif|fi|case|esac|for|while|do|done|in|break|continue|exit|return|stop_service|start_service)\b|(\b\d+\b)/g;
-
-		return code.replace(bashRegex, (match, comment, string, variable, keyword, number) => {
-			if (comment)  return `<span class="comment">${comment}</span>`;
-			if (string)   return `<span class="string">${string}</span>`;
-			if (variable) return `<span class="variable">${variable}</span>`;
-			if (keyword)  return `<span class="keyword">${keyword}</span>`;
-			if (number)   return `<span class="number">${number}</span>`;
-			return match;
+		const el = E('pre', { class: 'code-area bash' });
+		const code = this.code || '';
+		const nodes = [];
+		let last = 0;
+		const bashRegex = /(#[^\n]*)|("(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*')|(\$\w+|\$\{[^}]+\})|\b(if|then|else|elif|fi|case|esac|for|while|do|done|in|break|continue|exit|return|stop_service|start_service)\b|(\b\d+\b)/g;
+		code.replace(bashRegex, (match, comment, string, variable, keyword, number, offset) => {
+			if (offset > last)
+				nodes.push(document.createTextNode(code.slice(last, offset)));
+			let cls = null;
+			if (comment)  cls = 'comment';
+			else if (string)   cls = 'string';
+			else if (variable) cls = 'variable';
+			else if (keyword)  cls = 'keyword';
+			else if (number)   cls = 'number';
+			nodes.push(cls ? E('span', { 'class': cls }, match) : document.createTextNode(match));
+			last = offset + match.length;
 		});
+		if (last < code.length)
+			nodes.push(document.createTextNode(code.slice(last)));
+		for (const node of nodes) el.appendChild(node);
+		return el;
 	},
 });
 

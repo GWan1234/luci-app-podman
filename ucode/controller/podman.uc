@@ -11,7 +11,14 @@ const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
-let http, stdout, ctx;
+const _uci_timeouts = (() => {
+	let c = cursor();
+	let s = c.get('uhttpd', 'main', 'script_timeout');
+	let n = c.get('uhttpd', 'main', 'network_timeout');
+	c.unload('uhttpd');
+	return { script: s ? +s : 60, network: n ? +n : 30 };
+})();
+
 
 /**
  * @param {string} id
@@ -25,21 +32,12 @@ function validate_id(id) {
  * @param {string} message
  */
 function error_response(code, message) {
-	if (http.eoh) return;
+	if (http.eoh) return; // ucode-lsp disable
 	http.status(code, message);
 	http.header('Content-Type', 'text/plain');
 	http.write(message + '\n');
 }
 
-function get_timeouts() {
-	let c = cursor();
-	let script = c.get('uhttpd', 'main', 'script_timeout');
-	let network = c.get('uhttpd', 'main', 'network_timeout');
-	return {
-		script: script ? +script : 60,
-		network: network ? +network : 30,
-	};
-}
 
 /**
  * @param {string} sid
@@ -106,7 +104,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 
 	sock.send(sprintf('GET %s HTTP/1.0\r\nHost: localhost\r\n\r\n', api_path));
 
-	let t = get_timeouts();
+	let t = _uci_timeouts;
 	let ka_ms = (t.network - 5) * 1000;
 
 	uloop.init();
@@ -123,8 +121,8 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 	let podman_headers_done = false;
 
 	let handle = uloop.handle(sock, () => {
-		let chunk = `${sock.recv(BLOCKSIZE)}`;
-		if (chunk === null) return; // EAGAIN - keep waiting
+		let chunk = sock.recv(BLOCKSIZE);
+		if (type(chunk) !== 'string') return; // EAGAIN - keep waiting
 
 		if (!podman_headers_done) {
 			// Phase 1: consuming Podman's HTTP response headers
@@ -136,8 +134,9 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 				return;
 			}
 			buf += chunk;
+			if (type(buf) !== 'string') return;
 			let sep = index(buf, '\r\n\r\n');
-			if (sep < 0) return; // headers not complete yet
+			if (type(sep) !== 'int' || sep < 0) return; // headers not complete yet
 
 			let m = match(buf, /^HTTP\/[0-9.]+ ([0-9]+)/);
 			let code = m ? +m[1] : 502;
@@ -191,25 +190,25 @@ return {
 	container_logs: (id) => {
 		if (!validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
 
-		let timer = session_timer(ctx?.authsession);
+		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let tail   = `${http.formvalue('tail')}` || '100';
-		let since  = `${http.formvalue('since')}`;
-		let until  = `${http.formvalue('until')}`;
-		let follow = `${http.formvalue('follow')}` !== 'false';
+		let tail   = http.formvalue('tail')   || '100';
+		let since  = http.formvalue('since')  || '';
+		let until  = http.formvalue('until')  || '';
+		let follow = http.formvalue('follow') !== 'false';
 
-		if (tail !== 'all' && !match(tail, /^[0-9]+$/)) {
+		if (tail !== 'all' && !match(`${tail}`, /^[0-9]+$/)) {
 			error_response(400, 'Invalid tail parameter');
 			return;
 		}
 
-		if (since && !match(since, /^[0-9]+(\.[0-9]+)?$/)) {
+		if (since && !match(`${since}`, /^[0-9]+(\.[0-9]+)?$/)) {
 			error_response(400, 'Invalid since parameter');
 			return;
 		}
 
-		if (until && !match(until, /^[0-9]+(\.[0-9]+)?$/)) {
+		if (until && !match(`${until}`, /^[0-9]+(\.[0-9]+)?$/)) {
 			error_response(400, 'Invalid until parameter');
 			return;
 		}
@@ -230,14 +229,13 @@ return {
 				let hdr = struct.unpack('!BxxxI', substr(framebuf, 0, 8));
 				if (!hdr) break;
 				let stream_type = hdr[0];
-				let payload_len = hdr[1];
+				let payload_len = int(`${hdr[1]}`);
 				if (length(framebuf) < 8 + payload_len) break; // wait for more data
 				let payload = substr(framebuf, 8, payload_len);
 				framebuf = substr(framebuf, 8 + payload_len);
 				// Emit stdout (1) and stderr (2); skip others
 				if (stream_type >= 1 && stream_type <= 2) {
-					if (!stdout.write(payload)) return false; // client disconnected
-					stdout.flush();
+					http.write(payload);
 				}
 			}
 			return true;
@@ -247,18 +245,18 @@ return {
 	container_top: (id) => {
 		if (!validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
 
-		let timer = session_timer(ctx?.authsession);
+		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let delay = `${http.formvalue('delay')}` || '5';
-		let ps_args = `${http.formvalue('ps_args')}`;
+		let delay = http.formvalue('delay') || '5';
+		let ps_args = http.formvalue('ps_args') || '';
 
-		if (!match(delay, /^[0-9]+$/) || +delay < 2) {
+		if (!match(`${delay}`, /^[0-9]+$/) || +delay < 2) {
 			error_response(400, 'Invalid delay parameter');
 			return;
 		}
 
-		if (ps_args && !match(ps_args, /^[-a-zA-Z0-9_, ]+$/)) {
+		if (ps_args && !match(`${ps_args}`, /^[-a-zA-Z0-9_, ]+$/)) {
 			error_response(400, 'Invalid ps_args parameter');
 			return;
 		}
@@ -266,34 +264,34 @@ return {
 		let api_path = sprintf('%s/containers/%s/top?stream=true&delay=%s', API_BASE, id, delay);
 
 		if (ps_args)
-			api_path += sprintf('&ps_args=%s', ps_args);
+			api_path += sprintf('&ps_args=%s', replace(ps_args, / /g, '%20'));
 
 		stream_podman(api_path, (chunk) => {
-			let ok = stdout.write(chunk);
-			stdout.flush();
-			return ok;
+			return http.write(chunk);
 		}, false, timer);
 	},
 
 	container_stats: (id) => {
 		if (!validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
 
-		let timer = session_timer(ctx?.authsession);
+		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let interval = http.formvalue('interval') || '3';
+		let interval = `${http.formvalue('interval') || '3'}`;
+		if (!match(interval, /^[0-9]+$/) || +interval < 1) {
+			error_response(400, 'Invalid interval parameter');
+			return;
+		}
 		let api_path = sprintf('%s/containers/stats?containers=%s&stream=true&interval=%s',
 			API_BASE, id, interval);
 
 		stream_podman(api_path, (chunk) => {
-			let ok = stdout.write(chunk);
-			stdout.flush();
-			return ok;
+			return http.write(chunk);
 		}, false, timer);
 	},
 
 	image_pull: () => {
-		let timer = session_timer(ctx?.authsession);
+		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
 		let reference = `${http.formvalue('reference')}`;
@@ -307,7 +305,7 @@ return {
 			return;
 		}
 
-		let sid     = ctx?.authsession;
+		let sid     = ctx?.authsession; // ucode-lsp disable
 		let ref_id  = replace(reference, /[/:@]/g, '-');
 		let logfile = '/tmp/podman-pull-' + ref_id + '.ndjson';
 		let pidfile = '/tmp/podman-pull-' + ref_id + '.pid';
@@ -374,7 +372,7 @@ return {
 		http.write_headers();
 		http.write('\n');
 
-		let t          = get_timeouts();
+		let t          = _uci_timeouts;
 		let ka_ms      = (t.network - 5) * 1000;
 		let last_saved = offset;
 
@@ -383,14 +381,13 @@ return {
 		let poll_fn;
 		poll_fn = () => {
 			// Read and forward any new bytes written to the logfile
-			let f = open(logfile, 'r');
-			if (f) {
-				if (offset > 0) f.seek(offset);
-				let chunk = f.read(8192);
-				f.close();
+			let lf = open(logfile, 'r');
+			if (lf) {
+				if (offset > 0) lf.seek(offset);
+				let chunk = lf.read(8192);
+				lf.close();
 				if (chunk && length(chunk)) {
-					if (!stdout.write(chunk)) { uloop.end(); return; }
-					stdout.flush();
+					if (!http.write(chunk)) { uloop.end(); return; }
 					offset += length(chunk);
 					// Persist offset to session (rate-limited)
 					if (uconn_rw && offset - last_saved >= 1024) {

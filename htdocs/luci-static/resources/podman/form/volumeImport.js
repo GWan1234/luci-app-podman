@@ -27,11 +27,14 @@ const PodmanFormVolumeImport = podmanView.form.extend({
 	},
 
 	async render(file) {
-		this.map.data.data = this.makeData();
 		this.file = file;
 
-		const isCompressed = file.name.endsWith('.tar.gz') || file.name.endsWith('.tgz');
-		const volumeName = file.name.replace(/\.(tar\.gz|tgz|tar)$/, '');
+		return this.super('render', []);
+	},
+
+	createForm() {
+		const isCompressed = this.file.name.endsWith('.tar.gz') || this.file.name.endsWith('.tgz');
+		const volumeName = this.file.name.replace(/\.(tar\.gz|tgz|tar)$/, '');
 
 		this.isCompressed = isCompressed;
 
@@ -40,8 +43,6 @@ const PodmanFormVolumeImport = podmanView.form.extend({
 		field.rmempty = false;
 		field.datatype = 'rangelength(1,253)';
 		field.default = volumeName;
-
-		return this.map.render();
 	},
 
 	async handleCreate() {

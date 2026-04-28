@@ -190,6 +190,8 @@ return podmanView.tabContent.extend({
 					if (!selectedNetwork || !ipTextWidget.isValid()) {
 						return;
 					}
+
+					this.handleNetworkConnect(selectedNetwork, selectedIp);
 				}).render(),
 			]),
 		]);

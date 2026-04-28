@@ -530,7 +530,8 @@ const Container = Model.base.extend({
 	},
 
 	streamTop(onChunk, delay, psargs) {
-		const params = new URLSearchParams({ delay: String(delay || 2), psargs: psargs || [] });
+		const params = new URLSearchParams({ delay: String(delay || 2) });
+		if (psargs) params.set('ps_args', psargs);
 		const url = L.url('admin/podman/stream/top', this.getID()) + '?' + params;
 		return this._stream(
 			() => url,

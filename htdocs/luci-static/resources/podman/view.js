@@ -148,6 +148,7 @@ const ViewForm = baseclass.extend({
 		const sectionName = Object.keys(data)[0];
 		this.map = new form.JSONMap(data, '', '');
 		this.section = this.map.section(form.TypedSection, sectionName, '');
+		this.section.anonymous = true;
 
 		await this.createForm();
 
