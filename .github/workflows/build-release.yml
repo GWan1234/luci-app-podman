@@ -13,6 +13,9 @@ jobs:
           - openwrt_version: '24.10'
             openwrt_build_version: '24.10.5'
             arch: 'x86_64'
+          - openwrt_version: '25.12'
+            openwrt_build_version: '25.12.2'
+            arch: 'x86_64'
       fail-fast: false
     permissions: {}
     uses: Zerogiven/gh-openwrt-package-build-workflows/.github/workflows/reusable-build.yml@prometheus-node-exporter-lua-patch
