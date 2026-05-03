@@ -5,18 +5,16 @@
 - Re-create container with new image(tag)
 - Run update check and update somehow in background
 - Sortable table
-
 - Problem with file export which takes longer than 50s (script timeout)
   - But also the problem with limited space so temp file could be a bad idea
 - How to generally handle tasks which could take long time. For example prune
-
 - Duplicated container_create declaration (because of circular dependency)
-
 - Add restartRetries to container (form+detail)
 - Missing labels for secrets (form & list)
-
 - Remake of health check settings
 - Network detail page
 - Pods
 - Import container from "podman run" command
 - possibility that you can see the create command so if something fails it can be done manually
+- Get rid of the config file - Get socket from podman info leave default startup order (100)
+  - Make it somehow possible to overwrite the priority for one container which will persist also after container update. Means it has to check which prio actually stands in the init.d script to get the current value

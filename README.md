@@ -25,9 +25,12 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 
 ## Features
 
-- **Container Management**: Start, stop, restart, create, remove with live logs, stats, and health monitoring
+- **Container Management**: Start, stop, restart, create, remove containers
+- **Live Streaming**: Real-time logs, stats, and process list streamed directly via a dedicated ucode controller
+- **Health Monitoring**: Per-container health check configuration, status history, and on-demand check execution
 - **Container Auto-Update**: Check for image updates and recreate containers with latest images (see [Auto-Update](#container-auto-update))
 - **Import from Run Command**: Convert `docker run` or `podman run` commands to container configurations
+- **Import from Compose File**: Parse Docker Compose files to create containers
 - **Auto-start Support**: Automatic init script generation for containers with restart policies
 - **Image Management**: Pull, remove, inspect images with streaming progress
 - **Volume Management**: Create, delete, export/import volumes with tar backups
@@ -35,19 +38,26 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 - **Pod Management**: Multi-container pods with shared networking
 - **Secret Management**: Encrypted storage for sensitive data
 - **System Overview**: Resource usage, disk space, system-wide cleanup
-- **Mobile Friendly Lists**: Optimized for basic usage
-- **OpenWRT JS API**: Using luci js api
+- **Multilingual**: de, es, fr, nl, ru, zh_Hans, zh_Hant
 
 ## Screenshots
 
-![Container List](docs/screenshots/screenshots.gif)
+| Container List | Container Info | Logs |
+|---|---|---|
+| ![Container List](docs/screenshots/container-list.png) | ![Container Info](docs/screenshots/container-info.png) | ![Logs](docs/screenshots/container-log.png) |
 
-See more screenshots in [docs/screenshots/](docs/screenshots/)
+| Stats | Health | Overview |
+|---|---|---|
+| ![Stats](docs/screenshots/container-stats.png) | ![Health](docs/screenshots/container-health.png) | ![Overview](docs/screenshots/overview.png) |
+
+| Images | Network OpenWrt Setup | Resources |
+|---|---|---|
+| ![Images](docs/screenshots/image-list.png) | ![Network OpenWrt](docs/screenshots/network-setup-openwrt-integration.png) | ![Resources](docs/screenshots/container-resource.png) |
 
 ## Requirements
 
 - OpenWrt 24.10
-- Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `podman`
+- Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `ucode-mod-struct`, `ucode-mod-uloop`, `ucode-mod-fs`, `ucode-mod-html`, `ucode-mod-uci`, `liblucihttp-ucode`, `podman`
 - Sufficient storage for images/containers
 
 ## Installation
@@ -61,8 +71,8 @@ You can setup this package feed to install and update it with opkg:
 ### From Package
 
 ```bash
-wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v1.12.1/luci-app-podman_1.12.1-r1_all.ipk
-opkg update && opkg install luci-app-podman_1.12.1-r1_all.ipk
+wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.0.0/luci-app-podman_2.0.0-r1_all.ipk
+opkg update && opkg install luci-app-podman_2.0.0-r1_all.ipk
 ```
 
 ### From Source
