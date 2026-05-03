@@ -1,4 +1,4 @@
-[![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10.x-darkgreen.svg)](https://openwrt.org/)
+[![OpenWrt](https://img.shields.io/badge/OpenWrt-25.12%20%7C%2024.10-darkgreen.svg)](https://openwrt.org/)
 [![GitHub Release](https://img.shields.io/github/v/release/Zerogiven-OpenWRT-Packages/luci-app-podman)](https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases)
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Zerogiven-OpenWRT-Packages/luci-app-podman/total?color=blue)](https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases)
 [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/Zerogiven-OpenWRT-Packages/luci-app-podman)](https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/issues)
@@ -27,15 +27,12 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 
 - **Container Management**: Start, stop, restart, create, remove containers
 - **Live Streaming**: Real-time logs, stats, and process list streamed directly via a dedicated ucode controller
-- **Health Monitoring**: Per-container health check configuration, status history, and on-demand check execution
 - **Container Auto-Update**: Check for image updates and recreate containers with latest images (see [Auto-Update](#container-auto-update))
-- **Import from Run Command**: Convert `docker run` or `podman run` commands to container configurations
 - **Import from Compose File**: Parse Docker Compose files to create containers
 - **Auto-start Support**: Automatic init script generation for containers with restart policies
 - **Image Management**: Pull, remove, inspect images with streaming progress
 - **Volume Management**: Create, delete, export/import volumes with tar backups
 - **Network Management**: Bridge, macvlan, ipvlan with VLAN support and optional OpenWrt integration (auto-creates bridge devices, network interfaces, dnsmasq exclusion, and shared `podman` firewall zone with DNS access rules)
-- **Pod Management**: Multi-container pods with shared networking
 - **Secret Management**: Encrypted storage for sensitive data
 - **System Overview**: Resource usage, disk space, system-wide cleanup
 - **Multilingual**: de, es, fr, nl, ru, zh_Hans, zh_Hant
@@ -56,7 +53,7 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 
 ## Requirements
 
-- OpenWrt 24.10
+- OpenWrt 24.10 or 25.12
 - Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `ucode-mod-struct`, `ucode-mod-uloop`, `ucode-mod-fs`, `ucode-mod-html`, `ucode-mod-uci`, `liblucihttp-ucode`, `podman`
 - Sufficient storage for images/containers
 
@@ -70,9 +67,16 @@ You can setup this package feed to install and update it with opkg:
 
 ### From Package
 
+**OpenWrt 24.10** (opkg):
 ```bash
 wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.0.0/luci-app-podman_2.0.0-r1_all.ipk
 opkg update && opkg install luci-app-podman_2.0.0-r1_all.ipk
+```
+
+**OpenWrt 25.12** (apk):
+```bash
+wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.0.0/luci-app-podman_2.0.0-r1_all.apk
+apk update && apk add --allow-untrusted luci-app-podman_2.0.0-r1_all.apk
 ```
 
 ### From Source
@@ -142,14 +146,6 @@ The app stores its settings in `/etc/config/podman`:
 |--------|---------|-------------|
 | `socket_path` | `/run/podman/podman.sock` | Path to the Podman API socket |
 | `init_start_priority` | `100` | procd start priority for container init scripts |
-| `debug` | `0` | Show system diagnostics on the Overview page |
-
-To enable debug mode (shows a diagnostics table checking all system prerequisites):
-
-```bash
-uci set podman.globals.debug='1'
-uci commit podman
-```
 
 ## Credits
 
