@@ -19,3 +19,4 @@
 - Network detail page
 - Pods
 - Import container from "podman run" command
+- possibility that you can see the create command so if something fails it can be done manually
