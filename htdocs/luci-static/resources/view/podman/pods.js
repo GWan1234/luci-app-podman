@@ -26,9 +26,12 @@ return podmanView.list.extend({
 		this.section.toolbarExtraButtons = [
 			new podmanUI.Button('&#9658;', ui.createHandlerFn(this, 'handleStart')).render(),
 			new podmanUI.Button('&#9724;', ui.createHandlerFn(this, 'handleStop')).render(),
-			new podmanUI.Button('&#8635;', ui.createHandlerFn(this, 'handleRestart')).render(),
-			new podmanUI.Button('&#10074;&#10074;', ui.createHandlerFn(this, 'handlePause')).render(),
-			new podmanUI.Button('&#9655;', ui.createHandlerFn(this, 'handleUnpause')).render(),
+			new podmanUI.Button('&#8635;', ui.createHandlerFn(this, 'handleRestart'))
+		.render(),
+			new podmanUI.Button('&#10074;&#10074;', ui.createHandlerFn(this, 'handlePause'))
+			.render(),
+			new podmanUI.Button('&#9655;', ui.createHandlerFn(this, 'handleUnpause'))
+		.render(),
 		];
 
 		let o;
@@ -99,15 +102,20 @@ return podmanView.list.extend({
 		});
 
 		// @todo: create table with helpers or show a simpler list
-		const table = E('table', { class: 'table cbi-section-table' }, [
+		const table = E('table', {
+			class: 'table cbi-section-table'
+		}, [
 			E('thead', {}, headerRow),
 			E('tbody', {}, rows.length > 0 ? rows : [
-				E('tr', {}, E('td', { colspan: 3, class: 'text-center' }, _('No containers in this pod'))),
+				E('tr', {}, E('td', {
+					colspan: 3,
+					class: 'text-center'
+				}, _('No containers in this pod'))),
 			]),
 		]);
 
 		const title = _('Containers in pod %s').format(pod.getName());
-		const modal = new podmanUI.Modal(title, [ table ]);
+		const modal = new podmanUI.Modal(title, [table]);
 		modal.render();
 	},
 
@@ -143,16 +151,26 @@ return podmanView.list.extend({
 			this.loading(_('%s: %d/%d').format(textLoad, i + 1, selected.length));
 			const result = await action(pod);
 			if (result?.Errs?.length > 0) {
-				failures.push({ name: pod.getName(), errs: result.Errs });
+				failures.push({
+					name: pod.getName(),
+					errs: result.Errs
+				});
 			}
 		}
 
 		ui.hideModal();
 
 		if (failures.length > 0) {
-			const blocks = failures.map(({ name, errs }) => E('div', { class: 'mb-sm' }, [
+			const blocks = failures.map(({
+				name,
+				errs
+			}) => E('div', {
+				class: 'mb-sm'
+			}, [
 				E('strong', {}, name + ':'),
-				E('ul', { class: 'm-0' }, errs.map((e) => E('li', {}, e))),
+				E('ul', {
+					class: 'm-0'
+				}, errs.map((e) => E('li', {}, e))),
 			]));
 			podmanUI.alert(blocks, 'error');
 		}
