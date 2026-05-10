@@ -24,6 +24,9 @@ msgstr "%s 成功建立"
 msgid "%s: %d/%d"
 msgstr "%s：%d/%d"
 
+msgid "(none)"
+msgstr ""
+
 msgid "-- Select %s --"
 msgstr "-- 選擇 %s --"
 
@@ -35,6 +38,9 @@ msgstr "512m、1g 或 -1（無限制）"
 
 msgid "API Version"
 msgstr "API 版本"
+
+msgid "Add the container to an existing pod. Network, hostname and port mappings come from the pod's infra container."
+msgstr ""
 
 msgid "All images updated successfully"
 msgstr "所有映像更新成功"
@@ -99,6 +105,9 @@ msgstr "中央處理器"
 msgid "CPU Limit"
 msgstr "CPU 上限"
 
+msgid "CPU Set"
+msgstr ""
+
 msgid "CPU Shares Weight"
 msgstr "CPU 分享權重"
 
@@ -107,6 +116,9 @@ msgstr "CPU 用量"
 
 msgid "CPU shares (relative weight). 0 = use default."
 msgstr "CPU 份額（相對權重）。0 = 使用預設值。"
+
+msgid "CPUs the pod is allowed to run on (e.g., \"0-3\" or \"0,2\")"
+msgstr ""
 
 msgid "Cancel"
 msgstr "取消"
@@ -222,6 +234,9 @@ msgstr "容器更新成功"
 msgid "Containers"
 msgstr "容器"
 
+msgid "Containers in pod %s"
+msgstr ""
+
 msgid "Containers updated successfully"
 msgstr "容器更新成功"
 
@@ -237,6 +252,9 @@ msgstr "建立 %s"
 msgid "Create Command"
 msgstr "建立命令"
 
+msgid "Create Infra Container"
+msgstr ""
+
 msgid "Create new zone (will be named: podman_<network-name>)"
 msgstr "建立新的區域（會命名為：podman_<network-name>）"
 
@@ -248,6 +266,18 @@ msgstr "正在建立 %s"
 
 msgid "Creating auto-start configuration for %s"
 msgstr "正在為 %s 建立自動啟動設定"
+
+msgid "DNS Search Domains"
+msgstr ""
+
+msgid "DNS Servers"
+msgstr ""
+
+msgid "DNS search domains for the infra container"
+msgstr ""
+
+msgid "DNS servers for the infra container (shared with all pod containers)"
+msgstr ""
 
 msgid "Delete"
 msgstr "刪除"
@@ -354,6 +384,9 @@ msgstr "健康度"
 msgid "Hostname"
 msgstr "主機名稱"
 
+msgid "Hostname for the pod (defaults to pod name)"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -405,6 +438,9 @@ msgstr "資訊"
 msgid "Information"
 msgstr "資訊"
 
+msgid "Infra Image"
+msgstr ""
+
 msgid "Init Script"
 msgstr "初始化指令稿"
 
@@ -434,6 +470,9 @@ msgstr "留空會自動產生"
 
 msgid "Links"
 msgstr "連結"
+
+msgid "Linux namespaces shared between containers in the pod. Default matches `podman pod create`."
+msgstr ""
 
 msgid "Load"
 msgstr "載入"
@@ -473,6 +512,9 @@ msgstr "記憶體限制（例如 512m、1g）"
 
 msgid "Memory limit (e.g., 512m, 1g). -1 = unlimited, 0 = use default."
 msgstr "記憶體限制（例如 512m、1g）。-1 = 無限制，0 = 預設。"
+
+msgid "Memory limit for the pod (e.g., 512m, 1g)"
+msgstr ""
 
 msgid "Mode"
 msgstr "模式"
@@ -516,6 +558,9 @@ msgstr "網路名稱"
 msgid "Network driver"
 msgstr "網路驅動程式"
 
+msgid "Network namespace for the pod. Containers in the pod share this network."
+msgstr ""
+
 msgid "Networks"
 msgstr "網路"
 
@@ -527,6 +572,9 @@ msgstr "否"
 
 msgid "No %s selected"
 msgstr "沒有 %s 被選擇"
+
+msgid "No containers in this pod"
+msgstr ""
 
 msgid "No containers with auto-update label found."
 msgstr "沒有找到有自動更新標籤的容器。"
@@ -545,6 +593,9 @@ msgstr "CPU 數量（例如 0.5、1.0、2.0）"
 
 msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
 msgstr "CPU 數量（例如 0.5、1.0、2.0）。留空表示無上限。"
+
+msgid "Number of CPUs available to the pod (e.g., 0.5, 1.0, 2.0)"
+msgstr ""
 
 msgid "Number of lines"
 msgstr "行數"
@@ -576,6 +627,9 @@ msgstr "OpenWrt 整合不完整"
 msgid "OpenWrt integration requires subnet to be specified"
 msgstr "OpenWrt 整合需要指定子網路"
 
+msgid "Override the image used for the infra container"
+msgstr ""
+
 msgid "PIDs"
 msgstr "PIDs"
 
@@ -588,8 +642,14 @@ msgstr "macvlan/ipvlan 網路需要母界面"
 msgid "Part of a pod (\"%s\")"
 msgstr "Pod 的一部分（\"%s\"）"
 
+msgid "Pausing pod"
+msgstr ""
+
 msgid "Pod"
 msgstr "容器群組"
+
+msgid "Pod Name"
+msgstr ""
 
 msgid "Podman Version"
 msgstr "Podman 版本"
@@ -657,6 +717,9 @@ msgstr "正在移除未使用的資源，請稍候…"
 msgid "Repository"
 msgstr "儲存庫"
 
+msgid "Required for shared network namespace. Disable only if you know you do not need it."
+msgstr ""
+
 msgid "Resources"
 msgstr "資源"
 
@@ -668,6 +731,12 @@ msgstr "重啟容器"
 
 msgid "Restart policy updated successfully"
 msgstr "重新啟動原則成功更新"
+
+msgid "Restarting pod"
+msgstr ""
+
+msgid "Restarts"
+msgstr ""
 
 msgid "Restrict external access to the network"
 msgstr "限制對外部網路的操作"
@@ -710,6 +779,9 @@ msgstr "敏感資料因安全緣故隱藏。"
 
 msgid "Setup OpenWrt Integration"
 msgstr "設定 OpenWrt 整合"
+
+msgid "Shared Namespaces"
+msgstr ""
 
 msgid "Shares network with another container"
 msgstr "與其他容器共享網路"
@@ -756,6 +828,9 @@ msgstr "已啟動"
 msgid "StartedAt"
 msgstr "啟動時間"
 
+msgid "Starting pod"
+msgstr ""
+
 msgid "Statistics"
 msgstr "統計"
 
@@ -770,6 +845,9 @@ msgstr "停止容器"
 
 msgid "Stop stream"
 msgstr "停止串流"
+
+msgid "Stopping pod"
+msgstr ""
 
 msgid "Subnet"
 msgstr "子網路"
@@ -806,6 +884,9 @@ msgstr "未知"
 
 msgid "Unless Stopped"
 msgstr "除非停止"
+
+msgid "Unpausing pod"
+msgstr ""
 
 msgid "Until"
 msgstr "直到"
@@ -867,9 +948,6 @@ msgstr "儲存區名稱。留空會自動產生。"
 msgid "Volumes"
 msgstr "儲存區"
 
-msgid "Work in progress..."
-msgstr "正在進行中..."
-
 msgid "Working Directory"
 msgstr "工作目錄"
 
@@ -887,4 +965,3 @@ msgstr "執行中"
 
 msgid "total"
 msgstr "總共"
-

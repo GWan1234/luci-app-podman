@@ -21,6 +21,9 @@ msgstr "%s erfolgreich erstellt"
 msgid "%s: %d/%d"
 msgstr "%s: %d/%d"
 
+msgid "(none)"
+msgstr ""
+
 msgid "-- Select %s --"
 msgstr "-- %s auswählen --"
 
@@ -32,6 +35,9 @@ msgstr "512m, 1g oder -1 für unbegrenzt"
 
 msgid "API Version"
 msgstr "API-Version"
+
+msgid "Add the container to an existing pod. Network, hostname and port mappings come from the pod's infra container."
+msgstr ""
 
 msgid "All images updated successfully"
 msgstr "Alle Images erfolgreich aktualisiert"
@@ -96,6 +102,9 @@ msgstr "CPU"
 msgid "CPU Limit"
 msgstr "CPU-Limit"
 
+msgid "CPU Set"
+msgstr ""
+
 msgid "CPU Shares Weight"
 msgstr "CPU-Shares Gewichtung"
 
@@ -104,6 +113,9 @@ msgstr "CPU-Auslastung"
 
 msgid "CPU shares (relative weight). 0 = use default."
 msgstr "CPU-Anteile (relatives Gewicht). 0 = Standard."
+
+msgid "CPUs the pod is allowed to run on (e.g., \"0-3\" or \"0,2\")"
+msgstr ""
 
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -219,6 +231,9 @@ msgstr "Container erfolgreich aktualisiert"
 msgid "Containers"
 msgstr "Container"
 
+msgid "Containers in pod %s"
+msgstr ""
+
 msgid "Containers updated successfully"
 msgstr "Container erfolgreich aktualisiert"
 
@@ -234,6 +249,9 @@ msgstr "%s erstellen"
 msgid "Create Command"
 msgstr "Erstellungsbefehl"
 
+msgid "Create Infra Container"
+msgstr ""
+
 msgid "Create new zone (will be named: podman_<network-name>)"
 msgstr "Neue Zone erstellen (Name: podman_<Netzwerkname>)"
 
@@ -245,6 +263,18 @@ msgstr "Erstelle %s"
 
 msgid "Creating auto-start configuration for %s"
 msgstr "Erstelle Autostart-Konfiguration für %s"
+
+msgid "DNS Search Domains"
+msgstr ""
+
+msgid "DNS Servers"
+msgstr ""
+
+msgid "DNS search domains for the infra container"
+msgstr ""
+
+msgid "DNS servers for the infra container (shared with all pod containers)"
+msgstr ""
 
 msgid "Delete"
 msgstr "Löschen"
@@ -351,6 +381,9 @@ msgstr "Gesundheit"
 msgid "Hostname"
 msgstr "Hostname"
 
+msgid "Hostname for the pod (defaults to pod name)"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -402,6 +435,9 @@ msgstr "Info"
 msgid "Information"
 msgstr "Informationen"
 
+msgid "Infra Image"
+msgstr ""
+
 msgid "Init Script"
 msgstr "Init-Skript"
 
@@ -431,6 +467,9 @@ msgstr "Leer lassen für automatische Generierung"
 
 msgid "Links"
 msgstr "Links"
+
+msgid "Linux namespaces shared between containers in the pod. Default matches `podman pod create`."
+msgstr ""
 
 msgid "Load"
 msgstr "Laden"
@@ -470,6 +509,9 @@ msgstr "Speicherlimit (z. B. 512m, 1g)"
 
 msgid "Memory limit (e.g., 512m, 1g). -1 = unlimited, 0 = use default."
 msgstr "Speicherlimit (z.B. 512m, 1g). -1 = unbegrenzt, 0 = Standard."
+
+msgid "Memory limit for the pod (e.g., 512m, 1g)"
+msgstr ""
 
 msgid "Mode"
 msgstr "Modus"
@@ -513,6 +555,9 @@ msgstr "Netzwerkname"
 msgid "Network driver"
 msgstr "Netzwerktreiber"
 
+msgid "Network namespace for the pod. Containers in the pod share this network."
+msgstr ""
+
 msgid "Networks"
 msgstr "Netzwerke"
 
@@ -524,6 +569,9 @@ msgstr "Nein"
 
 msgid "No %s selected"
 msgstr "Keine %s ausgewählt"
+
+msgid "No containers in this pod"
+msgstr ""
 
 msgid "No containers with auto-update label found."
 msgstr "Keine Container mit Auto-Update-Label gefunden."
@@ -542,6 +590,9 @@ msgstr "Anzahl der CPUs (z. B. 0.5, 1.0, 2.0)"
 
 msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
 msgstr "Anzahl der CPUs (z. B. 0.5, 1.0, 2.0). Leer lassen für unbegrenzt."
+
+msgid "Number of CPUs available to the pod (e.g., 0.5, 1.0, 2.0)"
+msgstr ""
 
 msgid "Number of lines"
 msgstr "Anzahl der Zeilen"
@@ -573,6 +624,9 @@ msgstr "OpenWrt-Integration unvollständig"
 msgid "OpenWrt integration requires subnet to be specified"
 msgstr "OpenWrt-Integration erfordert die Angabe eines Subnetzes"
 
+msgid "Override the image used for the infra container"
+msgstr ""
+
 msgid "PIDs"
 msgstr "PIDs"
 
@@ -585,8 +639,14 @@ msgstr "Parent-Schnittstelle ist für macvlan/ipvlan-Netzwerke erforderlich"
 msgid "Part of a pod (\"%s\")"
 msgstr "Teil eines Pods (\"%s\")"
 
+msgid "Pausing pod"
+msgstr ""
+
 msgid "Pod"
 msgstr "Pod"
+
+msgid "Pod Name"
+msgstr ""
 
 msgid "Podman Version"
 msgstr "Podman-Version"
@@ -654,6 +714,9 @@ msgstr "Ungenutzte Ressourcen werden entfernt, bitte warten..."
 msgid "Repository"
 msgstr "Repository"
 
+msgid "Required for shared network namespace. Disable only if you know you do not need it."
+msgstr ""
+
 msgid "Resources"
 msgstr "Ressourcen"
 
@@ -665,6 +728,12 @@ msgstr "Container neu starten"
 
 msgid "Restart policy updated successfully"
 msgstr "Restart-Policy erfolgreich aktualisiert"
+
+msgid "Restarting pod"
+msgstr ""
+
+msgid "Restarts"
+msgstr ""
 
 msgid "Restrict external access to the network"
 msgstr "Externen Zugriff auf das Netzwerk einschränken"
@@ -707,6 +776,9 @@ msgstr "Sensible Daten sind aus Sicherheitsgründen ausgeblendet."
 
 msgid "Setup OpenWrt Integration"
 msgstr "OpenWrt-Integration einrichten"
+
+msgid "Shared Namespaces"
+msgstr ""
 
 msgid "Shares network with another container"
 msgstr "Teilt Netzwerk mit einem anderen Container"
@@ -753,6 +825,9 @@ msgstr "Gestartet"
 msgid "StartedAt"
 msgstr "Gestartet um"
 
+msgid "Starting pod"
+msgstr ""
+
 msgid "Statistics"
 msgstr "Statistiken"
 
@@ -767,6 +842,9 @@ msgstr "Container stoppen"
 
 msgid "Stop stream"
 msgstr "Stream stoppen"
+
+msgid "Stopping pod"
+msgstr ""
 
 msgid "Subnet"
 msgstr "Subnetz"
@@ -803,6 +881,9 @@ msgstr "Unbekannt"
 
 msgid "Unless Stopped"
 msgstr "Sofern nicht gestoppt"
+
+msgid "Unpausing pod"
+msgstr ""
 
 msgid "Until"
 msgstr "Bis"
@@ -864,9 +945,6 @@ msgstr "Volume-Name. Leer lassen für automatische Generierung."
 msgid "Volumes"
 msgstr "Volumes"
 
-msgid "Work in progress..."
-msgstr "In Bearbeitung..."
-
 msgid "Working Directory"
 msgstr "Arbeitsverzeichnis"
 
@@ -884,4 +962,3 @@ msgstr "läuft"
 
 msgid "total"
 msgstr "gesamt"
-

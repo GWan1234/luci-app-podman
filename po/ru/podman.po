@@ -9,6 +9,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid ""
+"Start script missing\n"
+"\n"
+"Click to generate"
+msgstr "Скрипт запуска отсутствует\n\nНажмите для создания"
+
 msgid "%d check(s) failed:"
 msgstr "%d проверок не удалось:"
 
@@ -21,6 +27,9 @@ msgstr "%s успешно создан"
 msgid "%s: %d/%d"
 msgstr "%s: %d/%d"
 
+msgid "(none)"
+msgstr ""
+
 msgid "-- Select %s --"
 msgstr "-- Выберите %s --"
 
@@ -32,6 +41,9 @@ msgstr "512m, 1g или -1 для неограниченно"
 
 msgid "API Version"
 msgstr "Версия API"
+
+msgid "Add the container to an existing pod. Network, hostname and port mappings come from the pod's infra container."
+msgstr ""
 
 msgid "All images updated successfully"
 msgstr "Все образы успешно обновлены"
@@ -96,6 +108,9 @@ msgstr "ЦП"
 msgid "CPU Limit"
 msgstr "Ограничение ЦП"
 
+msgid "CPU Set"
+msgstr ""
+
 msgid "CPU Shares Weight"
 msgstr "Вес долей ЦП"
 
@@ -104,6 +119,9 @@ msgstr "Использование ЦП"
 
 msgid "CPU shares (relative weight). 0 = use default."
 msgstr "Доли ЦП (относительный вес). 0 = использовать по умолчанию."
+
+msgid "CPUs the pod is allowed to run on (e.g., \"0-3\" or \"0,2\")"
+msgstr ""
 
 msgid "Cancel"
 msgstr "Отмена"
@@ -219,6 +237,9 @@ msgstr "Контейнер успешно обновлён"
 msgid "Containers"
 msgstr "Контейнеры"
 
+msgid "Containers in pod %s"
+msgstr ""
+
 msgid "Containers updated successfully"
 msgstr "Контейнеры успешно обновлены"
 
@@ -234,6 +255,9 @@ msgstr "Создать %s"
 msgid "Create Command"
 msgstr "Команда создания"
 
+msgid "Create Infra Container"
+msgstr ""
+
 msgid "Create new zone (will be named: podman_<network-name>)"
 msgstr "Создать новую зону (будет названа: podman_<имя-сети>)"
 
@@ -245,6 +269,18 @@ msgstr "Создание %s"
 
 msgid "Creating auto-start configuration for %s"
 msgstr "Создание конфигурации автозапуска для %s"
+
+msgid "DNS Search Domains"
+msgstr ""
+
+msgid "DNS Servers"
+msgstr ""
+
+msgid "DNS search domains for the infra container"
+msgstr ""
+
+msgid "DNS servers for the infra container (shared with all pod containers)"
+msgstr ""
 
 msgid "Delete"
 msgstr "Удалить"
@@ -351,6 +387,9 @@ msgstr "Состояние"
 msgid "Hostname"
 msgstr "Имя хоста"
 
+msgid "Hostname for the pod (defaults to pod name)"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -402,6 +441,9 @@ msgstr "Инфо"
 msgid "Information"
 msgstr "Информация"
 
+msgid "Infra Image"
+msgstr ""
+
 msgid "Init Script"
 msgstr "Скрипт инициализации"
 
@@ -431,6 +473,9 @@ msgstr "Оставьте пустым для автогенерации"
 
 msgid "Links"
 msgstr "Ссылки"
+
+msgid "Linux namespaces shared between containers in the pod. Default matches `podman pod create`."
+msgstr ""
 
 msgid "Load"
 msgstr "Загрузить"
@@ -470,6 +515,9 @@ msgstr "Ограничение памяти (например, 512м, 1г)"
 
 msgid "Memory limit (e.g., 512m, 1g). -1 = unlimited, 0 = use default."
 msgstr "Ограничение памяти (например, 512m, 1g). -1 = неограниченно, 0 = использовать по умолчанию."
+
+msgid "Memory limit for the pod (e.g., 512m, 1g)"
+msgstr ""
 
 msgid "Mode"
 msgstr "Режим"
@@ -513,6 +561,9 @@ msgstr "Имя сети"
 msgid "Network driver"
 msgstr "Сетевой драйвер"
 
+msgid "Network namespace for the pod. Containers in the pod share this network."
+msgstr ""
+
 msgid "Networks"
 msgstr "Сети"
 
@@ -524,6 +575,9 @@ msgstr "Нет"
 
 msgid "No %s selected"
 msgstr "%s не выбрано"
+
+msgid "No containers in this pod"
+msgstr ""
 
 msgid "No containers with auto-update label found."
 msgstr "Контейнеры с меткой автообновления не найдены."
@@ -542,6 +596,9 @@ msgstr "Количество ЦП (например, 0.5, 1.0, 2.0)"
 
 msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
 msgstr "Количество ЦП (например, 0.5, 1.0, 2.0). Оставьте пустым для неограниченно."
+
+msgid "Number of CPUs available to the pod (e.g., 0.5, 1.0, 2.0)"
+msgstr ""
 
 msgid "Number of lines"
 msgstr "Количество строк"
@@ -564,17 +621,14 @@ msgstr "По одному на строку, формат: key=value"
 msgid "One per line. Format: source:destination[:options]. Options: ro, rw, Z, z"
 msgstr "По одному на строку. Формат: источник:назначение[:опции]. Опции: ro, rw, Z, z"
 
-msgid ""
-"OpenWrt integration exists\n"
-"\n"
-"Click to remove"
-msgstr "Интеграция с OpenWrt существует\n\nНажмите для удаления"
-
 msgid "OpenWrt integration incomplete"
 msgstr "Интеграция с OpenWrt неполная"
 
 msgid "OpenWrt integration requires subnet to be specified"
 msgstr "Интеграция с OpenWrt требует указания подсети"
+
+msgid "Override the image used for the infra container"
+msgstr ""
 
 msgid "PIDs"
 msgstr "PID"
@@ -588,8 +642,14 @@ msgstr "Родительский интерфейс требуется для с
 msgid "Part of a pod (\"%s\")"
 msgstr "Часть пода (\"%s\")"
 
+msgid "Pausing pod"
+msgstr ""
+
 msgid "Pod"
 msgstr "Под"
+
+msgid "Pod Name"
+msgstr ""
 
 msgid "Podman Version"
 msgstr "Версия Podman"
@@ -657,6 +717,9 @@ msgstr "Удаление неиспользуемых ресурсов, пожа
 msgid "Repository"
 msgstr "Репозиторий"
 
+msgid "Required for shared network namespace. Disable only if you know you do not need it."
+msgstr ""
+
 msgid "Resources"
 msgstr "Ресурсы"
 
@@ -668,6 +731,12 @@ msgstr "Перезапустить контейнер"
 
 msgid "Restart policy updated successfully"
 msgstr "Политика перезапуска успешно обновлена"
+
+msgid "Restarting pod"
+msgstr ""
+
+msgid "Restarts"
+msgstr ""
 
 msgid "Restrict external access to the network"
 msgstr "Ограничить внешний доступ к сети"
@@ -711,6 +780,9 @@ msgstr "Конфиденциальные данные скрыты по сооб
 msgid "Setup OpenWrt Integration"
 msgstr "Настроить интеграцию с OpenWrt"
 
+msgid "Shared Namespaces"
+msgstr ""
+
 msgid "Shares network with another container"
 msgstr "Использует общую сеть с другим контейнером"
 
@@ -744,12 +816,6 @@ msgstr "Запускать при загрузке"
 msgid "Start script disabled"
 msgstr "Скрипт запуска отключён"
 
-msgid ""
-"Start script missing\n"
-"\n"
-"Click to generate"
-msgstr "Скрипт запуска отсутствует\n\nНажмите для создания"
-
 msgid "Start stream"
 msgstr "Начать поток"
 
@@ -758,6 +824,9 @@ msgstr "Запущено"
 
 msgid "StartedAt"
 msgstr "Запущено в"
+
+msgid "Starting pod"
+msgstr ""
 
 msgid "Statistics"
 msgstr "Статистика"
@@ -773,6 +842,9 @@ msgstr "Остановить контейнер"
 
 msgid "Stop stream"
 msgstr "Остановить поток"
+
+msgid "Stopping pod"
+msgstr ""
 
 msgid "Subnet"
 msgstr "Подсеть"
@@ -809,6 +881,9 @@ msgstr "Неизвестно"
 
 msgid "Unless Stopped"
 msgstr "Пока не остановлен"
+
+msgid "Unpausing pod"
+msgstr ""
 
 msgid "Until"
 msgstr "До"
@@ -869,9 +944,6 @@ msgstr "Имя тома. Оставьте пустым для автогенер
 
 msgid "Volumes"
 msgstr "Тома"
-
-msgid "Work in progress..."
-msgstr "Выполняется..."
 
 msgid "Working Directory"
 msgstr "Рабочая директория"

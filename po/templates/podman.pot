@@ -13,6 +13,9 @@ msgstr ""
 msgid "%s: %d/%d"
 msgstr ""
 
+msgid "(none)"
+msgstr ""
+
 msgid "-- Select %s --"
 msgstr ""
 
@@ -23,6 +26,9 @@ msgid "512m, 1g, or -1 for unlimited"
 msgstr ""
 
 msgid "API Version"
+msgstr ""
+
+msgid "Add the container to an existing pod. Network, hostname and port mappings come from the pod's infra container."
 msgstr ""
 
 msgid "All images updated successfully"
@@ -88,6 +94,9 @@ msgstr ""
 msgid "CPU Limit"
 msgstr ""
 
+msgid "CPU Set"
+msgstr ""
+
 msgid "CPU Shares Weight"
 msgstr ""
 
@@ -95,6 +104,9 @@ msgid "CPU Usage"
 msgstr ""
 
 msgid "CPU shares (relative weight). 0 = use default."
+msgstr ""
+
+msgid "CPUs the pod is allowed to run on (e.g., \"0-3\" or \"0,2\")"
 msgstr ""
 
 msgid "Cancel"
@@ -211,6 +223,9 @@ msgstr ""
 msgid "Containers"
 msgstr ""
 
+msgid "Containers in pod %s"
+msgstr ""
+
 msgid "Containers updated successfully"
 msgstr ""
 
@@ -226,6 +241,9 @@ msgstr ""
 msgid "Create Command"
 msgstr ""
 
+msgid "Create Infra Container"
+msgstr ""
+
 msgid "Create new zone (will be named: podman_<network-name>)"
 msgstr ""
 
@@ -236,6 +254,18 @@ msgid "Creating %s"
 msgstr ""
 
 msgid "Creating auto-start configuration for %s"
+msgstr ""
+
+msgid "DNS Search Domains"
+msgstr ""
+
+msgid "DNS Servers"
+msgstr ""
+
+msgid "DNS search domains for the infra container"
+msgstr ""
+
+msgid "DNS servers for the infra container (shared with all pod containers)"
 msgstr ""
 
 msgid "Delete"
@@ -343,6 +373,9 @@ msgstr ""
 msgid "Hostname"
 msgstr ""
 
+msgid "Hostname for the pod (defaults to pod name)"
+msgstr ""
+
 msgid "ID"
 msgstr ""
 
@@ -394,6 +427,9 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
+msgid "Infra Image"
+msgstr ""
+
 msgid "Init Script"
 msgstr ""
 
@@ -422,6 +458,9 @@ msgid "Leave empty to auto-generate"
 msgstr ""
 
 msgid "Links"
+msgstr ""
+
+msgid "Linux namespaces shared between containers in the pod. Default matches `podman pod create`."
 msgstr ""
 
 msgid "Load"
@@ -461,6 +500,9 @@ msgid "Memory limit (e.g., 512m, 1g)"
 msgstr ""
 
 msgid "Memory limit (e.g., 512m, 1g). -1 = unlimited, 0 = use default."
+msgstr ""
+
+msgid "Memory limit for the pod (e.g., 512m, 1g)"
 msgstr ""
 
 msgid "Mode"
@@ -505,6 +547,9 @@ msgstr ""
 msgid "Network driver"
 msgstr ""
 
+msgid "Network namespace for the pod. Containers in the pod share this network."
+msgstr ""
+
 msgid "Networks"
 msgstr ""
 
@@ -515,6 +560,9 @@ msgid "No"
 msgstr ""
 
 msgid "No %s selected"
+msgstr ""
+
+msgid "No containers in this pod"
 msgstr ""
 
 msgid "No containers with auto-update label found."
@@ -533,6 +581,9 @@ msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0)"
 msgstr ""
 
 msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
+msgstr ""
+
+msgid "Number of CPUs available to the pod (e.g., 0.5, 1.0, 2.0)"
 msgstr ""
 
 msgid "Number of lines"
@@ -565,6 +616,9 @@ msgstr ""
 msgid "OpenWrt integration requires subnet to be specified"
 msgstr ""
 
+msgid "Override the image used for the infra container"
+msgstr ""
+
 msgid "PIDs"
 msgstr ""
 
@@ -577,7 +631,13 @@ msgstr ""
 msgid "Part of a pod (\"%s\")"
 msgstr ""
 
+msgid "Pausing pod"
+msgstr ""
+
 msgid "Pod"
+msgstr ""
+
+msgid "Pod Name"
 msgstr ""
 
 msgid "Podman Version"
@@ -646,6 +706,9 @@ msgstr ""
 msgid "Repository"
 msgstr ""
 
+msgid "Required for shared network namespace. Disable only if you know you do not need it."
+msgstr ""
+
 msgid "Resources"
 msgstr ""
 
@@ -656,6 +719,12 @@ msgid "Restart container"
 msgstr ""
 
 msgid "Restart policy updated successfully"
+msgstr ""
+
+msgid "Restarting pod"
+msgstr ""
+
+msgid "Restarts"
 msgstr ""
 
 msgid "Restrict external access to the network"
@@ -698,6 +767,9 @@ msgid "Sensitive data is hidden for security reasons."
 msgstr ""
 
 msgid "Setup OpenWrt Integration"
+msgstr ""
+
+msgid "Shared Namespaces"
 msgstr ""
 
 msgid "Shares network with another container"
@@ -745,6 +817,9 @@ msgstr ""
 msgid "StartedAt"
 msgstr ""
 
+msgid "Starting pod"
+msgstr ""
+
 msgid "Statistics"
 msgstr ""
 
@@ -758,6 +833,9 @@ msgid "Stop container"
 msgstr ""
 
 msgid "Stop stream"
+msgstr ""
+
+msgid "Stopping pod"
 msgstr ""
 
 msgid "Subnet"
@@ -794,6 +872,9 @@ msgid "Unknown"
 msgstr ""
 
 msgid "Unless Stopped"
+msgstr ""
+
+msgid "Unpausing pod"
 msgstr ""
 
 msgid "Until"
@@ -856,9 +937,6 @@ msgstr ""
 msgid "Volumes"
 msgstr ""
 
-msgid "Work in progress..."
-msgstr ""
-
 msgid "Working Directory"
 msgstr ""
 
@@ -876,4 +954,3 @@ msgstr ""
 
 msgid "total"
 msgstr ""
-
