@@ -68,16 +68,16 @@ You can setup this package feed to install and update it with opkg:
 
 ### From Package
 
-**OpenWrt 24.10** (opkg):
-```bash
-wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.1.0/luci-app-podman_2.1.0-r1_all.ipk
-opkg update && opkg install luci-app-podman_2.1.0-r1_all.ipk
-```
-
 **OpenWrt 25.12** (apk):
 ```bash
 wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.1.0/luci-app-podman_2.1.0-r1_all.apk
 apk update && apk add --allow-untrusted luci-app-podman_2.1.0-r1_all.apk
+```
+
+**OpenWrt 24.10** (opkg):
+```bash
+wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.1.0/luci-app-podman_2.1.0-r1_all.ipk
+opkg update && opkg install luci-app-podman_2.1.0-r1_all.ipk
 ```
 
 ### From Source
