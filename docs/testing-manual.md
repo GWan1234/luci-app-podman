@@ -145,6 +145,104 @@
 
 ---
 
+## 7. Pods (`/admin/podman/pods`)
+
+*Requires `alpine:latest` from step 2.5. If a user-defined network exists from section 5, note its name as `<usernet>`.*
+
+### 7a. List view
+
+- [x] **7.1** Load pods list → Page loads with empty/populated table; no "Work in progress…" stub
+- [x] **7.2** Toolbar visible → Create / Delete / Reload / ▶ / ■ / ⟳ / ⏸ / ⏵ buttons present
+- [x] **7.3** Click Reload with empty list → No error, indicator appears briefly
+
+### 7b. Create — minimal
+
+- [x] **7.4** Click "Create" → Pod form modal opens with default fields populated
+- [x] **7.5** Submit empty form → No validation error (name auto-generates); pod appears with generated name
+- [x] **7.6** Create pod name `pod-min`, all other defaults → Modal closes, success notification, `pod-min` row appears
+- [x] **7.7** Verify SSH `podman pod inspect pod-min` → Pod exists with one infra container
+- [x] **7.8** Containers column shows `1 ▸` for `pod-min`
+
+### 7c. Create — full options
+
+- [x] **7.9** Open Create form → Name `pod-full`, Hostname `pod-full-host`, Shared Namespaces `cgroup,ipc,net,uts`, Infra ON, Network `<usernet>`, DNS Servers `1.1.1.1` and `9.9.9.9`, DNS Search `lan`, CPU Limit `1.0`, CPU Set `0-1`, Memory `256m`, Labels `app=demo\nenv=test` → Submit
+- [x] **7.10** SSH `podman pod inspect pod-full | jq '.Hostname'` → `pod-full-host`
+- [x] **7.11** SSH `podman pod inspect pod-full | jq '.InfraConfig.NetworkOptions'` → contains DNS server + search entries
+- [x] **7.12** SSH `podman pod inspect pod-full | jq '.Labels'` → `app: demo`, `env: test`
+- [x] **7.13** Networks column for `pod-full` → shows `<usernet>`
+
+### 7d. Status badges
+
+- [x] **7.14** New pod → Status badge `Created` (gray)
+- [x] **7.15** After Start → Badge `Running` (green)
+- [x] **7.16** After Pause → Badge `Paused` (orange)
+- [x] **7.17** After Stop → Badge `Exited` or `Stopped` (red)
+
+### 7e. Lifecycle — single select
+
+- [x] **7.18** Tick `pod-min`, click ▶ Start → Loading "Starting pod: 1/1", refresh shows `Running`
+- [x] **7.19** Click ■ Stop → Status `Exited`/`Stopped`
+- [x] **7.20** Click ⟳ Restart → Status `Running`
+- [x] **7.21** Click ⏸ Pause → Status `Paused`
+- [x] **7.22** Click ⏵ Unpause → Status `Running`
+
+### 7f. Lifecycle — multi-select
+
+- [ ] **7.23** Create `pod-a` and `pod-b` (defaults), select both → ▶ Start
+- [ ] **7.24** Loading modal shows "Starting pod: 1/2" then "2/2"
+- [ ] **7.25** Both pods end up `Running`
+- [ ] **7.26** No JS console errors during multi-action
+
+### 7g. Inspect modal
+
+- [x] **7.27** Click pod **Name** in list → Modal opens with raw JSON of `podman pod inspect`
+- [x] **7.28** Close modal → No leftover overlay; list still interactive
+
+### 7h. Containers expand modal
+
+- [x] **7.29** SSH `podman run -d --pod pod-min --name pod-min-c1 alpine sleep 3600` → container created in pod
+- [x] **7.30** Reload pods list → `pod-min` Containers column shows `2 ▸`
+- [x] **7.31** Click `2 ▸` link → Modal "Containers in pod pod-min" opens with 2 rows (infra + new)
+- [x] **7.32** Each row shows Name, truncated ID, Status badge, Restarts count
+- [x] **7.33** Click container ID link in modal → Navigates to `/admin/podman/container/<id>` detail view
+
+### 7i. Pod removal
+
+- [ ] **7.34** Stop `pod-min` first → Status `Exited`
+- [ ] **7.35** Tick `pod-min` → Delete → Confirm
+- [ ] **7.36** SSH `podman pod ls` → `pod-min` gone
+- [ ] **7.37** SSH `podman ps -a` → `pod-min-c1` also gone (cascade delete via force)
+
+### 7j. Container form integration
+
+- [x] **7.38** Navigate **Podman → Containers → Create** → Form shows new **Pod** ListValue (after Image) with "(none)" + existing pod names
+- [x] **7.39** Select Pod = `pod-full` → Network, Hostname, Port Mappings, Expose Ports fields hide
+- [x] **7.40** Select Pod = "(none)" → Hidden fields reappear
+- [x] **7.41** Create container with Pod `pod-full`, Image `alpine:latest`, Command `sleep 3600`, Start ON → Success
+- [x] **7.42** SSH `podman ps --filter pod=pod-full` → New container listed
+- [x] **7.43** Pods list `pod-full` Containers column → count incremented
+
+### 7k. Edge cases
+
+- [ ] **7.44** Create pod with name `Bad Name!` → Validation error (uciname constraint)
+- [ ] **7.45** Toggle "Create Infra Container" OFF → Network/DNS/Infra Image fields hide
+- [ ] **7.46** Submit pod with Infra OFF → Pod created without infra container; SSH `podman pod inspect` confirms
+- [ ] **7.47** Try Stop on already-stopped pod → No JS error (graceful handling of API 304/409)
+- [ ] **7.48** Try Pause on stopped pod → Error notification, no JS crash
+
+### 7l. Regression — non-pod container create
+
+- [ ] **7.49** Create container with Pod = "(none)", port mapping `8080:80`, network `<usernet>`, hostname `freebee` → Success
+- [ ] **7.50** SSH inspect → port mapping, network and hostname present (confirms `if (!data.pod)` guards don't break the non-pod path)
+
+### 7m. Cleanup
+
+- [ ] **7.51** SSH `podman pod rm -f pod-full pod-a pod-b` → All test pods removed
+- [ ] **7.52** SSH `podman ps -a` → No leftover test containers
+- [ ] **7.53** Reload pods list → Empty/clean state
+
+---
+
 ## 8. Modals
 
 ### Prune Modal
