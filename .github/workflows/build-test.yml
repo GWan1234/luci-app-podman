@@ -6,11 +6,12 @@ on:
       openwrt_version:
         description: 'OpenWrt version to test'
         required: true
-        default: '24.10'
+        default: '25.12'
         type: choice
         options:
-        - '24.10'
         - '25.12'
+        - '24.10'
+        - 'all'
       verbose:
         description: 'Verbose build output'
         required: false
@@ -23,16 +24,16 @@ jobs:
     strategy:
       matrix:
         include:
+          - openwrt_version: '25.12'
+            openwrt_build_version: '25.12.3'
+            arch: 'x86_64'
           - openwrt_version: '24.10'
             openwrt_build_version: '24.10.6'
-            arch: 'x86_64'
-          - openwrt_version: '25.12'
-            openwrt_build_version: '25.12.2'
             arch: 'x86_64'
       fail-fast: false
 
     permissions: {}
-    uses: Zerogiven/gh-openwrt-package-build-workflows/.github/workflows/reusable-build.yml@prometheus-node-exporter-lua-patch
+    uses: Zerogiven/gh-openwrt-package-build-workflows/.github/workflows/reusable-build.yml@default-sdk-action
     with:
       package_name: 'luci-app-podman'
       sdk_packages: 'luci-app-podman'
@@ -48,3 +49,5 @@ jobs:
       free_disk_space: true
       create_swap: false
       verbose: ${{ github.event.inputs.verbose == 'true' }}
+    secrets:
+      APK_SIGN_KEY: ${{ secrets.APK_SIGN_KEY }}

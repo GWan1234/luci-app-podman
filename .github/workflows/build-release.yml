@@ -14,7 +14,7 @@ jobs:
             openwrt_build_version: '24.10.5'
             arch: 'x86_64'
           - openwrt_version: '25.12'
-            openwrt_build_version: '25.12.2'
+            openwrt_build_version: '25.12.3'
             arch: 'x86_64'
       fail-fast: false
     permissions: {}
