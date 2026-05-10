@@ -33,6 +33,7 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 - **Image Management**: Pull, remove, inspect images with streaming progress
 - **Volume Management**: Create, delete, export/import volumes with tar backups
 - **Network Management**: Bridge, macvlan, ipvlan with VLAN support and optional OpenWrt integration (auto-creates bridge devices, network interfaces, dnsmasq exclusion, and shared `podman` firewall zone with DNS access rules)
+- **Pod Management**: Create pods with shared namespaces, lifecycle actions (start/stop/restart/pause/unpause), and add containers to existing pods directly from the create form
 - **Secret Management**: Encrypted storage for sensitive data
 - **System Overview**: Resource usage, disk space, system-wide cleanup
 - **Multilingual**: de, es, fr, nl, ru, zh_Hans, zh_Hant
@@ -54,7 +55,7 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 ## Requirements
 
 - OpenWrt 24.10 or 25.12
-- Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `ucode-mod-struct`, `ucode-mod-uloop`, `ucode-mod-fs`, `ucode-mod-html`, `ucode-mod-uci`, `liblucihttp-ucode`, `podman`
+- Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `ucode-mod-struct`, `ucode-mod-uloop`, `ucode-mod-fs`, `ucode-mod-html`, `ucode-mod-uci`, `liblucihttp-ucode`, `coreutils-timeout`, `podman`
 - Sufficient storage for images/containers
 
 ## Installation
@@ -69,14 +70,14 @@ You can setup this package feed to install and update it with opkg:
 
 **OpenWrt 24.10** (opkg):
 ```bash
-wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.0.0/luci-app-podman_2.0.0-r1_all.ipk
-opkg update && opkg install luci-app-podman_2.0.0-r1_all.ipk
+wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.1.0/luci-app-podman_2.1.0-r1_all.ipk
+opkg update && opkg install luci-app-podman_2.1.0-r1_all.ipk
 ```
 
 **OpenWrt 25.12** (apk):
 ```bash
-wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.0.0/luci-app-podman_2.0.0-r1_all.apk
-apk update && apk add --allow-untrusted luci-app-podman_2.0.0-r1_all.apk
+wget https://github.com/Zerogiven-OpenWRT-Packages/luci-app-podman/releases/download/v2.1.0/luci-app-podman_2.1.0-r1_all.apk
+apk update && apk add --allow-untrusted luci-app-podman_2.1.0-r1_all.apk
 ```
 
 ### From Source
