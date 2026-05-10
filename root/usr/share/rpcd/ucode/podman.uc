@@ -637,6 +637,16 @@ const methods = {
 		}
 	},
 
+	pod_kill: {
+		args: { name: '', signal: '' },
+		call: function(req) {
+			let err = require_param('name', req.args.name) || validate_name(req.args.name);
+			if (err) return { error: err };
+			let sig = req.args.signal || 'SIGKILL';
+			return podman_request('POST', `${API_BASE}/pods/${encode_id(req.args.name)}/kill?signal=${sig}`);
+		}
+	},
+
 	pod_restart: {
 		args: { name: '' },
 		call: function(req) {

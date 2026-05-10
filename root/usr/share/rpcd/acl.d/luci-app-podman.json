@@ -75,6 +75,7 @@
 					"volume_import",
 					"pod_start",
 					"pod_stop",
+					"pod_kill",
 					"pod_restart",
 					"pod_pause",
 					"pod_unpause",

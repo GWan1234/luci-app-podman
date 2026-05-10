@@ -10,8 +10,6 @@
     gap: 1.3125rem;
 }
 
-
-
 div.cbi-tooltip-container {
     width: fit-content;
 }
@@ -160,9 +158,26 @@ div.cbi-tooltip-container div.cbi-tooltip {
     background-color: var(--background-color-low);
 }
 
+.badge.paused {
+    background-color: var(--warning-color-high, #d68a00);
+}
+
+.badge.degraded {
+    background-color: var(--warning-color-high, #d68a00);
+}
+
+.badge.stopped,
+.badge.dead {
+    background-color: var(--error-color-high);
+}
+
 .badge.running,
 .badge.error,
-.badge.exited {
+.badge.exited,
+.badge.paused,
+.badge.degraded,
+.badge.stopped,
+.badge.dead {
     color: white;
 }
 

@@ -7,6 +7,7 @@
 'require podman.model.Network as Network';
 'require podman.model.Volume as Volume';
 'require podman.model.Secret as Secret';
+'require podman.model.Pod as Pod';
 
 return baseclass.extend({
 	/**
@@ -61,7 +62,16 @@ return baseclass.extend({
 			params: [],
 			expect: {
 				data: []
-			}
+			},
+			filter: (pods) => pods
+				.map((pod) => Pod.getSingleton(pod))
+				.sort((a, b) => a.getName().localeCompare(b.getName()))
+		}),
+
+		create: Model.declareRPC({
+			object: 'podman',
+			method: 'pod_create',
+			params: ['data']
 		}),
 	},
 

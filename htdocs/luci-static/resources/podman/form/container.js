@@ -20,6 +20,7 @@ const PodmanFormContainer = podmanView.form.extend({
 			container: {
 				name: '',
 				image: '',
+				pod: '',
 				command: null,
 				ports: null,
 				env: null,
@@ -44,9 +45,10 @@ const PodmanFormContainer = podmanView.form.extend({
 	},
 
 	async createForm() {
-		const [images, networks] = await Promise.all([
+		const [images, networks, pods] = await Promise.all([
 			podmanRPC.images.list(),
-			podmanRPC.networks.list()
+			podmanRPC.networks.list(),
+			podmanRPC.pods.list()
 		]);
 
 		let field;
@@ -75,18 +77,30 @@ const PodmanFormContainer = podmanView.form.extend({
 		};
 		field.description = _('Container image to use');
 
+		field = this.section.option(form.ListValue, 'pod', _('Pod'));
+		field.value('', _('(none)'));
+		pods.forEach((pod) => {
+			const name = pod.getName();
+			if (name && name !== _('Unknown')) {
+				field.value(name, name);
+			}
+		});
+		field.description = _('Add the container to an existing pod. Network, hostname and port mappings come from the pod\'s infra container.');
+
 		field = this.section.option(form.Value, 'command', _('Command'));
 		field.placeholder = '/bin/sh';
 		field.optional = true;
 		field.description = _('Command to run (space-separated)');
 
 		field = this.section.option(form.TextValue, 'ports', _('Port Mappings'));
+		field.depends('pod', '');
 		field.placeholder = '8080:80\n8443:443';
 		field.rows = 3;
 		field.optional = true;
 		field.description = _('One per line, format: host:container[/protocol]');
 
 		field = this.section.option(form.Value, 'expose', _('Expose Ports'));
+		field.depends('pod', '');
 		field.placeholder = '6052, 8080/udp';
 		field.optional = true;
 		field.description = _('Comma-separated ports to expose (e.g., 6052, 8080/udp)');
@@ -104,6 +118,7 @@ const PodmanFormContainer = podmanView.form.extend({
 		field.description = _('One per line. Format: source:destination[:options]. Options: ro, rw, Z, z');
 
 		field = this.section.option(form.ListValue, 'network', _('Network'));
+		field.depends('pod', '');
 		field.value('bridge', 'bridge (default)');
 		field.value('host', 'host');
 		field.value('none', 'none');
@@ -143,6 +158,7 @@ const PodmanFormContainer = podmanView.form.extend({
 		field.optional = true;
 
 		field = this.section.option(form.Value, 'hostname', _('Hostname'));
+		field.depends('pod', '');
 		field.placeholder = 'container-host';
 		field.optional = true;
 		field.datatype = 'hostname';
@@ -190,9 +206,10 @@ const PodmanFormContainer = podmanView.form.extend({
 		};
 
 		if (data.name) spec.name = data.name;
+		if (data.pod) spec.pod = data.pod;
 		if (data.command) spec.command = data.command.split(/\s+/).filter((c) => c.length > 0);
 
-		if (data.ports) {
+		if (!data.pod && data.ports) {
 			spec.portmappings = [];
 			data.ports.split('\n').forEach((line) => {
 				const trimmed = line.trim();
@@ -252,21 +269,23 @@ const PodmanFormContainer = podmanView.form.extend({
 			if (mounts.length > 0) spec.mounts = mounts;
 			if (volumes.length > 0) spec.volumes = volumes;
 		}
-		if (data.network === 'host') {
-			spec.netns = { nsmode: 'host' };
-		} else if (data.network === 'none') {
-			spec.netns = { nsmode: 'none' };
-		} else if (data.network && data.network !== 'bridge') {
-			spec.networks = { [data.network]: {} };
+		if (!data.pod) {
+			if (data.network === 'host') {
+				spec.netns = { nsmode: 'host' };
+			} else if (data.network === 'none') {
+				spec.netns = { nsmode: 'none' };
+			} else if (data.network && data.network !== 'bridge') {
+				spec.networks = { [data.network]: {} };
+			}
 		}
 		if (data.restart !== 'no') spec.restart_policy = data.restart;
 		if (data.workdir) spec.work_dir = data.workdir;
-		if (data.hostname) spec.hostname = data.hostname;
+		if (!data.pod && data.hostname) spec.hostname = data.hostname;
 		if (data.user) spec.user = data.user;
 		if (data.groups) {
 			spec.groups = data.groups.split(',').map((g) => g.trim()).filter((g) => g);
 		}
-		if (data.expose) {
+		if (!data.pod && data.expose) {
 			spec.expose = {};
 			data.expose.split(',').forEach((p) => {
 				const trimmed = p.trim();
