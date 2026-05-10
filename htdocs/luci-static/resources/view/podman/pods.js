@@ -36,7 +36,7 @@ return podmanView.list.extend({
 		o = this.section.option(podmanForm.field.LinkDummyValue, 'Name', _('Name'));
 		o.click = (_value, pod) => this.section.handleInspect(pod);
 
-		o = this.section.option(podmanForm.field.DummyValue, 'Id', _('Tag'));
+		o = this.section.option(podmanForm.field.DummyValue, 'Id', _('ID'));
 		o.cfgdatavalue = (pod) => pod.getID();
 		o.cfgformatter = (id) => utils.truncate(id, 10);
 		o.cfgtt = (id) => id.length > 10 ? id : '';
