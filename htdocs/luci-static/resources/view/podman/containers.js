@@ -50,6 +50,8 @@ return podmanView.list.extend({
 
 		o = this.section.option(podmanForm.field.DummyValue, 'ImageTag', _('Tag'));
 		o.cfgdatavalue = (container) => container.getImageTag();
+		o.cfgformatter = (imageTag) => utils.truncate(imageTag, 10);
+		o.cfgtt = (imageTag) => imageTag.length > 10 ? imageTag : '';
 		o.width = '11%';
 
 		o = this.section.option(podmanForm.field.DummyValue, 'State', _('Status'));
