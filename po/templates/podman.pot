@@ -724,9 +724,6 @@ msgstr ""
 msgid "Restarting pod"
 msgstr ""
 
-msgid "Restarts"
-msgstr ""
-
 msgid "Restrict external access to the network"
 msgstr ""
 

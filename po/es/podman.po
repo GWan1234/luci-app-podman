@@ -732,9 +732,6 @@ msgstr "Política de reinicio actualizada correctamente"
 msgid "Restarting pod"
 msgstr ""
 
-msgid "Restarts"
-msgstr ""
-
 msgid "Restrict external access to the network"
 msgstr "Restringir el acceso externo a la red"
 

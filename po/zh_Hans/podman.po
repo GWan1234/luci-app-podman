@@ -732,9 +732,6 @@ msgstr "重启策略更新成功"
 msgid "Restarting pod"
 msgstr ""
 
-msgid "Restarts"
-msgstr ""
-
 msgid "Restrict external access to the network"
 msgstr "限制网络的外部访问"
 

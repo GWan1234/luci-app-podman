@@ -732,9 +732,6 @@ msgstr "Herstartbeleid succesvol bijgewerkt"
 msgid "Restarting pod"
 msgstr ""
 
-msgid "Restarts"
-msgstr ""
-
 msgid "Restrict external access to the network"
 msgstr "Externe toegang tot het netwerk beperken"
 

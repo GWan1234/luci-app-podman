@@ -735,9 +735,6 @@ msgstr "重新啟動原則成功更新"
 msgid "Restarting pod"
 msgstr ""
 
-msgid "Restarts"
-msgstr ""
-
 msgid "Restrict external access to the network"
 msgstr "限制對外部網路的操作"
 
