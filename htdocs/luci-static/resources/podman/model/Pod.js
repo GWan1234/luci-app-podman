@@ -103,10 +103,6 @@ const Pod = Model.base.extend({
 		return this.Containers || [];
 	},
 
-	getContainerCount() {
-		return this.getContainers().length;
-	},
-
 	isRunning() {
 		return this.getStatus() === 'Running';
 	},

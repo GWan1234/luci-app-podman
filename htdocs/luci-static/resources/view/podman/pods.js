@@ -8,6 +8,7 @@
 'require podman.form as podmanForm';
 'require podman.view as podmanView';
 'require podman.form.pod as PodmanFormPod';
+'require podman.model.Container as Container';
 
 return podmanView.list.extend({
 	sectionName: 'pods',
@@ -35,8 +36,10 @@ return podmanView.list.extend({
 		o = this.section.option(podmanForm.field.LinkDummyValue, 'Name', _('Name'));
 		o.click = (_value, pod) => this.section.handleInspect(pod);
 
-		o = this.section.option(podmanForm.field.DummyValue, 'Id', _('ID'));
-		o.cfgdatavalue = (pod) => utils.truncate(pod.getID(), 10);
+		o = this.section.option(podmanForm.field.DummyValue, 'Id', _('Tag'));
+		o.cfgdatavalue = (pod) => pod.getID();
+		o.cfgformatter = (id) => utils.truncate(id, 10);
+		o.cfgtt = (id) => id.length > 10 ? id : '';
 		o.width = '12%';
 
 		o = this.section.option(podmanForm.field.DummyValue, 'Status', _('Status'));
@@ -59,7 +62,7 @@ return podmanView.list.extend({
 	},
 
 	renderContainersCell(pod) {
-		const count = pod.getContainerCount();
+		const count = pod.getContainers().length;
 		if (count === 0) {
 			return E('span', {}, '0');
 		}
@@ -81,27 +84,25 @@ return podmanView.list.extend({
 			E('th', {}, _('Name')),
 			E('th', {}, _('ID')),
 			E('th', {}, _('Status')),
-			E('th', {}, _('Restarts')),
 		]);
 
 		const rows = containers.map((c) => {
-			const idShort = utils.truncate(c.Id || '', 10);
-			const idCell = c.Id ? E('a', {
-				href: L.url('admin/podman/container', c.Id),
-			}, idShort) : E('span', {}, '-');
+			const container = Container.getSingleton(c);
+			const idShort = utils.truncate(container.getID(), 10);
+			const idCell = container.getDetailLink(idShort);
 
 			return E('tr', {}, [
-				E('td', {}, c.Names || '-'),
+				E('td', {}, container.getName()),
 				E('td', {}, idCell),
-				E('td', {}, E('span', { class: `badge ${(c.Status || '').toLowerCase()}` }, c.Status || '-')),
-				E('td', {}, String(c.RestartCount ?? 0)),
+				E('td', {}, container.getStateBadge()),
 			]);
 		});
 
+		// @todo: create table with helpers or show a simpler list
 		const table = E('table', { class: 'table cbi-section-table' }, [
 			E('thead', {}, headerRow),
 			E('tbody', {}, rows.length > 0 ? rows : [
-				E('tr', {}, E('td', { colspan: 4, class: 'text-center' }, _('No containers in this pod'))),
+				E('tr', {}, E('td', { colspan: 3, class: 'text-center' }, _('No containers in this pod'))),
 			]),
 		]);
 

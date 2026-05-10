@@ -94,12 +94,16 @@ const Container = Model.base.extend({
 	__name__: 'Podman.Model.Container',
 
 	getID() {
-		return this.Id;
+		return this.Id || '';
 	},
 
 	getName() {
-		if (this.Names && this.Names.length > 0) {
+		if (this.Names && Array.isArray(this.Names) && this.Names.length > 0) {
 			return this.Names[0];
+		}
+
+		if (this.Names && !Array.isArray(this.Names) && this.Names !== '') {
+			return this.Names;
 		}
 
 		if (this.Name) {
@@ -110,7 +114,7 @@ const Container = Model.base.extend({
 	},
 
 	getState() {
-		return this.State?.Status || this.State || '';
+		return this.State?.Status || this.Status || this.State || '';
 	},
 
 	getStateBadge() {
