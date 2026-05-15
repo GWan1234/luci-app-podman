@@ -40,21 +40,21 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 
 ## Screenshots
 
-| Container List | Container Info | Logs |
+| Overview | Container List | Container Info |
 |---|---|---|
-| ![Container List](docs/screenshots/container-list.png) | ![Container Info](docs/screenshots/container-info.png) | ![Logs](docs/screenshots/container-log.png) |
+| ![Overview](docs/screenshots/overview.png) | ![Container List](docs/screenshots/container-list.png) | ![Container Info](docs/screenshots/container-info.png) |
 
-| Stats | Health | Overview |
+| Stats | Health | Logs |
 |---|---|---|
-| ![Stats](docs/screenshots/container-stats.png) | ![Health](docs/screenshots/container-health.png) | ![Overview](docs/screenshots/overview.png) |
+| ![Stats](docs/screenshots/container-stats.png) | ![Resources](docs/screenshots/container-resource.png) | ![Logs](docs/screenshots/container-log.png) |
 
-| Images | Network OpenWrt Setup | Resources |
+| Images | Network OpenWrt Setup |
 |---|---|---|
-| ![Images](docs/screenshots/image-list.png) | ![Network OpenWrt](docs/screenshots/network-setup-openwrt-integration.png) | ![Resources](docs/screenshots/container-resource.png) |
+| ![Images](docs/screenshots/image-list.png) | ![Network OpenWrt](docs/screenshots/network-setup-openwrt-integration.png) |
 
 ## Requirements
 
-- OpenWrt 24.10 or 25.12
+- OpenWrt 25.12 / 24.10
 - Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `ucode-mod-struct`, `ucode-mod-uloop`, `ucode-mod-fs`, `ucode-mod-html`, `ucode-mod-uci`, `liblucihttp-ucode`, `coreutils-timeout`, `podman`
 - Sufficient storage for images/containers
 

@@ -193,10 +193,10 @@
 - [ ] **7.25** Both pods end up `Running`
 - [ ] **7.26** No JS console errors during multi-action
 
-### 7g. Inspect modal
+### 7g. Detail page navigation (from list)
 
-- [x] **7.27** Click pod **Name** in list → Modal opens with raw JSON of `podman pod inspect`
-- [x] **7.28** Close modal → No leftover overlay; list still interactive
+- [ ] **7.27** Click pod **Name** in list → Navigates to `/admin/podman/pod/<id>` (no more inspect modal)
+- [ ] **7.28** Browser back button → Returns to pods list with state preserved
 
 ### 7h. Containers expand modal
 
@@ -240,6 +240,65 @@
 - [ ] **7.51** SSH `podman pod rm -f pod-full pod-a pod-b` → All test pods removed
 - [ ] **7.52** SSH `podman ps -a` → No leftover test containers
 - [ ] **7.53** Reload pods list → Empty/clean state
+
+### 7n. Detail page — load & header (`/admin/podman/pod/<id>`)
+
+- [ ] **7.54** Direct URL `/admin/podman/pod/<podId>` → Detail page loads, no console errors
+- [ ] **7.55** Header shows pod name and back-arrow button → back button returns to pods list
+- [ ] **7.56** Lifecycle buttons visible: ▶ Start, ■ Stop, ⟳ Restart, ⏸ Pause, ⏵ Unpause, 🗑 Delete
+- [ ] **7.57** "Active" highlight reflects current state: Running pod → ▶ highlighted, Paused pod → ⏸ highlighted, Exited pod → ■ highlighted (semantic: button describes current state, not "available action")
+- [ ] **7.58** Tabs visible: Info, Stats, Processes, Inspect
+
+### 7o. Detail page — Info tab
+
+- [ ] **7.59** Basic Information section: Name, ID (full 64-char), Status badge, Created date populated
+- [ ] **7.60** Configuration section: Hostname, Cgroup parent, Exit policy, Restart policy, Shared namespaces (comma-joined), Infra container (clickable link to `/admin/podman/container/<infraId>`)
+- [ ] **7.61** Resources section: CPU period (µs), CPU quota (µs or "Unlimited"), CPU shares, CPU set, Memory limit (formatted bytes or "Unlimited"). Description note "Resources are set at pod creation and cannot be edited here." present
+- [ ] **7.62** Network section: Networks, Static IPv4, Static MAC, DNS servers, DNS search, DNS options, Extra hosts, Host network (Yes/No)
+- [ ] **7.63** Containers section: table with Name, truncated ID (clickable → container detail), Status badge — one row per container including infra
+- [ ] **7.64** Labels section: only rendered if pod has labels; otherwise omitted
+- [ ] **7.65** All empty fields show `-` placeholder
+
+### 7p. Detail page — Stats tab (pod running)
+
+- [ ] **7.66** Switch to Stats tab → Table with headers: Container, CID, CPU %, Memory, Memory %, Net I/O, Block I/O, PIDs
+- [ ] **7.67** Rows update live (humanized strings from `PodStatsReport`: e.g. "75.5%", "12mb / 24mb")
+- [ ] **7.68** Container name column resolves from pod's containers map (not the pod-name value the API returns)
+- [ ] **7.69** Switch to another tab → Stream stops (verify in DevTools Network: stream connection closes)
+- [ ] **7.70** Switch back to Stats → Stream restarts
+- [ ] **7.71** Pod is stopped → Stats tab shows "Pod is not running" warning, no stream attempt
+
+### 7q. Detail page — Processes tab (pod running)
+
+- [ ] **7.72** Switch to Processes tab → Table with columns Podman's `pod top` returns (USER, PID, ..., CMD) plus a CONTAINER column (native to pod top)
+- [ ] **7.73** Rows update live as processes change
+- [ ] **7.74** Switch away → Stream stops
+- [ ] **7.75** Pod is stopped → Shows "Pod is not running" warning
+
+### 7r. Detail page — Inspect tab
+
+- [ ] **7.76** Switch to Inspect tab → Renders full raw JSON of `podman pod inspect`
+- [ ] **7.77** Same content as old list-view inspect modal (sanity check no fields are lost)
+
+### 7s. Detail page — lifecycle actions
+
+- [ ] **7.78** Running pod → click ⏸ Pause → confirmation/loading → reload → status `Paused`, ⏸ now highlighted as active
+- [ ] **7.79** Paused pod → click ⏵ Unpause → reload → status `Running`
+- [ ] **7.80** Running pod → click ■ Stop → reload → status `Exited`, ■ highlighted
+- [ ] **7.81** Stopped pod → click ▶ Start → reload → status `Running`
+- [ ] **7.82** Click ⟳ Restart → reload → status briefly cycles to Running
+- [ ] **7.83** Click 🗑 Delete → confirm dialog → confirm → redirects to `/admin/podman/pods`, pod gone
+- [ ] **7.84** Before Stop/Pause/Restart, verify in DevTools Network: stats/processes streams close BEFORE the action fires (no reconnect storm)
+
+### 7t. Detail page — edge cases
+
+- [ ] **7.85** Pod with no containers (rare — infra-less or just created): Containers section shows "No containers in this pod"
+- [ ] **7.86** Pod with no labels: Labels section is absent (not just empty)
+- [ ] **7.87** Pod with `RestartPolicy` unset: Configuration shows `-`
+- [ ] **7.88** Pod with `memory_limit: 0` or unset: Resources shows "Unlimited"
+- [ ] **7.89** Pod with `cpu_quota: -1`: Resources shows "Unlimited"
+- [ ] **7.90** Invalid pod ID in URL → Redirects to pods list (no crash)
+- [ ] **7.91** Refresh page while stats stream active → No duplicate streams (Network panel shows single connection)
 
 ---
 
