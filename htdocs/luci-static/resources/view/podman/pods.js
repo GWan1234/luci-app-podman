@@ -36,14 +36,11 @@ return podmanView.list.extend({
 
 		let o;
 
-		o = this.section.option(podmanForm.field.LinkDummyValue, 'Name', _('Name'));
-		o.click = (_value, pod) => this.section.handleInspect(pod);
+		o = this.section.option(podmanForm.field.DummyValue, 'Name', _('Name'));
 
 		o = this.section.option(podmanForm.field.DummyValue, 'Id', _('ID'));
-		o.cfgdatavalue = (pod) => pod.getID();
-		o.cfgformatter = (id) => utils.truncate(id, 10);
-		o.cfgtt = (id) => id.length > 10 ? id : '';
-		o.width = '12%';
+		o.cfgdatavalue = (pod) => pod.getDetailLink(utils.truncate(pod.getID(), 16));
+		o.width = '20%';
 
 		o = this.section.option(podmanForm.field.DummyValue, 'Status', _('Status'));
 		o.cfgdatavalue = (pod) => pod.getStatusBadge();

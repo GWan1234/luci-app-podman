@@ -54,12 +54,6 @@ const PodRPC = {
 		method: 'pod_remove',
 		params: ['name', 'force']
 	}),
-
-	stats: Model.declareRPC({
-		object: 'podman',
-		method: 'pod_stats',
-		params: ['name']
-	}),
 };
 
 const Pod = Model.base.extend({
@@ -70,11 +64,11 @@ const Pod = Model.base.extend({
 	},
 
 	getName() {
-		return this.Name || _('Unknown');
+		return this.Name || this.Id || _('Unknown');
 	},
 
 	getStatus() {
-		return this.Status || '';
+		return this.Status || this.State || '';
 	},
 
 	getStatusBadge() {
@@ -88,7 +82,7 @@ const Pod = Model.base.extend({
 	},
 
 	getInfraId() {
-		return this.InfraId;
+		return this.InfraId || this.InfraContainerID;
 	},
 
 	getNetworks() {
@@ -150,8 +144,28 @@ const Pod = Model.base.extend({
 		return PodRPC.remove(this.getName(), force ?? true);
 	},
 
-	async stats() {
-		return PodRPC.stats(this.getName());
+	streamTop(onChunk, delay) {
+		const params = new URLSearchParams({ delay: String(delay || 2) });
+		const url = L.url('admin/podman/stream/pod_top', this.getName()) + '?' + params;
+		return this._stream(
+			() => url,
+			(data) => { if (!data.raw && !data.Error) onChunk(data); }
+		);
+	},
+
+	streamStats(onChunk) {
+		const url = L.url('admin/podman/stream/pod_stats', this.getName());
+		return this._stream(
+			() => url,
+			(data) => {
+				if (!Array.isArray(data)) return;
+				onChunk(data);
+			}
+		);
+	},
+
+	getDetailLink(label) {
+		return E('a', { href: L.url('admin/podman/pod', this.getID()) }, label || this.getName());
 	},
 });
 

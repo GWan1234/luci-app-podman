@@ -694,15 +694,6 @@ const methods = {
 		}
 	},
 
-	pod_stats: {
-		args: { name: '' },
-		call: function(req) {
-			let err = require_param('name', req.args.name) || validate_name(req.args.name);
-			if (err) return { error: err };
-			return podman_request('GET', `${API_BASE}/pods/stats?stream=false&namesOrIDs=${encode_id(req.args.name)}`);
-		}
-	},
-
 	// ==================== Secrets ====================
 
 	secrets_list: {

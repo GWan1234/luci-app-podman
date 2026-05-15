@@ -41,6 +41,12 @@
 			"path": "podman/pods"
 		}
 	},
+	"admin/podman/pod/*": {
+		"action": {
+			"type": "view",
+			"path": "podman/pod"
+		}
+	},
 	"admin/podman/images": {
 		"title": "Images",
 		"order": 30,

@@ -959,3 +959,93 @@ msgstr "en cours"
 
 msgid "total"
 msgstr "total"
+
+msgid "Are you sure to remove pod?"
+msgstr ""
+
+msgid "Cgroup parent"
+msgstr ""
+
+msgid "CID"
+msgstr ""
+
+msgid "CPU %"
+msgstr ""
+
+msgid "CPU period"
+msgstr ""
+
+msgid "CPU quota"
+msgstr ""
+
+msgid "CPU set"
+msgstr ""
+
+msgid "CPU shares"
+msgstr ""
+
+msgid "DNS options"
+msgstr ""
+
+msgid "DNS search"
+msgstr ""
+
+msgid "DNS servers"
+msgstr ""
+
+msgid "Exit policy"
+msgstr ""
+
+msgid "Extra hosts"
+msgstr ""
+
+msgid "Host network"
+msgstr ""
+
+msgid "Infra container"
+msgstr ""
+
+msgid "Memory limit"
+msgstr ""
+
+msgid "Net I/O"
+msgstr ""
+
+msgid "Pause pod"
+msgstr ""
+
+msgid "Pod is not running"
+msgstr ""
+
+msgid "Remove pod"
+msgstr ""
+
+msgid "Resources are set at pod creation and cannot be edited here."
+msgstr ""
+
+msgid "Restart policy"
+msgstr ""
+
+msgid "Restart pod"
+msgstr ""
+
+msgid "Shared namespaces"
+msgstr ""
+
+msgid "Start pod"
+msgstr ""
+
+msgid "Static IPv4"
+msgstr ""
+
+msgid "Static MAC"
+msgstr ""
+
+msgid "Stop pod"
+msgstr ""
+
+msgid "Unlimited"
+msgstr ""
+
+msgid "Unpause pod"
+msgstr ""

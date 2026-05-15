@@ -26,7 +26,6 @@
 					"volume_inspect",
 					"pods_list",
 					"pod_inspect",
-					"pod_stats",
 					"secrets_list",
 					"secret_inspect",
 					"system_df",

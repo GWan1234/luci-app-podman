@@ -290,6 +290,39 @@ return {
 		}, false, timer);
 	},
 
+	pod_top: (name) => {
+		if (!validate_id(name)) { error_response(400, 'Invalid pod name or ID'); return; }
+
+		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
+		if (!timer) { error_response(403, 'Session expired'); return; }
+
+		let delay = http.formvalue('delay') || '5';
+
+		if (!match(`${delay}`, /^[0-9]+$/) || +delay < 2) {
+			error_response(400, 'Invalid delay parameter');
+			return;
+		}
+
+		let api_path = sprintf('%s/pods/%s/top?stream=true&delay=%s', API_BASE, name, delay);
+
+		stream_podman(api_path, (chunk) => {
+			return http.write(chunk);
+		}, false, timer);
+	},
+
+	pod_stats: (name) => {
+		if (!validate_id(name)) { error_response(400, 'Invalid pod name or ID'); return; }
+
+		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
+		if (!timer) { error_response(403, 'Session expired'); return; }
+
+		let api_path = sprintf('%s/pods/stats?namesOrIDs=%s&all=true', API_BASE, name);
+
+		stream_podman(api_path, (chunk) => {
+			return http.write(chunk);
+		}, false, timer);
+	},
+
 	image_pull: () => {
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
