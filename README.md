@@ -55,7 +55,14 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 ## Requirements
 
 - OpenWrt 25.12 / 24.10
-- Dependencies: `luci-base`, `rpcd`, `rpcd-mod-ucode`, `ucode-mod-socket`, `ucode-mod-struct`, `ucode-mod-uloop`, `ucode-mod-fs`, `ucode-mod-html`, `ucode-mod-uci`, `liblucihttp-ucode`, `coreutils-timeout`, `podman`
+- Dependencies:
+  - `podman`
+  - `luci-base`
+  - `rpcd`
+  - `rpcd-mod-ucode`
+  - `ucode-mod-socket / -struct / -uloop / -fs / -html / -uci`
+  - `liblucihttp-ucode`
+  - `coreutils-timeout`
 - Sufficient storage for images/containers
 
 ## Installation
