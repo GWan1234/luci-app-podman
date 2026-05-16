@@ -5,7 +5,7 @@
 
 # LuCI App Podman
 
-Modern and feature rich LuCI web interface for managing Podman on OpenWrt. Some ideas which may came next version(s) can you find in the [todo's](./docs/TODO.md) file. Also feel free to open a ticket or send me a mail if you have suggestions, ideas or problems 🙂
+Modern and feature rich LuCI web interface for managing Podman on OpenWrt. Some ideas which may come in one of the next version(s) can you find in the [todo's](./docs/TODO.md) file. Also feel free to open a ticket or send me a mail if you have suggestions, ideas or problems 🙂
 
 <details>
 
