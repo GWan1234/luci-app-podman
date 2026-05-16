@@ -49,7 +49,7 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 | ![Stats](docs/screenshots/container-stats.png) | ![Resources](docs/screenshots/container-resource.png) | ![Logs](docs/screenshots/container-log.png) |
 
 | Images | Network OpenWrt Setup |
-|---|---|---|
+|---|---|
 | ![Images](docs/screenshots/image-list.png) | ![Network OpenWrt](docs/screenshots/network-setup-openwrt-integration.png) |
 
 ## Requirements
