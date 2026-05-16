@@ -1,23 +1,85 @@
-- Container Pause/Unpause UI
-- Image Search
-- Optimize Container Detail Mobile View
+# ToDo's / Known issues
 
-- Re-create container with new image(tag)
-- Run update check and update somehow in background
+## Common
+
+- Optimize Mobile View
+- Checkout new table filters for 25.12 and backwards compatibility
 - Sortable table
-- Problem with file export which takes longer than 50s (script timeout)
-  - But also the problem with limited space so temp file could be a bad idea
-- How to generally handle tasks which could take long time. For example prune
-- Duplicated container_create declaration (because of circular dependency)
-- Add restartRetries to container (form+detail)
-- Missing labels for secrets (form & list)
-- Remake of health check settings
-- Network detail page
-- Pods
-- Import container from "podman run" command
-- possibility that you can see the create command so if something fails it can be done manually
-- Get rid of the config file - Get socket from podman info leave default startup order (100)
-  - Make it somehow possible to overwrite the priority for one container which will persist also after container update. Means it has to check which prio actually stands in the init.d script to get the current value
+- Check for duplicated code
+- Get rid of the config file
+  - we can get socket path in an other way
+  - init.d default priority hard coded
+- tcp socket connection check to use UI with podman not installed on host
 
+## Overview
 
-- **Import from Compose File**: Parse Docker Compose files to create containers
+### Prune
+
+- Long running prune fails after 50s
+
+### Auto Update
+
+- If re-create container fails, it would be nice if user could re-create the container. Some Ideas:
+  1. Show cli command
+  2. Show spec data and make it possible to import
+
+## Container
+
+- Checkpoints export/import
+
+### Add
+
+- Missing restartRetries
+- Missing health check settings
+- Fill form from cli command
+
+### List
+
+- Pause/Unpause container
+
+### Details
+
+- Pause/Unpause container
+- Re-create container with new image
+- Add missing restartRetries
+- Healthcheck tab with form and manual health check action
+- Init.d priority editable. Maybe directly in the file.
+- Add some more informations
+  - devices
+- Attach to a container (ttyd)
+- Add devices show/add/remove
+
+## Pods
+
+- Think how to handle restart policy
+
+### List
+
+- Replace table from container modal with one from jsapi
+
+### Details
+
+- In containers tab add create/remove/refresh button
+
+## Volumes
+
+### List
+
+- Big exports which takes more than 50s are failing
+
+## Networks
+
+### Details
+
+- Update network
+- Disconnect container
+
+## Secrets
+
+### Add
+
+- Missing labels
+
+### List
+
+- Missing labels

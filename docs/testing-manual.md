@@ -1,5 +1,7 @@
 # Manual UI Testing Plan
 
+1. xx
+
 ## 0. Authentication
 
 - [x] **0.1** Navigate to `http://<router>/cgi-bin/luci` → Redirected to login page

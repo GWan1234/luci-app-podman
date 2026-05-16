@@ -5,7 +5,7 @@
 
 # LuCI App Podman
 
-Modern LuCI web interface for managing Podman containers on OpenWrt.
+Modern and feature rich LuCI web interface for managing Podman on OpenWrt. Some ideas which may came next version(s) can you find in the [todo's](./docs/TODO.md) file. Also feel free to open a ticket or send me a mail if you have suggestions, ideas or problems 🙂
 
 <details>
 
@@ -34,7 +34,7 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 - **Network Management**: Bridge, macvlan, ipvlan with VLAN support and optional OpenWrt integration (auto-creates bridge devices, network interfaces, dnsmasq exclusion, and shared `podman` firewall zone with DNS access rules)
 - **Pod Management**: Create pods with shared namespaces, lifecycle actions (start/stop/restart/pause/unpause), and add containers to existing pods directly from the create form
 - **Secret Management**: Encrypted storage for sensitive data
-- **System Overview**: Resource usage, disk space, system-wide cleanup
+- **System Overview**: Resource usage, system-wide cleanup
 - **Multilingual**: de, es, fr, nl, ru, zh_Hans, zh_Hant
 
 ## Screenshots
