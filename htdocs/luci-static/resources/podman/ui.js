@@ -249,6 +249,82 @@ const UIBashCodeArea = baseclass.extend({
 });
 
 /**
+ * Scrolling text log for streaming output. Each append() is one logical
+ * update: lines containing CR overwrite the last line (Podman pull progress
+ * uses CR to refresh "Copying blob X 50%"); plain lines append. Sticky
+ * auto-scroll: jumps to bottom on append unless the user scrolled up.
+ */
+const UIStreamLog = baseclass.extend({
+	__name__: 'Podman.UI.StreamLog',
+
+	maxLines: 2000,
+	autoScroll: true,
+
+	__init__(opts) {
+		opts = opts || {};
+		if (typeof opts.maxLines === 'number')  this.maxLines  = opts.maxLines;
+		if (typeof opts.autoScroll === 'boolean') this.autoScroll = opts.autoScroll;
+		this._container    = E('div', { class: 'podman-stream-log' });
+		this._lastLineNode = null;
+		this._lineCount    = 0;
+	},
+
+	append(text) {
+		if (text == null) return this;
+		const stripped = String(text).replace(/\n+$/, '');
+		if (!stripped) return this;
+
+		const stick = this.autoScroll && this._isAtBottom();
+		const cr    = stripped.lastIndexOf('\r');
+		const isProgress = cr >= 0;
+		const display    = isProgress ? stripped.slice(cr + 1) : stripped;
+
+		if (isProgress && this._lastLineNode) {
+			this._lastLineNode.textContent = display;
+		} else {
+			this._appendLine(display);
+		}
+
+		if (stick) this._container.scrollTop = this._container.scrollHeight;
+		return this;
+	},
+
+	appendBlock(lines) {
+		if (Array.isArray(lines)) for (const l of lines) this.append(l);
+		return this;
+	},
+
+	clear() {
+		while (this._container.firstChild) this._container.removeChild(this._container.firstChild);
+		this._lastLineNode = null;
+		this._lineCount = 0;
+		return this;
+	},
+
+	render() {
+		return this._container;
+	},
+
+	_appendLine(text) {
+		const node = E('div', { class: 'log-line' }, [text || ' ']);
+		this._container.appendChild(node);
+		this._lastLineNode = node;
+		this._lineCount++;
+		while (this._lineCount > this.maxLines && this._container.firstChild) {
+			const removed = this._container.firstChild;
+			this._container.removeChild(removed);
+			this._lineCount--;
+			if (this._lastLineNode === removed) this._lastLineNode = this._container.lastChild;
+		}
+	},
+
+	_isAtBottom() {
+		const el = this._container;
+		return (el.scrollHeight - el.scrollTop - el.clientHeight) < 5;
+	}
+});
+
+/**
  * Table builder with header and row chaining.
  */
 const UITable = baseclass.extend({
@@ -476,6 +552,8 @@ const PodmanUI = UIBase.extend({
 	TableList: UITableList,
 	Tabs: UITabs,
 	Tooltip: UITooltip,
+
+	StreamLog: UIStreamLog,
 });
 
 return PodmanUI;

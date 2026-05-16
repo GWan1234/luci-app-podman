@@ -409,3 +409,23 @@ td[data-widget="Podman.Form.SelectDummyValue"] {
 td[data-widget="Podman.Form.SelectDummyValue"] .cbi-checkbox {
     margin-top: 2px;
 }
+
+.podman-stream-log {
+    font-family: monospace;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    background: #1e1e1e;
+    color: #e8e8e8;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 0.5rem 0.75rem;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.podman-stream-log .log-line {
+    white-space: pre;
+    word-break: keep-all;
+}

@@ -76,8 +76,8 @@ const Image = Model.base.extend({
 		return ImageRPC.remove(this.getID());
 	},
 
-	update() {
-		return this.streamPull();
+	update(onProgress) {
+		return this.streamPull(onProgress);
 	},
 
 	streamPull(onProgress) {

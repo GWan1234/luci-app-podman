@@ -16,6 +16,23 @@
 - [ ] **1.3** System status indicator visible → Shows running (socket available)
 - [x] **1.4** Note all current counts → Baseline for comparison after later steps
 
+### 1a. Auto-update modal — live progress
+
+Prereq: at least one container with label `io.containers.autoupdate=registry`.
+
+- [ ] **1.5** Click "Check for Updates" → Spinner per container → "Apply Updates" modal lists candidates
+- [ ] **1.6** Tick a container with an actually-newer image upstream → Click Update → Modal switches to log view with `Update image: 1/N — <name>` header, spinner running, Close button **disabled**
+- [ ] **1.7** Log shows `Pulling <ref>`, then live `Trying to pull...`, `Copying blob ...` lines — progress lines with CR overwrite the previous line (no flood of "Copying blob X 50%, 51%, 52%, ...")
+- [ ] **1.8** After pull, log shows stage markers: `→ Stopping container`, `→ Removing container`, `→ Creating container`, `→ Starting container`, `→ Reinstating init script`, `✓ Updated to <id-short>`
+- [ ] **1.9** Multi-container update: each container delimited by `━━ <name> ━━`; previous container's log remains visible above current one
+- [ ] **1.10** After loop ends, counter shows `Done.`, spinner stops, Close button **enabled**
+- [ ] **1.11** Click Close → modal dismisses → summary alert appears (`Containers updated successfully` for full success, list of failures otherwise)
+- [ ] **1.12** Pull failure (rename the container's image to a non-existent registry before running, or change tag to bogus): log shows `✗ <error>`, run continues to next container, summary marks failed
+- [ ] **1.13** Mid-flight failure (SSH `podman run -d --name <same-name> alpine sleep 3600` between Stop and Create, or simulate by other means): log shows `✗ Create failed: ...` for that container, summary marks failed
+- [ ] **1.14** Old-image cleanup: after successful update of one container, log shows `━━ Cleaning up old images... ━━` then either `✓ Removed old image <id>` or `! Old image <name> could not be removed - still in use by another container`
+- [ ] **1.15** Modal scroll: when log overflows visible area, content auto-scrolls to bottom on append; scroll up manually → new lines append at bottom but viewport stays where the user put it (sticky-scroll)
+- [ ] **1.16** Long pull crossing uhttpd `script_timeout` (~55s): server-side connection rotates transparently (auto-reconnect in `Model._stream`); log keeps growing, no spurious error
+
 ---
 
 ## 2. Images (`/admin/podman/images`)

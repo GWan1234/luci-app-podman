@@ -131,65 +131,86 @@ return podmanUI.Modal.extend({
 		const failures = [];
 		const oldImages = [];
 
-		for (const [index, container] of containers.entries()) {
-			podmanUI.showSpinningModal(null, _('Update image and re-create container: %s/%s').format(index + 1, containers.length));
+		const counterEl = E('strong', {}, '');
+		const spinnerEl = E('div', { class: 'spinning' });
+		const headerEl  = E('div', { class: 'd-flex align-center mb-sm gap-5' }, [
+			counterEl,
+			spinnerEl,
+		]);
+		const log = new podmanUI.StreamLog();
 
+		const finalize = () => {
+			ui.hideModal();
+			if (failures.length === 0 && imageWarnings.length === 0) {
+				podmanUI.alert(_('Containers updated successfully'), 'success', true);
+				return;
+			}
+			const lines = [];
+			if (failures.length > 0) {
+				const succeeded = containers.length - failures.length;
+				lines.push(E('p', {}, _('%d updated, %d failed:').format(succeeded, failures.length)));
+				failures.forEach(f => lines.push(E('p', {}, `${f.name}: ${f.error}`)));
+			} else {
+				lines.push(E('p', {}, _('Containers updated successfully.')));
+			}
+			imageWarnings.forEach(w => lines.push(E('p', { class: 'mt-sm' }, w)));
+			podmanUI.alert(lines, failures.length > 0 ? 'warning' : 'info');
+		};
+
+		const closeBtn = new podmanUI.ButtonNew(_('Close'), {
+			click: () => finalize(),
+			type: 'negative',
+		}).render();
+		closeBtn.disabled = true;
+
+		const modal = new podmanUI.Modal(_('Apply Updates'), [ headerEl, log.render() ]);
+		modal.getButtons = () => [ closeBtn ];
+		modal.render();
+
+		let imageWarnings = [];
+
+		for (const [i, container] of containers.entries()) {
+			counterEl.textContent = _('Update image: %d/%d — %s').format(i + 1, containers.length, container.getName());
+			log.append('━━ ' + container.getName() + ' ━━\n');
 			try {
 				const inspected = Container.getSingleton(await container.inspect());
-				const result = await inspected.updateImage();
-				if (result?.oldImage) {
-					oldImages.push({ image: result.oldImage, name: container.getName() });
-				}
+				const result = await inspected.updateImage((line) => log.append(line));
+				if (result?.oldImage) oldImages.push({ image: result.oldImage });
 			} catch (err) {
-				failures.push({
-					name: container.getName(),
-					error: err.message || String(err)
-				});
+				const msg = err.message || String(err);
+				log.append('✗ ' + msg + '\n');
+				failures.push({ name: container.getName(), error: msg });
 			}
+			log.append('\n');
 		}
 
-		const imageWarnings = [];
 		if (oldImages.length > 0) {
-			podmanUI.showSpinningModal(null, _('Cleaning up old images...'));
+			counterEl.textContent = _('Cleaning up old images...');
+			log.append('━━ ' + _('Cleaning up old images...') + ' ━━\n');
 
 			const allContainers = await podmanRPC.containers.list('all=true').catch(() => []);
-
-			// Normalize IDs for comparison (ImageID may have 'sha256:' prefix, getID() does not)
 			const normalize = id => (id || '').replace(/^sha256:/, '').toLowerCase();
 			const usedIds = new Set(allContainers.map(c => normalize(c.ImageID)));
 
-			// Deduplicate by image ID (multiple containers may share the same old image)
 			const seen = new Set();
-			for (const { image, name } of oldImages) {
+			for (const { image } of oldImages) {
 				const id = normalize(image.getID());
 				if (seen.has(id)) continue;
 				seen.add(id);
 
 				if (usedIds.has(id)) {
-					imageWarnings.push(_('Old image %s could not be removed - still in use by another container').format(name));
+					const warning = _('Old image still used by other containers');
+					imageWarnings.push(warning);
+					log.append('! ' + warning + '\n');
 				} else {
 					await image.remove();
+					log.append('✓ ' + _('Removed old image %s').format(image.getID().substring(0, 12)) + '\n');
 				}
 			}
 		}
 
-		ui.hideModal();
-
-		if (failures.length === 0 && imageWarnings.length === 0) {
-			podmanUI.alert(_('Containers updated successfully'), 'success', true);
-			return;
-		}
-
-		const lines = [];
-		if (failures.length > 0) {
-			const succeeded = containers.length - failures.length;
-			lines.push(E('p', {}, _('%d updated, %d failed:').format(succeeded, failures.length)));
-			failures.forEach(f => lines.push(E('p', {}, `${f.name}: ${f.error}`)));
-		} else {
-			lines.push(E('p', {}, _('Containers updated successfully.')));
-		}
-		imageWarnings.forEach(w => lines.push(E('p', { class: 'mt-sm' }, w)));
-
-		podmanUI.alert(lines, failures.length > 0 ? 'warning' : 'info');
-	}
+		counterEl.textContent = _('Done.');
+		spinnerEl.classList.remove('spinning');
+		closeBtn.disabled = false;
+	},
 });

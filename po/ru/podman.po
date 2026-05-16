@@ -606,8 +606,8 @@ msgstr "Количество строк"
 msgid "OK"
 msgstr "OK"
 
-msgid "Old image %s could not be removed - still in use by another container"
-msgstr "Старый образ %s не удалось удалить — используется другим контейнером"
+msgid "Old image still used by other containers"
+msgstr ""
 
 msgid "On Failure"
 msgstr "При ошибке"
@@ -891,9 +891,6 @@ msgstr "Обновить"
 msgid "Update Resources"
 msgstr "Обновить ресурсы"
 
-msgid "Update image and re-create container: %s/%s"
-msgstr "Обновить образ и пересоздать контейнер: %s/%s"
-
 msgid "Update name"
 msgstr "Обновить имя"
 
@@ -1020,9 +1017,6 @@ msgstr ""
 msgid "Remove pod"
 msgstr ""
 
-msgid "Resources are set at pod creation and cannot be edited here."
-msgstr ""
-
 msgid "Restart policy"
 msgstr ""
 
@@ -1048,4 +1042,46 @@ msgid "Unlimited"
 msgstr ""
 
 msgid "Unpause pod"
+msgstr ""
+
+msgid "Stopping container"
+msgstr ""
+
+msgid "Stop failed: %s"
+msgstr ""
+
+msgid "Removing container"
+msgstr ""
+
+msgid "Remove failed: %s"
+msgstr ""
+
+msgid "Creating container"
+msgstr ""
+
+msgid "Create failed: %s"
+msgstr ""
+
+msgid "Starting container"
+msgstr ""
+
+msgid "Start failed: %s"
+msgstr ""
+
+msgid "Reinstating init script"
+msgstr ""
+
+msgid "Init script reinstate failed: %s"
+msgstr ""
+
+msgid "Updated to %s"
+msgstr ""
+
+msgid "Update image: %d/%d — %s"
+msgstr ""
+
+msgid "Removed old image %s"
+msgstr ""
+
+msgid "Done."
 msgstr ""

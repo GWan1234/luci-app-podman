@@ -659,7 +659,7 @@ const Container = Model.base.extend({
 		return null;
 	},
 
-	async updateImage() {
+	async updateImage(onProgress) {
 		const skipReason = this.getUpdateSkipReason();
 		if (skipReason) throw new Error(skipReason);
 
@@ -674,8 +674,9 @@ const Container = Model.base.extend({
 		if (!imageRef || imageRef === '<none>:<none>')
 			throw new Error(_('Container image has no tag - cannot update'));
 
+		onProgress?.(_('Pulling %s').format(imageRef) + '\n');
 		const oldImageId = image.getID();
-		const newImageId = await image.update();
+		const newImageId = await image.update(onProgress);
 
 		if (!newImageId)
 			throw new Error(_('Pull did not return an image ID - pull may have failed'));
@@ -686,20 +687,34 @@ const Container = Model.base.extend({
 		const wasRunning = this.isRunning();
 		const spec = this.inspectToSpec(newImageId);
 
-		if (wasRunning)
-			await this.stop();
+		if (wasRunning) {
+			onProgress?.('→ ' + _('Stopping container') + '\n');
+			try { await this.stop(); }
+			catch (e) { throw new Error(_('Stop failed: %s').format(e.message || e)); }
+		}
 
-		await this.remove();
+		onProgress?.('→ ' + _('Removing container') + '\n');
+		try { await this.remove(); }
+		catch (e) { throw new Error(_('Remove failed: %s').format(e.message || e)); }
 
-		const created = await ContainerRPC.create(spec);
+		onProgress?.('→ ' + _('Creating container') + '\n');
+		let created;
+		try { created = await ContainerRPC.create(spec); }
+		catch (e) { throw new Error(_('Create failed: %s').format(e.message || e)); }
 		if (!created || created.error)
-			throw new Error(created?.error || _('Failed to create container'));
+			throw new Error(_('Create failed: %s').format(created?.error || _('Failed to create container')));
 
-		if (wasRunning)
-			await ContainerRPC.start(created.Id);
+		if (wasRunning) {
+			onProgress?.('→ ' + _('Starting container') + '\n');
+			try { await ContainerRPC.start(created.Id); }
+			catch (e) { throw new Error(_('Start failed: %s').format(e.message || e)); }
+		}
 
-		await this._reinstateInitScript(initStatus);
+		onProgress?.('→ ' + _('Reinstating init script') + '\n');
+		try { await this._reinstateInitScript(initStatus); }
+		catch (e) { throw new Error(_('Init script reinstate failed: %s').format(e.message || e)); }
 
+		onProgress?.('✓ ' + _('Updated to %s').format((newImageId || '').substring(0, 12)) + '\n');
 		return { oldImage: image };
 	},
 

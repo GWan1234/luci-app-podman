@@ -600,8 +600,8 @@ msgstr "Aantal regels"
 msgid "OK"
 msgstr "OK"
 
-msgid "Old image %s could not be removed - still in use by another container"
-msgstr "Oude image %s kon niet worden verwijderd - nog in gebruik door een andere container"
+msgid "Old image still used by other containers"
+msgstr ""
 
 msgid "On Failure"
 msgstr "Bij fout"
@@ -891,9 +891,6 @@ msgstr "Bijwerken"
 msgid "Update Resources"
 msgstr "Bronnen bijwerken"
 
-msgid "Update image and re-create container: %s/%s"
-msgstr "Image bijwerken en container opnieuw aanmaken: %s/%s"
-
 msgid "Update name"
 msgstr "Naam bijwerken"
 
@@ -1020,9 +1017,6 @@ msgstr ""
 msgid "Remove pod"
 msgstr ""
 
-msgid "Resources are set at pod creation and cannot be edited here."
-msgstr ""
-
 msgid "Restart policy"
 msgstr ""
 
@@ -1048,4 +1042,46 @@ msgid "Unlimited"
 msgstr ""
 
 msgid "Unpause pod"
+msgstr ""
+
+msgid "Stopping container"
+msgstr ""
+
+msgid "Stop failed: %s"
+msgstr ""
+
+msgid "Removing container"
+msgstr ""
+
+msgid "Remove failed: %s"
+msgstr ""
+
+msgid "Creating container"
+msgstr ""
+
+msgid "Create failed: %s"
+msgstr ""
+
+msgid "Starting container"
+msgstr ""
+
+msgid "Start failed: %s"
+msgstr ""
+
+msgid "Reinstating init script"
+msgstr ""
+
+msgid "Init script reinstate failed: %s"
+msgstr ""
+
+msgid "Updated to %s"
+msgstr ""
+
+msgid "Update image: %d/%d — %s"
+msgstr ""
+
+msgid "Removed old image %s"
+msgstr ""
+
+msgid "Done."
 msgstr ""
