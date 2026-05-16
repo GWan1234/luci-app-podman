@@ -28,7 +28,6 @@ Modern LuCI web interface for managing Podman containers on OpenWrt.
 - **Container Management**: Start, stop, restart, create, remove containers
 - **Live Streaming**: Real-time logs, stats, and process list streamed directly via a dedicated ucode controller
 - **Container Auto-Update**: Check for image updates and recreate containers with latest images (see [Auto-Update](#container-auto-update))
-- **Import from Compose File**: Parse Docker Compose files to create containers
 - **Auto-start Support**: Automatic init script generation for containers with restart policies
 - **Image Management**: Pull, remove, inspect images with streaming progress
 - **Volume Management**: Create, delete, export/import volumes with tar backups
@@ -160,5 +159,6 @@ The app stores its settings in `/etc/config/podman`:
 Inspired by:
 
 - [openwrt-podman](https://github.com/breeze303/openwrt-podman/) - Podman on OpenWrt
-- [luci-app-dockerman](https://github.com/lisaac/luci-app-dockerman) - Docker LuCI design patterns
+- [openwrt/luci-app-dockerman](https://github.com/openwrt/luci/tree/master/applications/luci-app-dockerman) - Docker LuCI design patterns
+- [lisaac/luci-app-dockerman](https://github.com/lisaac/luci-app-dockerman) - Docker LuCI design patterns
 - [OpenWrt Podman Guide](https://openwrt.org/docs/guide-user/virtualization/podman) - Official documentation

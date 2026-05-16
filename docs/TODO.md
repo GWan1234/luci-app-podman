@@ -18,3 +18,6 @@
 - possibility that you can see the create command so if something fails it can be done manually
 - Get rid of the config file - Get socket from podman info leave default startup order (100)
   - Make it somehow possible to overwrite the priority for one container which will persist also after container update. Means it has to check which prio actually stands in the init.d script to get the current value
+
+
+- **Import from Compose File**: Parse Docker Compose files to create containers
