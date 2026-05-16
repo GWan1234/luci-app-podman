@@ -170,7 +170,7 @@ return podmanUI.Modal.extend({
 		let imageWarnings = [];
 
 		for (const [i, container] of containers.entries()) {
-			counterEl.textContent = _('Update image: %d/%d — %s').format(i + 1, containers.length, container.getName());
+			counterEl.textContent = _('Update image: %d/%d - %s').format(i + 1, containers.length, container.getName());
 			log.append('━━ ' + container.getName() + ' ━━\n');
 			try {
 				const inspected = Container.getSingleton(await container.inspect());

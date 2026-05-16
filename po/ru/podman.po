@@ -223,7 +223,7 @@ msgid "Container Name"
 msgstr "Имя контейнера"
 
 msgid "Container image has no tag - cannot update"
-msgstr "Образ контейнера не имеет тега — невозможно обновить"
+msgstr "Образ контейнера не имеет тега - невозможно обновить"
 
 msgid "Container image to use"
 msgstr "Образ контейнера для использования"
@@ -676,7 +676,7 @@ msgid "Pull Image"
 msgstr "Загрузить образ"
 
 msgid "Pull did not return an image ID - pull may have failed"
-msgstr "Загрузка не вернула ID образа — возможно, загрузка не удалась"
+msgstr "Загрузка не вернула ID образа - возможно, загрузка не удалась"
 
 msgid "Pulling %s"
 msgstr "Загрузка %s"
@@ -1077,7 +1077,7 @@ msgstr ""
 msgid "Updated to %s"
 msgstr ""
 
-msgid "Update image: %d/%d — %s"
+msgid "Update image: %d/%d - %s"
 msgstr ""
 
 msgid "Removed old image %s"

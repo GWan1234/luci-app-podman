@@ -16,13 +16,13 @@
 - [ ] **1.3** System status indicator visible → Shows running (socket available)
 - [x] **1.4** Note all current counts → Baseline for comparison after later steps
 
-### 1a. Auto-update modal — live progress
+### 1a. Auto-update modal - live progress
 
 Prereq: at least one container with label `io.containers.autoupdate=registry`.
 
 - [ ] **1.5** Click "Check for Updates" → Spinner per container → "Apply Updates" modal lists candidates
-- [ ] **1.6** Tick a container with an actually-newer image upstream → Click Update → Modal switches to log view with `Update image: 1/N — <name>` header, spinner running, Close button **disabled**
-- [ ] **1.7** Log shows `Pulling <ref>`, then live `Trying to pull...`, `Copying blob ...` lines — progress lines with CR overwrite the previous line (no flood of "Copying blob X 50%, 51%, 52%, ...")
+- [ ] **1.6** Tick a container with an actually-newer image upstream → Click Update → Modal switches to log view with `Update image: 1/N - <name>` header, spinner running, Close button **disabled**
+- [ ] **1.7** Log shows `Pulling <ref>`, then live `Trying to pull...`, `Copying blob ...` lines - progress lines with CR overwrite the previous line (no flood of "Copying blob X 50%, 51%, 52%, ...")
 - [ ] **1.8** After pull, log shows stage markers: `→ Stopping container`, `→ Removing container`, `→ Creating container`, `→ Starting container`, `→ Reinstating init script`, `✓ Updated to <id-short>`
 - [ ] **1.9** Multi-container update: each container delimited by `━━ <name> ━━`; previous container's log remains visible above current one
 - [ ] **1.10** After loop ends, counter shows `Done.`, spinner stops, Close button **enabled**
@@ -172,7 +172,7 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [x] **7.2** Toolbar visible → Create / Delete / Reload / ▶ / ■ / ⟳ / ⏸ / ⏵ buttons present
 - [x] **7.3** Click Reload with empty list → No error, indicator appears briefly
 
-### 7b. Create — minimal
+### 7b. Create - minimal
 
 - [x] **7.4** Click "Create" → Pod form modal opens with default fields populated
 - [x] **7.5** Submit empty form → No validation error (name auto-generates); pod appears with generated name
@@ -180,7 +180,7 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [x] **7.7** Verify SSH `podman pod inspect pod-min` → Pod exists with one infra container
 - [x] **7.8** Containers column shows `1 ▸` for `pod-min`
 
-### 7c. Create — full options
+### 7c. Create - full options
 
 - [x] **7.9** Open Create form → Name `pod-full`, Hostname `pod-full-host`, Shared Namespaces `cgroup,ipc,net,uts`, Infra ON, Network `<usernet>`, DNS Servers `1.1.1.1` and `9.9.9.9`, DNS Search `lan`, CPU Limit `1.0`, CPU Set `0-1`, Memory `256m`, Labels `app=demo\nenv=test` → Submit
 - [x] **7.10** SSH `podman pod inspect pod-full | jq '.Hostname'` → `pod-full-host`
@@ -195,7 +195,7 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [x] **7.16** After Pause → Badge `Paused` (orange)
 - [x] **7.17** After Stop → Badge `Exited` or `Stopped` (red)
 
-### 7e. Lifecycle — single select
+### 7e. Lifecycle - single select
 
 - [x] **7.18** Tick `pod-min`, click ▶ Start → Loading "Starting pod: 1/1", refresh shows `Running`
 - [x] **7.19** Click ■ Stop → Status `Exited`/`Stopped`
@@ -203,7 +203,7 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [x] **7.21** Click ⏸ Pause → Status `Paused`
 - [x] **7.22** Click ⏵ Unpause → Status `Running`
 
-### 7f. Lifecycle — multi-select
+### 7f. Lifecycle - multi-select
 
 - [ ] **7.23** Create `pod-a` and `pod-b` (defaults), select both → ▶ Start
 - [ ] **7.24** Loading modal shows "Starting pod: 1/2" then "2/2"
@@ -247,7 +247,7 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [ ] **7.47** Try Stop on already-stopped pod → No JS error (graceful handling of API 304/409)
 - [ ] **7.48** Try Pause on stopped pod → Error notification, no JS crash
 
-### 7l. Regression — non-pod container create
+### 7l. Regression - non-pod container create
 
 - [ ] **7.49** Create container with Pod = "(none)", port mapping `8080:80`, network `<usernet>`, hostname `freebee` → Success
 - [ ] **7.50** SSH inspect → port mapping, network and hostname present (confirms `if (!data.pod)` guards don't break the non-pod path)
@@ -258,7 +258,7 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [ ] **7.52** SSH `podman ps -a` → No leftover test containers
 - [ ] **7.53** Reload pods list → Empty/clean state
 
-### 7n. Detail page — load & header (`/admin/podman/pod/<id>`)
+### 7n. Detail page - load & header (`/admin/podman/pod/<id>`)
 
 - [ ] **7.54** Direct URL `/admin/podman/pod/<podId>` → Detail page loads, no console errors
 - [ ] **7.55** Header shows pod name and back-arrow button → back button returns to pods list
@@ -266,17 +266,17 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [ ] **7.57** "Active" highlight reflects current state: Running pod → ▶ highlighted, Paused pod → ⏸ highlighted, Exited pod → ■ highlighted (semantic: button describes current state, not "available action")
 - [ ] **7.58** Tabs visible: Info, Stats, Processes, Inspect
 
-### 7o. Detail page — Info tab
+### 7o. Detail page - Info tab
 
 - [ ] **7.59** Basic Information section: Name, ID (full 64-char), Status badge, Created date populated
 - [ ] **7.60** Configuration section: Hostname, Cgroup parent, Exit policy, Restart policy, Shared namespaces (comma-joined), Infra container (clickable link to `/admin/podman/container/<infraId>`)
 - [ ] **7.61** Resources section: CPU period (µs), CPU quota (µs or "Unlimited"), CPU shares, CPU set, Memory limit (formatted bytes or "Unlimited"). Description note "Resources are set at pod creation and cannot be edited here." present
 - [ ] **7.62** Network section: Networks, Static IPv4, Static MAC, DNS servers, DNS search, DNS options, Extra hosts, Host network (Yes/No)
-- [ ] **7.63** Containers section: table with Name, truncated ID (clickable → container detail), Status badge — one row per container including infra
+- [ ] **7.63** Containers section: table with Name, truncated ID (clickable → container detail), Status badge - one row per container including infra
 - [ ] **7.64** Labels section: only rendered if pod has labels; otherwise omitted
 - [ ] **7.65** All empty fields show `-` placeholder
 
-### 7p. Detail page — Stats tab (pod running)
+### 7p. Detail page - Stats tab (pod running)
 
 - [ ] **7.66** Switch to Stats tab → Table with headers: Container, CID, CPU %, Memory, Memory %, Net I/O, Block I/O, PIDs
 - [ ] **7.67** Rows update live (humanized strings from `PodStatsReport`: e.g. "75.5%", "12mb / 24mb")
@@ -285,19 +285,19 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [ ] **7.70** Switch back to Stats → Stream restarts
 - [ ] **7.71** Pod is stopped → Stats tab shows "Pod is not running" warning, no stream attempt
 
-### 7q. Detail page — Processes tab (pod running)
+### 7q. Detail page - Processes tab (pod running)
 
 - [ ] **7.72** Switch to Processes tab → Table with columns Podman's `pod top` returns (USER, PID, ..., CMD) plus a CONTAINER column (native to pod top)
 - [ ] **7.73** Rows update live as processes change
 - [ ] **7.74** Switch away → Stream stops
 - [ ] **7.75** Pod is stopped → Shows "Pod is not running" warning
 
-### 7r. Detail page — Inspect tab
+### 7r. Detail page - Inspect tab
 
 - [ ] **7.76** Switch to Inspect tab → Renders full raw JSON of `podman pod inspect`
 - [ ] **7.77** Same content as old list-view inspect modal (sanity check no fields are lost)
 
-### 7s. Detail page — lifecycle actions
+### 7s. Detail page - lifecycle actions
 
 - [ ] **7.78** Running pod → click ⏸ Pause → confirmation/loading → reload → status `Paused`, ⏸ now highlighted as active
 - [ ] **7.79** Paused pod → click ⏵ Unpause → reload → status `Running`
@@ -307,9 +307,9 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [ ] **7.83** Click 🗑 Delete → confirm dialog → confirm → redirects to `/admin/podman/pods`, pod gone
 - [ ] **7.84** Before Stop/Pause/Restart, verify in DevTools Network: stats/processes streams close BEFORE the action fires (no reconnect storm)
 
-### 7t. Detail page — edge cases
+### 7t. Detail page - edge cases
 
-- [ ] **7.85** Pod with no containers (rare — infra-less or just created): Containers section shows "No containers in this pod"
+- [ ] **7.85** Pod with no containers (rare - infra-less or just created): Containers section shows "No containers in this pod"
 - [ ] **7.86** Pod with no labels: Labels section is absent (not just empty)
 - [ ] **7.87** Pod with `RestartPolicy` unset: Configuration shows `-`
 - [ ] **7.88** Pod with `memory_limit: 0` or unset: Resources shows "Unlimited"

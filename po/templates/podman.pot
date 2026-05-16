@@ -1068,7 +1068,7 @@ msgstr ""
 msgid "Updated to %s"
 msgstr ""
 
-msgid "Update image: %d/%d — %s"
+msgid "Update image: %d/%d - %s"
 msgstr ""
 
 msgid "Removed old image %s"
