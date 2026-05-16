@@ -102,9 +102,6 @@ return podmanView.base.extend({
 					click: ui.createHandlerFn(this, 'handlePause'),
 					type: state === 'Paused' ? 'active' : '',
 				}).render(),
-				new podmanUI.ButtonNew('&#9655;', {
-					click: ui.createHandlerFn(this, 'handleUnpause'),
-				}).render(),
 				new podmanUI.ButtonNew(_('Delete'), {
 					click: ui.createHandlerFn(this, 'handleRemove'),
 					type: 'negative',
@@ -152,6 +149,12 @@ return podmanView.base.extend({
 			return;
 		}
 
+		if (this.pod.isPaused()) {
+			this.loading(_('Unpause pod'));
+			this.pod.unpause().then(() => window.location.reload());
+			return;
+		}
+
 		this.loading(_('Start pod'));
 		this.pod.start().then(() => window.location.reload());
 	},
@@ -180,15 +183,6 @@ return podmanView.base.extend({
 		this.loading(_('Pause pod'));
 		this.stopStreams();
 		this.pod.pause().then(() => window.location.reload());
-	},
-
-	async handleUnpause() {
-		if (!this.pod.isPaused()) {
-			return;
-		}
-
-		this.loading(_('Unpause pod'));
-		this.pod.unpause().then(() => window.location.reload());
 	},
 
 	async handleRemove() {

@@ -332,7 +332,7 @@ return {
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
 
-		let api_path = sprintf('%s/pods/stats?namesOrIDs=%s&all=true', API_BASE, name);
+		let api_path = sprintf('%s/pods/stats?namesOrIDs=%s&stream=true', API_BASE, name);
 
 		stream_podman(api_path, (chunk) => {
 			return http_write_padded(chunk);
