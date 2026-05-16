@@ -26,12 +26,8 @@ return podmanView.list.extend({
 		this.section.toolbarExtraButtons = [
 			new podmanUI.Button('&#9658;', ui.createHandlerFn(this, 'handleStart')).render(),
 			new podmanUI.Button('&#9724;', ui.createHandlerFn(this, 'handleStop')).render(),
-			new podmanUI.Button('&#8635;', ui.createHandlerFn(this, 'handleRestart'))
-		.render(),
-			new podmanUI.Button('&#10074;&#10074;', ui.createHandlerFn(this, 'handlePause'))
-			.render(),
-			new podmanUI.Button('&#9655;', ui.createHandlerFn(this, 'handleUnpause'))
-		.render(),
+			new podmanUI.Button('&#8635;', ui.createHandlerFn(this, 'handleRestart')).render(),
+			new podmanUI.Button('&#10074;&#10074;', ui.createHandlerFn(this, 'handlePause')).render(),
 		];
 
 		let o;
@@ -117,7 +113,10 @@ return podmanView.list.extend({
 	},
 
 	handleStart() {
-		return this.runOnSelected((pod) => pod.start(), _('Starting pod'));
+		return this.runOnSelected(
+			(pod) => pod.isPaused() ? pod.unpause() : pod.start(),
+			_('Starting pod')
+		);
 	},
 
 	handleStop() {
@@ -130,10 +129,6 @@ return podmanView.list.extend({
 
 	handlePause() {
 		return this.runOnSelected((pod) => pod.pause(), _('Pausing pod'));
-	},
-
-	handleUnpause() {
-		return this.runOnSelected((pod) => pod.unpause(), _('Unpausing pod'));
 	},
 
 	async runOnSelected(action, textLoad) {
