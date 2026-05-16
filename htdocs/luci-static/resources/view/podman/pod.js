@@ -8,6 +8,7 @@
 'require podman.model.Pod as Pod';
 
 'require view.podman.pod-tab.info as PodInfoTab';
+'require view.podman.pod-tab.containers as PodContainersTab';
 'require view.podman.pod-tab.stats as PodStatsTab';
 'require view.podman.pod-tab.processes as PodProcessesTab';
 
@@ -43,12 +44,14 @@ return podmanView.base.extend({
 		const tabs = new podmanUI.Tabs('info');
 		tabs
 			.addTab('info',    _('Info'))
+			.addTab('containers',   _('Containers'))
 			.addTab('stats',   _('Stats'))
 			.addTab('ps',      _('Processes'))
 			.addTab('inspect', _('Inspect'));
 
 		requestAnimationFrame(() => {
 			this.renderInfoTab();
+			this.renderContainersTab();
 			this.renderStatsTab();
 			this.renderProcessesTab();
 			this.renderInspectTab();
@@ -128,6 +131,11 @@ return podmanView.base.extend({
 	async renderInfoTab() {
 		const content = await PodInfoTab.render(this.pod);
 		this.renderTab('info', content);
+	},
+
+	async renderContainersTab() {
+		const content = await PodContainersTab.render(this.pod);
+		this.renderTab('containers', content);
 	},
 
 	async renderStatsTab() {

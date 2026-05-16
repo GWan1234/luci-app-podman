@@ -27,7 +27,6 @@ return podmanView.tabContent.extend({
 			this.configSection(),
 			this.resourcesSection(),
 			this.networkSection(),
-			this.containersSection(),
 		];
 
 		const labels = this.labelsSection();
@@ -115,41 +114,6 @@ return podmanView.tabContent.extend({
 		return E('div', {}, [
 			E('h4', {}, _('Network')),
 			table.render(),
-		]);
-	},
-
-	containersSection() {
-		const containers = this.pod.getContainers();
-
-		const headerRow = E('tr', {}, [
-			E('th', {}, _('Name')),
-			E('th', {}, _('ID')),
-			E('th', {}, _('Status')),
-		]);
-
-		const rows = containers.map((c) => {
-			const container = Container.getSingleton(c);
-			const idShort = podmanUtil.truncate(container.getID(), 12);
-			return E('tr', {}, [
-				E('td', {}, container.getName()),
-				E('td', {}, container.getDetailLink(idShort)),
-				E('td', {}, container.getStateBadge()),
-			]);
-		});
-
-		const table = E('table', { class: 'table cbi-section-table' }, [
-			E('thead', {}, headerRow),
-			E('tbody', {}, rows.length > 0 ? rows : [
-				E('tr', {}, E('td', {
-					colspan: 3,
-					class: 'text-center'
-				}, _('No containers in this pod'))),
-			]),
-		]);
-
-		return E('div', {}, [
-			E('h4', {}, _('Containers')),
-			table,
 		]);
 	},
 

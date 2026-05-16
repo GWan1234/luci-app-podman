@@ -394,7 +394,7 @@ const Container = Model.base.extend({
 	},
 
 	getStartedAt(dateFormat) {
-		const date = this.State?.StartedAt;
+		const date = this.StartedAt || this.State?.StartedAt;
 		return dateFormat ? podmanUtil.format.date(date) : date;
 	},
 
