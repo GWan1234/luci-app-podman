@@ -43,13 +43,9 @@ Modern and feature rich LuCI web interface for managing Podman on OpenWrt. Some 
 |---|---|---|
 | ![Overview](docs/screenshots/overview.png) | ![Container List](docs/screenshots/container-list.png) | ![Container Info](docs/screenshots/container-info.png) |
 
-| Stats | Resource | Logs |
+| Live Logs | Image List | Network Create |
 |---|---|---|
-| ![Stats](docs/screenshots/container-stats.png) | ![Resources](docs/screenshots/container-resource.png) | ![Logs](docs/screenshots/container-log.png) |
-
-| Image List | Network Create | Volume Inspect |
-|---|---|---|
-| ![Images](docs/screenshots/image-list.png) | ![Network OpenWrt](docs/screenshots/network-create.png) | ![Volume Inspect](docs/screenshots/volume-inspect.png) |
+| ![Logs](docs/screenshots/container-log.png) | ![Images](docs/screenshots/image-list.png) | ![Network OpenWrt](docs/screenshots/network-create.png) |
 
 ## Requirements
 
