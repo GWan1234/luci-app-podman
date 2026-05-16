@@ -43,15 +43,54 @@ return podmanView.tabContent.extend({
 
 		const psTable = new podmanUI.Table();
 		const columnWidth = `width: ${100 / ps.Titles.length}%;`;
+		const timeIndex = ps.Titles.indexOf('ELAPSED');
 
 		ps.Titles.forEach((title) => {
 			psTable.addHeader(_(title), { style: columnWidth });
 		});
 
 		ps.Processes.forEach((process) => {
-			psTable.addRow(process.map((detail) => ({ inner: detail })));
+			psTable.addRow(process.map((detail, i) => ({
+				inner: i === timeIndex ? this._formatElapsedTime(detail) : detail
+			})));
 		});
 
 		dom.content(this.tableContent, psTable.render());
 	},
+
+	// @todo: duplicated code (containers-tab/processes.js)
+	_formatElapsedTime(timeStr) {
+		if (!timeStr) return '-';
+
+		const result = [];
+		const pattern = /(\d+(?:\.\d+)?)([ydhms])/g;
+		let match;
+
+		while ((match = pattern.exec(timeStr)) !== null) {
+			let value = parseFloat(match[1]);
+			const unit = match[2];
+
+			if (unit === 's' && value > 1000) {
+				value = Math.floor(value / 1000000000);
+
+				if (value >= 60) {
+					const mins = Math.floor(value / 60);
+					const secs = value % 60;
+					if (mins > 0) result.push(`${mins}m`);
+					if (secs > 0) result.push(`${secs}s`);
+					continue;
+				}
+			} else {
+				value = Math.floor(value);
+			}
+
+			if (unit === 's' || unit === 'm') {
+				result.push(String(value).padStart(2, '0') + unit);
+			} else {
+				result.push(value + unit);
+			}
+		}
+
+		return result.length > 0 ? result.join('') : timeStr;
+	}
 });
