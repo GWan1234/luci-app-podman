@@ -11,6 +11,21 @@ const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
+const FLUSH_SIZE = 1500;
+const PAD_STR = (() => {
+	let s = ''; let i = 0;
+	while (i < FLUSH_SIZE) { s += ' '; i++; }
+	return s;
+})();
+
+/** @param {string} data */
+function http_write_padded(data) {
+	let n = length(data);
+	if (n >= FLUSH_SIZE)
+		return http.write(data); // ucode-lsp disable
+	return http.write(data + substr(PAD_STR, 0, FLUSH_SIZE - n)); // ucode-lsp disable
+}
+
 const _uci_timeouts = (() => {
 	let c = cursor();
 	let s = c.get('uhttpd', 'main', 'script_timeout');
@@ -172,7 +187,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 	}, uloop.ULOOP_READ);
 
 	if (early_headers)
-		uloop.timer(ka_ms, () => http.write('\n'));
+		uloop.timer(ka_ms, () => http_write_padded('\n'));
 
 	let effective_timeout = early_headers ? min(timer.timeout_ms, ka_ms * 2) : timer.timeout_ms;
 	uloop.timer(effective_timeout, timer.on_expire);
@@ -225,6 +240,7 @@ return {
 
 		stream_podman(api_path, (chunk) => {
 			framebuf += `${chunk}`;
+			let out = '';
 			while (length(framebuf) >= 8) {
 				let hdr = struct.unpack('!BxxxI', substr(framebuf, 0, 8));
 				if (!hdr) break;
@@ -234,10 +250,10 @@ return {
 				let payload = substr(framebuf, 8, payload_len);
 				framebuf = substr(framebuf, 8 + payload_len);
 				// Emit stdout (1) and stderr (2); skip others
-				if (stream_type >= 1 && stream_type <= 2) {
-					http.write(payload);
-				}
+				if (stream_type >= 1 && stream_type <= 2)
+					out += payload;
 			}
+			if (length(out)) http_write_padded(out);
 			return true;
 		}, true, timer);
 	},
@@ -267,7 +283,7 @@ return {
 			api_path += sprintf('&ps_args=%s', replace(ps_args, / /g, '%20'));
 
 		stream_podman(api_path, (chunk) => {
-			return http.write(chunk);
+			return http_write_padded(chunk);
 		}, false, timer);
 	},
 
@@ -286,7 +302,7 @@ return {
 			API_BASE, id, interval);
 
 		stream_podman(api_path, (chunk) => {
-			return http.write(chunk);
+			return http_write_padded(chunk);
 		}, false, timer);
 	},
 
@@ -306,7 +322,7 @@ return {
 		let api_path = sprintf('%s/pods/%s/top?stream=true&delay=%s', API_BASE, name, delay);
 
 		stream_podman(api_path, (chunk) => {
-			return http.write(chunk);
+			return http_write_padded(chunk);
 		}, false, timer);
 	},
 
@@ -319,7 +335,7 @@ return {
 		let api_path = sprintf('%s/pods/stats?namesOrIDs=%s&all=true', API_BASE, name);
 
 		stream_podman(api_path, (chunk) => {
-			return http.write(chunk);
+			return http_write_padded(chunk);
 		}, false, timer);
 	},
 
@@ -420,7 +436,7 @@ return {
 				let chunk = lf.read(8192);
 				lf.close();
 				if (chunk && length(chunk)) {
-					if (!http.write(chunk)) { uloop.end(); return; }
+					if (!http_write_padded(chunk)) { uloop.end(); return; }
 					offset += length(chunk);
 					// Persist offset to session (rate-limited)
 					if (uconn_rw && offset - last_saved >= 1024) {
@@ -451,7 +467,7 @@ return {
 
 		// Self-rearming keepalive - prevents network_timeout during slow layer downloads
 		let ka;
-		ka = () => { http.write('\n'); uloop.timer(ka_ms, ka); };
+		ka = () => { http_write_padded('\n'); uloop.timer(ka_ms, ka); };
 		uloop.timer(ka_ms, ka);
 
 		// Session expiry timer - same pattern as other streams
@@ -466,4 +482,5 @@ return {
 			uconn_rw.call('session', 'set', { ubus_rpc_session: sid, values: vals });
 		}
 	},
+
 };

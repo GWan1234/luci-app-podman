@@ -34,7 +34,7 @@ function processLines(buffer, onChunk) {
 			try {
 				onChunk(JSON.parse(line));
 			} catch (e) {
-				onChunk({ raw: line });
+				onChunk({ raw: line.trimEnd() });
 			}
 		}
 	}
