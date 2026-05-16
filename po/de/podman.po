@@ -819,7 +819,7 @@ msgstr "Stream starten"
 msgid "Started"
 msgstr "Gestartet"
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr "Gestartet um"
 
 msgid "Starting pod"

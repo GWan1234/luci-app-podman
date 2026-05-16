@@ -822,7 +822,7 @@ msgstr "開始串流"
 msgid "Started"
 msgstr "已啟動"
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr "啟動時間"
 
 msgid "Starting pod"

@@ -819,7 +819,7 @@ msgstr "Démarrer le flux"
 msgid "Started"
 msgstr "Démarré"
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr "Démarré à"
 
 msgid "Starting pod"

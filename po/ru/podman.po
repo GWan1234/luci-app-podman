@@ -819,7 +819,7 @@ msgstr "Начать поток"
 msgid "Started"
 msgstr "Запущено"
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr "Запущено в"
 
 msgid "Starting pod"

@@ -819,7 +819,7 @@ msgstr "开始流"
 msgid "Started"
 msgstr "已启动"
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr "启动时间"
 
 msgid "Starting pod"

@@ -819,7 +819,7 @@ msgstr "Iniciar transmisión"
 msgid "Started"
 msgstr "Iniciado"
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr "Iniciado en"
 
 msgid "Starting pod"

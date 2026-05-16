@@ -58,7 +58,7 @@ return podmanView.list.extend({
 		o.cfgdatavalue = (container) => container.getStateBadge();
 		o.width = '8%';
 
-		o = this.section.option(podmanForm.field.TimestampDummyValue, 'StartedAt', _('StartedAt'));
+		o = this.section.option(podmanForm.field.TimestampDummyValue, 'StartedAt', _('Started At'));
 		o.width = '17%';
 
 		o = this.section.option(podmanForm.field.DummyValue, 'InitScript', _('Boot'));

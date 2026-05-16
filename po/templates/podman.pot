@@ -811,7 +811,7 @@ msgstr ""
 msgid "Started"
 msgstr ""
 
-msgid "StartedAt"
+msgid "Started At"
 msgstr ""
 
 msgid "Starting pod"
