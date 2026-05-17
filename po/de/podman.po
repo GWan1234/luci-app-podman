@@ -879,9 +879,6 @@ msgstr "Unbekannt"
 msgid "Unless Stopped"
 msgstr "Sofern nicht gestoppt"
 
-msgid "Unpausing pod"
-msgstr ""
-
 msgid "Until"
 msgstr "Bis"
 

@@ -879,9 +879,6 @@ msgstr "Неизвестно"
 msgid "Unless Stopped"
 msgstr "Пока не остановлен"
 
-msgid "Unpausing pod"
-msgstr ""
-
 msgid "Until"
 msgstr "До"
 

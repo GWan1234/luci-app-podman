@@ -879,9 +879,6 @@ msgstr "Onbekend"
 msgid "Unless Stopped"
 msgstr "Unless Stopped"
 
-msgid "Unpausing pod"
-msgstr ""
-
 msgid "Until"
 msgstr "Tot"
 
