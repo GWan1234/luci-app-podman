@@ -143,12 +143,12 @@ Container names and init scripts are preserved - no manual reconfiguration neede
 
 ## Configuration
 
-The app stores its settings in `/etc/config/podman`:
+The app stores its settings in `/etc/config/luci-podman`:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `socket_path` | `/run/podman/podman.sock` | Path to the Podman API socket |
 | `init_start_priority` | `100` | procd start priority for container init scripts |
+| `socket_path` | `/run/podman/podman.sock` | Path to the Podman API socket |
 
 ## Credits
 
