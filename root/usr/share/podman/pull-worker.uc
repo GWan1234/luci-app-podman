@@ -3,6 +3,7 @@
 import { open, unlink } from 'fs';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
+import { build_request, parse_status } from 'luci.podman_http'; // ucode-lsp disable
 
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
@@ -52,9 +53,10 @@ if (!sock) {
 
 let encoded = urlencode(reference, ENCODE_FULL);
 
-sock.send(sprintf(
-	'POST %s/images/pull?reference=%s&quiet=false HTTP/1.0\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n',
-	API_BASE, encoded
+sock.send(build_request(
+	'POST',
+	sprintf('%s/images/pull?reference=%s&quiet=false', API_BASE, encoded),
+	null
 ));
 
 // Read HTTP response headers (blocking recv - no uloop needed in standalone process)
@@ -72,8 +74,7 @@ while (true) {
 	let sep = index(buf, '\r\n\r\n');
 	if (sep < 0) continue;
 
-	let m    = match(buf, /^HTTP\/[0-9.]+ ([0-9]+)/);
-	let code = m ? +m[1] : 502;
+	let code = parse_status(buf) || 502;
 	let body = substr(buf, sep + 4);
 	buf = '';
 

@@ -24,6 +24,13 @@ import { cursor } from 'uci';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 import { init_enabled, init_action } from 'luci.sys'; // ucode-lsp disable
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
+import {
+	validate_id, validate_name, validate_image_ref, validate_query_params,
+	validate_restart_policy, require_param, BODY_KEYS
+} from 'luci.podman_validate'; // ucode-lsp disable
+import {
+	build_request, parse_status, parse_content_length
+} from 'luci.podman_http'; // ucode-lsp disable
 
 // --- Configuration ---
 
@@ -34,56 +41,7 @@ uci.unload('luci-podman');
 
 const API_BASE = '/v5.0.0/libpod';
 
-// --- Validation ---
-
-/** @param {string} id */
-function validate_id(id) {
-	if (!id || type(id) !== 'string' || !match(id, /^[a-zA-Z0-9_.:-]+$/))
-		return 'Invalid id format';
-}
-
-/** @param {string} name */
-function validate_name(name) {
-	if (!name || type(name) !== 'string' || !match(name, /^[a-zA-Z0-9_.-]+$/))
-		return 'Invalid name format';
-}
-
-/** @param {string} ref */
-function validate_image_ref(ref) {
-	if (!ref || type(ref) !== 'string' || !match(ref, /^[a-zA-Z0-9_.:\/@-]+$/))
-		return 'Invalid image reference';
-}
-
-/** @param {string} query */
-function validate_query_params(query) {
-	if (!query || type(query) !== 'string' || !match(query, /^[a-zA-Z0-9=&_.,-]+$/))
-		return 'Invalid query parameters';
-}
-
-const VALID_RESTART_POLICIES = { 'no': true, 'always': true, 'on-failure': true, 'unless-stopped': true };
-
-const CONTAINER_BODY_KEYS = {
-	CpuPeriod: true, CpuQuota: true, CpuShares: true,
-	Memory: true, MemorySwap: true, MemoryReservation: true,
-	BlkioWeight: true, BlkioWeightDevice: true,
-	HealthConfig: true, NoHealthcheck: true
-};
-
-/** @param {string} policy */
-function validate_restart_policy(policy) {
-	if (policy && !(policy in VALID_RESTART_POLICIES))
-		return 'Invalid restart policy';
-}
-
-/**
- * @param {string} name
- * @param {any} value
- */
-function require_param(name, value) {
-	if (value == null || value === ''
-		|| (type(value) === 'object' && length(keys(value)) === 0))
-		return `Missing required parameter: ${name}`;
-}
+// Validators come from luci.podman_validate (imported above).
 
 // --- HTTP Client ---
 
@@ -98,16 +56,7 @@ function podman_request(method, path, body, raw) {
 	if (!sock)
 		return { error: 'Failed to connect to Podman socket' };
 
-	let body_s = `${body}`;
-	let request = `${method} ${path} HTTP/1.0\r\nHost: localhost\r\n`;
-	if (body_s) {
-		request += `Content-Type: application/json\r\nContent-Length: ${length(body_s)}\r\n`;
-	}
-	request += '\r\n';
-	if (body_s)
-		request += body_s;
-
-	sock.send(request);
+	sock.send(build_request(method, path, body));
 
 	// Read response headers (until \r\n\r\n separator)
 	let header_buf = '';
@@ -132,9 +81,7 @@ function podman_request(method, path, body, raw) {
 		return { error: 'Empty response from Podman API' };
 	}
 
-	// Parse status code
-	let status_match = match(header_buf, /^HTTP\/[0-9.]+ ([0-9]+)/);
-	let status_code = status_match ? +status_match[1] : 0;
+	let status_code = parse_status(header_buf);
 
 	// For 204 No Content (success with no body - e.g., start/stop/restart)
 	if (status_code === 204) {
@@ -143,9 +90,7 @@ function podman_request(method, path, body, raw) {
 		return {};
 	}
 
-	// Parse Content-Length to know exactly how many body bytes to read
-	let cl_match = match(header_buf, /[Cc]ontent-[Ll]ength:\s*([0-9]+)/);
-	let content_length = cl_match ? +cl_match[1] : -1;
+	let content_length = parse_content_length(header_buf);
 
 	// Read body
 	let resp_body = `${body_remainder}`;
@@ -359,7 +304,7 @@ const methods = {
 			let body_str = sprintf('%J', data);
 			let has_body_fields = false;
 			for (let k in data) {
-				if (k in CONTAINER_BODY_KEYS) { has_body_fields = true; break; }
+				if (k in BODY_KEYS) { has_body_fields = true; break; }
 			}
 
 			return podman_request('POST', `${API_BASE}/containers/${id_enc}/update${query}`,

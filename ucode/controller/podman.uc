@@ -6,6 +6,8 @@ import * as struct from 'struct';
 import { cursor } from 'uci';
 import { connect as ubus_connect } from 'ubus';
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
+import { validate_id } from 'luci.podman_validate'; // ucode-lsp disable
+import { build_request, parse_status } from 'luci.podman_http'; // ucode-lsp disable
 
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
@@ -33,13 +35,6 @@ const _uci_timeouts = (() => {
 	return { script: s ? +s : 60, network: n ? +n : 30 };
 })();
 
-
-/**
- * @param {string} id
- */
-function validate_id(id) {
-	return id && match(id, /^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$/);
-}
 
 /**
  * @param {int} code
@@ -116,7 +111,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 		return;
 	}
 
-	sock.send(sprintf('GET %s HTTP/1.0\r\nHost: localhost\r\n\r\n', api_path));
+	sock.send(build_request('GET', api_path, null));
 
 	let t = _uci_timeouts;
 	let ka_ms = (t.network - 5) * 1000;
@@ -152,8 +147,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 			let sep = index(buf, '\r\n\r\n');
 			if (type(sep) !== 'int' || sep < 0) return; // headers not complete yet
 
-			let m = match(buf, /^HTTP\/[0-9.]+ ([0-9]+)/);
-			let code = m ? +m[1] : 502;
+			let code = parse_status(buf) || 502;
 			if (code != 200) {
 				if (!response_started)
 					error_response(code, substr(buf, sep + 4) || sprintf('Podman error %d', code));
@@ -202,7 +196,7 @@ function stream_podman(api_path, on_data, early_headers, timer) {
 
 return {
 	container_logs: (id) => {
-		if (!validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
+		if (validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
 
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
@@ -258,7 +252,7 @@ return {
 	},
 
 	container_top: (id) => {
-		if (!validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
+		if (validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
 
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
@@ -287,7 +281,7 @@ return {
 	},
 
 	container_stats: (id) => {
-		if (!validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
+		if (validate_id(id)) { error_response(400, 'Invalid container ID'); return; }
 
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
@@ -306,7 +300,7 @@ return {
 	},
 
 	pod_top: (name) => {
-		if (!validate_id(name)) { error_response(400, 'Invalid pod name or ID'); return; }
+		if (validate_id(name)) { error_response(400, 'Invalid pod name or ID'); return; }
 
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
@@ -326,7 +320,7 @@ return {
 	},
 
 	pod_stats: (name) => {
-		if (!validate_id(name)) { error_response(400, 'Invalid pod name or ID'); return; }
+		if (validate_id(name)) { error_response(400, 'Invalid pod name or ID'); return; }
 
 		let timer = session_timer(ctx?.authsession); // ucode-lsp disable
 		if (!timer) { error_response(403, 'Session expired'); return; }
