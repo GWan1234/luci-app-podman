@@ -3,11 +3,18 @@
 'use strict';
 
 import { popen, writefile, unlink } from 'fs';
+import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
 
 function die(msg) {
 	warn(`${msg}\n`);
 	exit(1);
 }
+
+// Volume export/import here shells out to the local `podman` CLI, which can
+// only reach a Podman daemon running on the same host. When the user has
+// configured a remote TCP Podman, refuse upfront rather than failing weirdly.
+if (podman_socket.is_remote())
+	die(`Volume operations are not supported with a remote Podman (${podman_socket.get_dest()}); the CLI helper requires a local daemon.`);
 
 function validate_int(val) {
 	if (!val || !match(val, /^[0-9]+$/))

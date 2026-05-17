@@ -19,19 +19,18 @@
 //
 // Socket wrapper (end of file)
 
-import { connect } from 'socket';
 import { readfile, writefile, popen, stat, chmod, unlink, glob, access } from 'fs';
 import { cursor } from 'uci';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 import { init_enabled, init_action } from 'luci.sys'; // ucode-lsp disable
+import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
 
 // --- Configuration ---
 
 const uci = cursor();
-const SOCKET = uci.get('podman', 'globals', 'socket_path') || '/run/podman/podman.sock';
-const _prio = uci.get('podman', 'globals', 'init_start_priority');
+const _prio = uci.get('luci-podman', 'globals', 'init_start_priority');
 const INIT_START_PRIORITY = (type(_prio) === 'string' && match(_prio, /^([0-9]|[1-9][0-9]|100)$/)) ? _prio : '100';
-uci.unload('podman');
+uci.unload('luci-podman');
 
 const API_BASE = '/v5.0.0/libpod';
 
@@ -95,7 +94,7 @@ function require_param(name, value) {
  * @param {bool} raw
  */
 function podman_request(method, path, body, raw) {
-	let sock = connect(SOCKET);
+	let sock = podman_socket.connect();
 	if (!sock)
 		return { error: 'Failed to connect to Podman socket' };
 
@@ -781,16 +780,24 @@ const methods = {
 				push(checks, { name: 'podman_binary', label: 'Podman Binary', status: 'error', detail: '/usr/bin/podman', message: 'Not found or not executable' });
 			}
 
-			// 2. Podman socket exists
-			let socket_stat = stat(SOCKET);
-			if (socket_stat && socket_stat.type === 'socket') {
-				push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'ok', detail: SOCKET, message: 'Socket file exists' });
+			// 2. Podman socket reachable
+			let dest = podman_socket.get_dest();
+			let socket_stat = null;
+			if (podman_socket.is_remote()) {
+				push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'ok', detail: dest, message: 'Remote TCP (cannot stat)' });
 			} else {
-				push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'error', detail: SOCKET, message: 'Socket not found' });
+				// Unix socket: strip optional unix:// prefix for stat
+				let path = replace(dest, /^unix:\/\//, '');
+				socket_stat = stat(path);
+				if (socket_stat && socket_stat.type === 'socket') {
+					push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'ok', detail: dest, message: 'Socket file exists' });
+				} else {
+					push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'error', detail: dest, message: 'Socket not found' });
+				}
 			}
 
-			// 3. Socket responsive (only if socket exists)
-			if (socket_stat && socket_stat.type === 'socket') {
+			// 3. Socket responsive
+			if (podman_socket.is_remote() || (socket_stat && socket_stat.type === 'socket')) {
 				let ping = podman_request('GET', `${API_BASE}/_ping`);
 				if (ping && ping.data === 'OK') {
 					push(checks, { name: 'socket_responsive', label: 'Socket Responsive', status: 'ok', detail: 'API responding', message: '' });
@@ -850,13 +857,13 @@ const methods = {
 
 			// 9. UCI config
 			let uci_ctx = cursor();
-			let socket_cfg = uci_ctx.get('podman', 'globals', 'socket_path');
-			let globals_ok = uci_ctx.get('podman', 'globals');
-			uci_ctx.unload('podman');
+			let socket_cfg = uci_ctx.get('luci-podman', 'globals', 'socket_path');
+			let globals_ok = uci_ctx.get('luci-podman', 'globals');
+			uci_ctx.unload('luci-podman');
 			if (globals_ok) {
-				push(checks, { name: 'uci_config', label: 'UCI Config', status: 'ok', detail: 'podman.globals', message: `socket_path=${socket_cfg || 'default'}` });
+				push(checks, { name: 'uci_config', label: 'UCI Config', status: 'ok', detail: 'luci-podman.globals', message: `socket_path=${socket_cfg || 'default'}` });
 			} else {
-				push(checks, { name: 'uci_config', label: 'UCI Config', status: 'warn', detail: '/etc/config/podman', message: 'Config not found or not loadable' });
+				push(checks, { name: 'uci_config', label: 'UCI Config', status: 'warn', detail: '/etc/config/luci-podman', message: 'Config not found or not loadable' });
 			}
 
 			// 10. Containers config
@@ -998,6 +1005,9 @@ const no_socket_check = {
 	init_script_remove: true
 };
 
+const _local_socket_path = podman_socket.is_remote() ? null
+	: replace(podman_socket.get_dest(), /^unix:\/\//, '');
+
 const wrapped_methods = {};
 for (let name in methods) {
 	let method = methods[name];
@@ -1007,9 +1017,12 @@ for (let name in methods) {
 		wrapped_methods[name] = {
 			args: method.args,
 			call: function(req) {
-				let s = stat(SOCKET);
-				if (!s || s.type !== 'socket')
-					return { error: 'Podman socket not found or not accessible' };
+				// Cheap pre-check for unix sockets only; TCP relies on actual connect failures.
+				if (_local_socket_path) {
+					let s = stat(_local_socket_path);
+					if (!s || s.type !== 'socket')
+						return { error: 'Podman socket not found or not accessible' };
+				}
 				return method.call(req);
 			}
 		};

@@ -1,13 +1,12 @@
 'use strict';
 
 import { open, stat, unlink } from 'fs';
-import * as socket from 'socket';
 import * as uloop from 'uloop';
 import * as struct from 'struct';
 import { cursor } from 'uci';
 import { connect as ubus_connect } from 'ubus';
+import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
 
-const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
@@ -111,7 +110,7 @@ function session_timer(sid) {
  * @param {int} timer
  */
 function stream_podman(api_path, on_data, early_headers, timer) {
-	let sock = socket.connect(PODMAN_SOCKET);
+	let sock = podman_socket.connect();
 	if (!sock) {
 		error_response(502, 'Cannot connect to Podman socket');
 		return;

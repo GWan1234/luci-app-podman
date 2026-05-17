@@ -1,10 +1,9 @@
 'use strict';
 
-import * as socket from 'socket';
 import { open, unlink } from 'fs';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
+import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
 
-const PODMAN_SOCKET = '/run/podman/podman.sock';
 const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
@@ -45,7 +44,7 @@ if (ps) {
 }
 
 // Connect to Podman socket
-let sock = socket.connect(PODMAN_SOCKET);
+let sock = podman_socket.connect();
 if (!sock) {
 	write_error('Cannot connect to Podman socket');
 	cleanup(1);
