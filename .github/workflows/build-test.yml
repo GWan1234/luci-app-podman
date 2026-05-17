@@ -25,7 +25,7 @@ jobs:
       matrix:
         include:
           - openwrt_version: '25.12'
-            openwrt_build_version: '25.12.3'
+            openwrt_build_version: '25.12.4'
             arch: 'x86_64'
           - openwrt_version: '24.10'
             openwrt_build_version: '24.10.6'
@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
 
     permissions: {}
-    uses: Zerogiven/gh-openwrt-package-build-workflows/.github/workflows/reusable-build.yml@default-sdk-action
+    uses: Zerogiven/gh-openwrt-package-build-workflows/.github/workflows/reusable-build.yml@main
     with:
       package_name: 'luci-app-podman'
       sdk_packages: 'luci-app-podman'
@@ -47,7 +47,7 @@ jobs:
       arch: ${{ matrix.arch }}
       selected_version: ${{ github.event.inputs.openwrt_version }}
       free_disk_space: true
-      create_swap: false
+      use_patched_build: true
       verbose: ${{ github.event.inputs.verbose == 'true' }}
     secrets:
       APK_SIGN_KEY: ${{ secrets.APK_SIGN_KEY }}
