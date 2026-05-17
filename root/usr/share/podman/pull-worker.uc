@@ -3,9 +3,9 @@
 import { open, unlink } from 'fs';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
+import { API_BASE } from 'luci.podman_socket'; // ucode-lsp disable
 import { build_request, parse_status } from 'luci.podman_http'; // ucode-lsp disable
 
-const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
 const reference = ARGV[0];

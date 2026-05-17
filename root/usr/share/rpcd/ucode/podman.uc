@@ -24,6 +24,7 @@ import { cursor } from 'uci';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 import { init_enabled, init_action } from 'luci.sys'; // ucode-lsp disable
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
+import { API_BASE } from 'luci.podman_socket'; // ucode-lsp disable
 import {
 	validate_id, validate_name, validate_image_ref, validate_query_params,
 	validate_restart_policy, require_param, BODY_KEYS
@@ -39,7 +40,6 @@ const _prio = uci.get('luci-podman', 'globals', 'init_start_priority');
 const INIT_START_PRIORITY = (type(_prio) === 'string' && match(_prio, /^([0-9]|[1-9][0-9]|100)$/)) ? _prio : '100';
 uci.unload('luci-podman');
 
-const API_BASE = '/v5.0.0/libpod';
 
 // Validators come from luci.podman_validate (imported above).
 

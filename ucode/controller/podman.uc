@@ -6,10 +6,10 @@ import * as struct from 'struct';
 import { cursor } from 'uci';
 import { connect as ubus_connect } from 'ubus';
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
+import { API_BASE } from 'luci.podman_socket'; // ucode-lsp disable
 import { validate_id } from 'luci.podman_validate'; // ucode-lsp disable
 import { build_request, parse_status } from 'luci.podman_http'; // ucode-lsp disable
 
-const API_BASE = '/v5.0.0/libpod';
 const BLOCKSIZE = 4096;
 
 const FLUSH_SIZE = 1500;

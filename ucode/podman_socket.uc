@@ -19,6 +19,9 @@ import * as socket from 'socket';
 
 const DEFAULT_DEST = 'unix:///run/podman/podman.sock';
 
+/** Path prefix for all libpod REST API endpoints. */
+export const API_BASE = '/v5.0.0/libpod';
+
 const _dest = (() => {
 	let c = cursor();
 	let v = c.get('luci-podman', 'globals', 'socket_path');
