@@ -306,7 +306,7 @@ const UIStreamLog = baseclass.extend({
 	},
 
 	_appendLine(text) {
-		const node = E('div', { class: 'log-line' }, [text || ' ']);
+		const node = E('div', { class: 'log-line' }, [text || ' ']);
 		this._container.appendChild(node);
 		this._lastLineNode = node;
 		this._lineCount++;
