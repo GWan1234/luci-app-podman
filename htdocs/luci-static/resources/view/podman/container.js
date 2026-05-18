@@ -103,7 +103,7 @@ return podmanView.base.extend({
 			E('div', { class: 'd-flex align-center' }, [
 				new podmanUI.ButtonNew('&#9658;', {
 					click: ui.createHandlerFn(this, 'handleStart'),
-					type: state === 'running' ? 'active' : '',
+					type: this.container.isRunning() ? 'active' : '',
 				}).render(),
 				new podmanUI.ButtonNew('&#9724;', {
 					click: ui.createHandlerFn(this, 'handleStop'),
@@ -169,7 +169,7 @@ return podmanView.base.extend({
 	},
 
 	async handleStart() {
-		if (this.container.getState() === 'running') {
+		if (this.container.isRunning()) {
 			return;
 		}
 

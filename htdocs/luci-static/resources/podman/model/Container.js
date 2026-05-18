@@ -445,7 +445,17 @@ const Container = Model.base.extend({
 	},
 
 	isRunning() {
-		return this.State?.Running || this.getState() === 'running';
+		// Podman reports 'starting' for a running container whose healthcheck
+		// has not yet succeeded, and 'unhealthy' for one whose healthcheck is
+		// failing. The container process is up in both cases, so we treat them
+		// as running variants for purposes of "is the container up?" booleans
+		// and the Overview running counter. The state badge still shows the
+		// granular value so users see the healthcheck signal.
+		const s = this.getState();
+		return this.State?.Running
+			|| s === 'running'
+			|| s === 'starting'
+			|| s === 'unhealthy';
 	},
 
 	isPaused() {

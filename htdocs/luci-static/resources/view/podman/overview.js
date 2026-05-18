@@ -44,7 +44,7 @@ return podmanView.base.extend({
 			podmanRPC.pods.list()
 		]);
 
-		const runningContainers = containers.filter((container) => container.getState() === 'running').length;
+		const runningContainers = containers.filter((container) => container.isRunning()).length;
 		const runningPods = pods.filter((p) => p.Status === 'Running').length;
 
 		if (this.resourceCardsEl) {
