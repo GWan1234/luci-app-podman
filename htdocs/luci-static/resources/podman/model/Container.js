@@ -126,7 +126,11 @@ const Container = Model.base.extend({
 	},
 
 	getState() {
-		return this.State?.Status || this.Status || this.State || '';
+		if (typeof this.State === 'string') {
+			return this.State;
+		}
+
+		return this.State?.Status || this.Status || '';
 	},
 
 	getStateBadge() {
