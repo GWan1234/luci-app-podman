@@ -67,5 +67,4 @@ export function require_param(name, value) {
 		return `Missing required parameter: ${name}`;
 };
 
-export const RESTART_POLICIES = VALID_RESTART_POLICIES;
 export const BODY_KEYS = CONTAINER_BODY_KEYS;

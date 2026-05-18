@@ -4,7 +4,7 @@ import { open, unlink } from 'fs';
 import { urlencode, ENCODE_FULL } from 'lucihttp'; // ucode-lsp disable
 import * as podman_socket from 'luci.podman_socket'; // ucode-lsp disable
 import { API_BASE } from 'luci.podman_socket'; // ucode-lsp disable
-import { build_request, parse_status } from 'luci.podman_http'; // ucode-lsp disable
+import { build_request, parse_status, read_headers } from 'luci.podman_http'; // ucode-lsp disable
 
 const BLOCKSIZE = 4096;
 
@@ -60,42 +60,34 @@ sock.send(build_request(
 ));
 
 // Read HTTP response headers (blocking recv - no uloop needed in standalone process)
-let buf = '';
-let lf  = null;
+let lf = null;
 
-while (true) {
-	let chunk = sock.recv(BLOCKSIZE);
-	if (!chunk) {
-		write_error('Podman closed connection before responding');
-		sock.close();
-		cleanup(1);
-	}
-	buf += `${chunk}`;
-	let sep = index(buf, '\r\n\r\n');
-	if (sep < 0) continue;
-
-	let code = parse_status(buf) || 502;
-	let body = substr(buf, sep + 4);
-	buf = '';
-
-	if (code !== 200) {
-		let parsed = null;
-		try { parsed = json(body); } catch(e) {}
-		let msg = (parsed?.message) || (parsed?.cause)
-		       || replace(body, /\s+$/, '')
-		       || sprintf('Podman error %d', code);
-		write_error(msg);
-		sock.close();
-		cleanup(1);
-	}
-
-	lf = open(logfile, 'a');
-	if (!lf) { sock.close(); cleanup(1); }
-
-	// Write any body bytes that arrived together with headers
-	if (length(body)) { lf.write(body); lf.flush(); }
-	break;
+let hdrs = read_headers(sock, BLOCKSIZE);
+if (!hdrs) {
+	write_error('Podman closed connection before responding');
+	sock.close();
+	cleanup(1);
 }
+
+let code = parse_status(hdrs.header_buf) || 502;
+let body = hdrs.body_remainder;
+
+if (code !== 200) {
+	let parsed = null;
+	try { parsed = json(body); } catch(e) {}
+	let msg = (parsed?.message) || (parsed?.cause)
+	       || replace(body, /\s+$/, '')
+	       || sprintf('Podman error %d', code);
+	write_error(msg);
+	sock.close();
+	cleanup(1);
+}
+
+lf = open(logfile, 'a');
+if (!lf) { sock.close(); cleanup(1); }
+
+// Write any body bytes that arrived together with headers
+if (length(body)) { lf.write(body); lf.flush(); }
 
 // Stream response body to logfile - Podman sends NDJSON, we write it as-is
 while (true) {

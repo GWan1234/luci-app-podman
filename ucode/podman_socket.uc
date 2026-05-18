@@ -86,3 +86,12 @@ export function is_remote() {
 export function get_dest() {
 	return _dest;
 };
+
+/**
+ * @returns {?string} filesystem path of the unix socket, or null for tcp/tcp6.
+ *                    Useful for pre-flight stat() checks before connect().
+ */
+export function get_local_path() {
+	if (!_parsed || _parsed.scheme !== 'unix') return null;
+	return _parsed.addr;
+};

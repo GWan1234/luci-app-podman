@@ -30,7 +30,7 @@ import {
 	validate_restart_policy, require_param, BODY_KEYS
 } from 'luci.podman_validate'; // ucode-lsp disable
 import {
-	build_request, parse_status, parse_content_length
+	build_request, parse_status, parse_content_length, read_headers
 } from 'luci.podman_http'; // ucode-lsp disable
 
 // --- Configuration ---
@@ -58,28 +58,14 @@ function podman_request(method, path, body, raw) {
 
 	sock.send(build_request(method, path, body));
 
-	// Read response headers (until \r\n\r\n separator)
-	let header_buf = '';
-	let body_remainder = '';
-	let chunk = '';
-
-	while (true) {
-		chunk = sock.recv(65536);
-		if (!chunk)
-			break;
-
-		header_buf += `${chunk}`;
-		let sep = index(header_buf, '\r\n\r\n');
-		if (type(sep) !== 'int' || sep < 0) continue;
-		body_remainder = substr(header_buf, sep + 4);
-		header_buf = substr(header_buf, 0, sep);
-		break;
-	}
-
-	if (!header_buf) {
+	let hdrs = read_headers(sock);
+	if (!hdrs) {
 		sock.close();
 		return { error: 'Empty response from Podman API' };
 	}
+	let header_buf     = hdrs.header_buf;
+	let body_remainder = hdrs.body_remainder;
+	let chunk          = '';
 
 	let status_code = parse_status(header_buf);
 
@@ -727,13 +713,12 @@ const methods = {
 
 			// 2. Podman socket reachable
 			let dest = podman_socket.get_dest();
+			let local_path = podman_socket.get_local_path();
 			let socket_stat = null;
-			if (podman_socket.is_remote()) {
+			if (!local_path) {
 				push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'ok', detail: dest, message: 'Remote TCP (cannot stat)' });
 			} else {
-				// Unix socket: strip optional unix:// prefix for stat
-				let path = replace(dest, /^unix:\/\//, '');
-				socket_stat = stat(path);
+				socket_stat = stat(local_path);
 				if (socket_stat && socket_stat.type === 'socket') {
 					push(checks, { name: 'podman_socket', label: 'Podman Socket', status: 'ok', detail: dest, message: 'Socket file exists' });
 				} else {
@@ -950,8 +935,7 @@ const no_socket_check = {
 	init_script_remove: true
 };
 
-const _local_socket_path = podman_socket.is_remote() ? null
-	: replace(podman_socket.get_dest(), /^unix:\/\//, '');
+const _local_socket_path = podman_socket.get_local_path();
 
 const wrapped_methods = {};
 for (let name in methods) {
