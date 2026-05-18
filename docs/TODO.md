@@ -29,6 +29,7 @@
 - Missing restartRetries
 - Missing health check settings
 - Fill form from cli command
+- Timezone field
 
 ### List
 
@@ -42,6 +43,8 @@
   - devices
 - Attach to a container (ttyd)
 - Add devices show/add/remove
+- Add advanced update tab. Pure JSON which gets sent to update endpoint
+- Timezone field
 
 ## Pods
 
