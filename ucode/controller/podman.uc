@@ -23,7 +23,7 @@ const PAD_STR = (() => {
 function http_write_padded(data) {
 	let n = length(data);
 	if (n >= FLUSH_SIZE)
-		return http.write(data); // ucode-lsp disable
+		return http.write(data);
 	return http.write(data + substr(PAD_STR, 0, FLUSH_SIZE - n)); // ucode-lsp disable
 }
 
