@@ -34,6 +34,7 @@ return podmanView.list.extend({
 			new podmanUI.Button('&#9658;', ui.createHandlerFn(this, 'handleStart')).render(),
 			new podmanUI.Button('&#9724;', ui.createHandlerFn(this, 'handleStop')).render(),
 			new podmanUI.Button('&#8635;', ui.createHandlerFn(this, 'handleRestart')).render(),
+			new podmanUI.Button('&#10074;&#10074;', ui.createHandlerFn(this, 'handlePause')).render(),
 		];
 
 		let o;
@@ -113,7 +114,10 @@ return podmanView.list.extend({
 	},
 
 	handleStart() {
-		return this.updateContainersStatus((container) => container.start(), _('Start container'));
+		return this.updateContainersStatus(
+			(container) => container.isPaused() ? container.unpause() : container.start(),
+			_('Start container')
+		);
 	},
 
 	handleStop() {
@@ -122,6 +126,10 @@ return podmanView.list.extend({
 
 	handleRestart() {
 		return this.updateContainersStatus((container) => container.restart(), _('Restart container'));
+	},
+
+	handlePause() {
+		return this.updateContainersStatus((container) => container.pause(), _('Pause container'));
 	},
 
 	async updateContainersStatus(statusFunction, textLoad) {

@@ -112,6 +112,10 @@ return podmanView.base.extend({
 				new podmanUI.ButtonNew('&#8635;', {
 					click: ui.createHandlerFn(this, 'handleRestart'),
 				}).render(),
+				new podmanUI.ButtonNew('&#10074;&#10074;', {
+					click: ui.createHandlerFn(this, 'handlePause'),
+					type: state === 'paused' ? 'active' : '',
+				}).render(),
 				new podmanUI.ButtonNew(_('Delete'), {
 					click: ui.createHandlerFn(this, 'handleRemove'),
 					type: 'negative',
@@ -169,6 +173,12 @@ return podmanView.base.extend({
 			return;
 		}
 
+		if (this.container.isPaused()) {
+			this.loading(_('Unpause container'));
+			this.container.unpause().then(() => window.location.reload());
+			return;
+		}
+
 		this.loading(_('Start container'));
 		this.container.start().then(() => window.location.reload());
 	},
@@ -185,7 +195,18 @@ return podmanView.base.extend({
 
 	async handleRestart() {
 		this.loading(_('Restart container'));
+		this.stopStreams();
 		this.container.restart().then(() => window.location.reload());
+	},
+
+	async handlePause() {
+		if (!this.container.isRunning()) {
+			return;
+		}
+
+		this.loading(_('Pause container'));
+		this.stopStreams();
+		this.container.pause().then(() => window.location.reload());
 	},
 
 	async handleRemove() {

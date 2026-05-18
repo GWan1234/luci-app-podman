@@ -77,6 +77,18 @@ const ContainerRPC = {
 		params: ['id']
 	}),
 
+	pause: Model.declareRPC({
+		object: 'podman',
+		method: 'container_pause',
+		params: ['id']
+	}),
+
+	unpause: Model.declareRPC({
+		object: 'podman',
+		method: 'container_unpause',
+		params: ['id']
+	}),
+
 	rename: Model.declareRPC({
 		object: 'podman',
 		method: 'container_rename',
@@ -436,6 +448,10 @@ const Container = Model.base.extend({
 		return this.State?.Running || this.getState() === 'running';
 	},
 
+	isPaused() {
+		return !!this.State?.Paused || this.getState() === 'paused';
+	},
+
 	async checkInitScript() {
 		if (!this.HostConfig) {
 			const inspectData = await this.inspect();
@@ -523,6 +539,14 @@ const Container = Model.base.extend({
 
 	async restart() {
 		return ContainerRPC.restart(this.getID());
+	},
+
+	async pause() {
+		return ContainerRPC.pause(this.getID());
+	},
+
+	async unpause() {
+		return ContainerRPC.unpause(this.getID());
 	},
 
 	async connect(networkName, payload) {

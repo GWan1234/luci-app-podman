@@ -122,6 +122,16 @@ Prereq: at least one container with label `io.containers.autoupdate=registry`.
 - [x] **3.40** Connect a network with valid static IP → Network added with IP shown
 - [x] **3.41** Connect a network with invalid IP → Validation error
 
+### 3j. Pause / Unpause
+
+- [ ] **3.42** List view: select a running container → click ⏸⏸ Pause → state changes to `paused`; success notification
+- [ ] **3.43** List view: same paused container selected → click ▶ Start → state changes back to `running` (Start polymorphically unpauses paused containers)
+- [ ] **3.44** Detail view: container is running → ▶ Start is highlighted as active, ⏸⏸ Pause is clickable
+- [ ] **3.45** Detail view: click Pause → reload → state is `paused`, ⏸⏸ Pause is now highlighted, ▶ Start is clickable
+- [ ] **3.46** Detail view: click Start while paused → reload → state is `running`, ▶ Start highlighted again
+- [ ] **3.47** Detail view: streams (stats / logs / processes) stop before pause fires (no reconnect storm in DevTools Network panel)
+- [ ] **3.48** Multi-select on list: mix of running + paused → click ▶ Start → running stays running, paused becomes running (per-container dispatch)
+
 ---
 
 ## 4. Volumes (`/admin/podman/volumes`)

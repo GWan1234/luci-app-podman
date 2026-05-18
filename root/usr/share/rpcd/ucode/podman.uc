@@ -218,6 +218,24 @@ const methods = {
 		}
 	},
 
+	container_pause: {
+		args: { id: '' },
+		call: function(req) {
+			let err = require_param('id', req.args.id) || validate_id(req.args.id);
+			if (err) return { error: err };
+			return podman_request('POST', `${API_BASE}/containers/${encode_id(req.args.id)}/pause`);
+		}
+	},
+
+	container_unpause: {
+		args: { id: '' },
+		call: function(req) {
+			let err = require_param('id', req.args.id) || validate_id(req.args.id);
+			if (err) return { error: err };
+			return podman_request('POST', `${API_BASE}/containers/${encode_id(req.args.id)}/unpause`);
+		}
+	},
+
 	container_remove: {
 		args: { id: '', force: false, depend: false },
 		call: function(req) {

@@ -1082,3 +1082,9 @@ msgstr ""
 
 msgid "Done."
 msgstr ""
+
+msgid "Pause container"
+msgstr ""
+
+msgid "Unpause container"
+msgstr ""
