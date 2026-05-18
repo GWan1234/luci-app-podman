@@ -15,10 +15,19 @@
 const VALID_RESTART_POLICIES = { 'no': true, 'always': true, 'on-failure': true, 'unless-stopped': true };
 
 const CONTAINER_BODY_KEYS = {
-	CpuPeriod: true, CpuQuota: true, CpuShares: true,
-	Memory: true, MemorySwap: true, MemoryReservation: true,
-	BlkioWeight: true, BlkioWeightDevice: true,
-	HealthConfig: true, NoHealthcheck: true
+	cpu: true, memory: true, blockIO: true, devices: true,
+	hugepageLimits: true, network: true, pids: true, rdma: true, unified: true,
+	BlkIOWeightDevice: true,
+	DeviceReadBPs: true, DeviceReadIOPs: true,
+	DeviceWriteBPs: true, DeviceWriteIOPs: true,
+	Env: true, UnsetEnv: true,
+	health_cmd: true, health_interval: true, health_log_destination: true,
+	health_max_log_count: true, health_max_log_size: true,
+	health_on_failure: true, health_retries: true, health_start_period: true,
+	health_startup_cmd: true, health_startup_interval: true,
+	health_startup_retries: true, health_startup_success: true,
+	health_startup_timeout: true, health_timeout: true,
+	no_healthcheck: true
 };
 
 /** @param {string} id */
