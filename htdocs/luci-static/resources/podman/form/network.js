@@ -147,7 +147,7 @@ const PodmanFormNetwork = podmanView.form.extend({
 		}
 
 		await this.save();
-		await uci.load(['network', 'firewall']);
+		await uci.load(['network', 'firewall', 'dhcp']);
 		const ulaPrefix = uci.get('network', 'globals', 'ula_prefix');
 
 		const podnetwork = this.getFieldValues();
@@ -237,6 +237,10 @@ const PodmanFormNetwork = podmanView.form.extend({
 			const NetworkModel = Network.getSingleton(inspectData);
 			const deviceName = await NetworkModel.integrationCreateDevice();
 			await NetworkModel.integrationCreateNetwork(deviceName);
+
+			if (await NetworkModel.hasDnsmasq()) {
+				await NetworkModel.integrationAddDnsmasqExclusion();
+			}
 
 			if (await firewall.getZone(zoneName)) {
 				console.log('into existing zone');

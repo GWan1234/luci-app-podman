@@ -159,7 +159,7 @@ const Network = Model.base.extend({
 			deviceName = await this.integrationCreateDevice();
 			changes = true;
 
-			if (status.hasInterface === true) {
+			if (status.hasInterface === true) {
 				const net = await network.getNetwork(this.getName());
 				net.addDevice(deviceName);
 			}
@@ -175,15 +175,8 @@ const Network = Model.base.extend({
 		}
 
 		if (await this.hasDnsmasq() && status.hasDnsmasqExclusion === false) {
-			const mainSection = this._getDnsmasqSection();
-			if (mainSection) {
-				const notInterfaces = [].concat(uci.get('dhcp', mainSection, 'notinterface') || []);
-				if (!notInterfaces.includes(this.getName())) {
-					notInterfaces.push(this.getName());
-					uci.set('dhcp', mainSection, 'notinterface', notInterfaces);
-					changes = true;
-				}
-			}
+			await this.integrationAddDnsmasqExclusion();
+			changes = true;
 		}
 
 		if (changes === false) {
@@ -301,6 +294,17 @@ const Network = Model.base.extend({
 
 	async hasDnsmasq() {
 		return L.hasSystemFeature('dnsmasq');
+	},
+
+	async integrationAddDnsmasqExclusion() {
+		const mainSection = this._getDnsmasqSection();
+		if (mainSection) {
+			const notInterfaces = [].concat(uci.get('dhcp', mainSection, 'notinterface') || []);
+			if (!notInterfaces.includes(this.getName())) {
+				notInterfaces.push(this.getName());
+				uci.set('dhcp', mainSection, 'notinterface', notInterfaces);
+			}
+		}
 	},
 });
 
