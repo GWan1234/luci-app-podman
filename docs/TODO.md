@@ -6,9 +6,6 @@
 - Checkout new table filters for 25.12 and backwards compatibility
 - Sortable table
 - Check for duplicated code
-- Get rid of the config file
-  - we can get socket path in an other way
-  - init.d default priority hard coded
 - tcp socket connection check to use UI with podman not installed on host
 
 ## Overview
