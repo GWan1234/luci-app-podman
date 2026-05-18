@@ -32,11 +32,8 @@
 
 ### List
 
-- Pause/Unpause container
-
 ### Details
 
-- Pause/Unpause container
 - Re-create container with new image
 - Add missing restartRetries
 - Healthcheck tab with form and manual health check action
