@@ -11,7 +11,7 @@
 /**
  * @param {string} method    GET / POST / PUT / DELETE
  * @param {string} path      Request-URI including any query string
- * @param {?string} body     JSON body (or null/empty for GET-style requests)
+ * @param {string|null} body     JSON body (or null/empty for GET-style requests)
  * @returns {string}         The complete request bytes
  */
 export function build_request(method, path, body) {
@@ -21,7 +21,7 @@ export function build_request(method, path, body) {
 		req += sprintf('Content-Type: application/json\r\nContent-Length: %d\r\n', length(s));
 		req += '\r\n';
 		req += s;
-		return req;
+		return req;<
 	}
 	return req + '\r\n';
 };
