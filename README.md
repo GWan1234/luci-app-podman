@@ -64,7 +64,7 @@ Modern and feature rich LuCI web interface for managing Podman on OpenWrt. Some 
 
 ### From Package Feed
 
-You can setup this package feed to install and update it with opkg:
+You can setup this package feed to install and update it with apk/opkg:
 
 [https://github.com/Zerogiven-OpenWRT-Packages/package-feed](https://github.com/Zerogiven-OpenWRT-Packages/package-feed)
 
