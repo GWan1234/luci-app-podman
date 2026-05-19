@@ -22,7 +22,7 @@ msgid "%s: %d/%d"
 msgstr "%s：%d/%d"
 
 msgid "(none)"
-msgstr ""
+msgstr "(无)"
 
 msgid "-- Select %s --"
 msgstr "-- 选择 %s --"
@@ -37,7 +37,7 @@ msgid "API Version"
 msgstr "API 版本"
 
 msgid "Add the container to an existing pod. Network, hostname and port mappings come from the pod's infra container."
-msgstr ""
+msgstr "将容器添加到现有 Pod。网络、主机名和端口映射来自 Pod 的 infra 容器。"
 
 msgid "All images updated successfully"
 msgstr "所有镜像更新成功"
@@ -103,7 +103,7 @@ msgid "CPU Limit"
 msgstr "CPU 限制"
 
 msgid "CPU Set"
-msgstr ""
+msgstr "CPU 集合"
 
 msgid "CPU Shares Weight"
 msgstr "CPU 份额权重"
@@ -115,7 +115,7 @@ msgid "CPU shares (relative weight). 0 = use default."
 msgstr "CPU 份额（相对权重）。0 = 使用默认值。"
 
 msgid "CPUs the pod is allowed to run on (e.g., \"0-3\" or \"0,2\")"
-msgstr ""
+msgstr "允许 Pod 运行的 CPU（例如 \"0-3\" 或 \"0,2\"）"
 
 msgid "Cancel"
 msgstr "取消"
@@ -232,7 +232,7 @@ msgid "Containers"
 msgstr "容器"
 
 msgid "Containers in pod %s"
-msgstr ""
+msgstr "Pod %s 中的容器"
 
 msgid "Containers updated successfully"
 msgstr "容器更新成功"
@@ -250,7 +250,7 @@ msgid "Create Command"
 msgstr "创建命令"
 
 msgid "Create Infra Container"
-msgstr ""
+msgstr "创建 Infra 容器"
 
 msgid "Create new zone (will be named: podman_<network-name>)"
 msgstr "创建新区域（命名为：podman_<网络名称>）"
@@ -265,16 +265,16 @@ msgid "Creating auto-start configuration for %s"
 msgstr "正在为 %s 创建自启动配置"
 
 msgid "DNS Search Domains"
-msgstr ""
+msgstr "DNS 搜索域"
 
 msgid "DNS Servers"
-msgstr ""
+msgstr "DNS 服务器"
 
 msgid "DNS search domains for the infra container"
-msgstr ""
+msgstr "Infra 容器的 DNS 搜索域"
 
 msgid "DNS servers for the infra container (shared with all pod containers)"
-msgstr ""
+msgstr "Infra 容器的 DNS 服务器（与 Pod 中所有容器共享）"
 
 msgid "Delete"
 msgstr "删除"
@@ -382,7 +382,7 @@ msgid "Hostname"
 msgstr "主机名"
 
 msgid "Hostname for the pod (defaults to pod name)"
-msgstr ""
+msgstr "Pod 的主机名（默认为 Pod 名称）"
 
 msgid "ID"
 msgstr "ID"
@@ -436,7 +436,7 @@ msgid "Information"
 msgstr "信息"
 
 msgid "Infra Image"
-msgstr ""
+msgstr "Infra 镜像"
 
 msgid "Init Script"
 msgstr "Init 脚本"
@@ -469,7 +469,7 @@ msgid "Links"
 msgstr "链接"
 
 msgid "Linux namespaces shared between containers in the pod. Default matches `podman pod create`."
-msgstr ""
+msgstr "Pod 中容器共享的 Linux 命名空间。默认与 `podman pod create` 一致。"
 
 msgid "Load"
 msgstr "加载"
@@ -511,7 +511,7 @@ msgid "Memory limit (e.g., 512m, 1g). -1 = unlimited, 0 = use default."
 msgstr "内存限制（例如 512m、1g）。-1 = 无限制，0 = 默认。"
 
 msgid "Memory limit for the pod (e.g., 512m, 1g)"
-msgstr ""
+msgstr "Pod 的内存限制（例如 512m、1g）"
 
 msgid "Mode"
 msgstr "模式"
@@ -556,7 +556,7 @@ msgid "Network driver"
 msgstr "网络驱动"
 
 msgid "Network namespace for the pod. Containers in the pod share this network."
-msgstr ""
+msgstr "Pod 的网络命名空间。Pod 中的容器共享此网络。"
 
 msgid "Networks"
 msgstr "网络"
@@ -571,7 +571,7 @@ msgid "No %s selected"
 msgstr "未选择 %s"
 
 msgid "No containers in this pod"
-msgstr ""
+msgstr "此 Pod 中没有容器"
 
 msgid "No containers with auto-update label found."
 msgstr "沒有找到有自动更新标签的容器。"
@@ -592,7 +592,7 @@ msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
 msgstr "CPU 数量（例如 0.5, 1.0, 2.0）。留空表示无限制。"
 
 msgid "Number of CPUs available to the pod (e.g., 0.5, 1.0, 2.0)"
-msgstr ""
+msgstr "Pod 可用的 CPU 数量(例如 0.5、1.0、2.0)"
 
 msgid "Number of lines"
 msgstr "行数"
@@ -601,7 +601,7 @@ msgid "OK"
 msgstr "确定"
 
 msgid "Old image still used by other containers"
-msgstr ""
+msgstr "旧镜像仍被其他容器使用"
 
 msgid "On Failure"
 msgstr "失败时"
@@ -625,7 +625,7 @@ msgid "OpenWrt integration requires subnet to be specified"
 msgstr "OpenWrt 集成需要指定子网"
 
 msgid "Override the image used for the infra container"
-msgstr ""
+msgstr "覆盖用于 Infra 容器的镜像"
 
 msgid "PIDs"
 msgstr "PID"
@@ -640,13 +640,13 @@ msgid "Part of a pod (\"%s\")"
 msgstr "Pod 的一部分（\"%s\"）"
 
 msgid "Pausing pod"
-msgstr ""
+msgstr "正在暂停 Pod"
 
 msgid "Pod"
 msgstr "Pod"
 
 msgid "Pod Name"
-msgstr ""
+msgstr "Pod 名称"
 
 msgid "Podman Version"
 msgstr "Podman 版本"
@@ -715,7 +715,7 @@ msgid "Repository"
 msgstr "仓库"
 
 msgid "Required for shared network namespace. Disable only if you know you do not need it."
-msgstr ""
+msgstr "共享网络命名空间所必需。仅在确认不需要时禁用。"
 
 msgid "Resources"
 msgstr "资源"
@@ -730,7 +730,7 @@ msgid "Restart policy updated successfully"
 msgstr "重启策略更新成功"
 
 msgid "Restarting pod"
-msgstr ""
+msgstr "正在重启 Pod"
 
 msgid "Restrict external access to the network"
 msgstr "限制网络的外部访问"
@@ -775,7 +775,7 @@ msgid "Setup OpenWrt Integration"
 msgstr "设置 OpenWrt 集成"
 
 msgid "Shared Namespaces"
-msgstr ""
+msgstr "共享命名空间"
 
 msgid "Shares network with another container"
 msgstr "与其他容器共享网络"
@@ -823,7 +823,7 @@ msgid "Started At"
 msgstr "启动时间"
 
 msgid "Starting pod"
-msgstr ""
+msgstr "正在启动 Pod"
 
 msgid "Statistics"
 msgstr "统计"
@@ -841,7 +841,7 @@ msgid "Stop stream"
 msgstr "停止流"
 
 msgid "Stopping pod"
-msgstr ""
+msgstr "正在停止 Pod"
 
 msgid "Subnet"
 msgstr "子网"
@@ -955,136 +955,136 @@ msgid "total"
 msgstr "总计"
 
 msgid "Are you sure to remove pod?"
-msgstr ""
+msgstr "确定要删除 Pod 吗？"
 
 msgid "Cgroup parent"
-msgstr ""
+msgstr "Cgroup 父级"
 
 msgid "CID"
-msgstr ""
+msgstr "CID"
 
 msgid "CPU %"
-msgstr ""
+msgstr "CPU %"
 
 msgid "CPU period"
-msgstr ""
+msgstr "CPU 周期"
 
 msgid "CPU quota"
-msgstr ""
+msgstr "CPU 配额"
 
 msgid "CPU set"
-msgstr ""
+msgstr "CPU 集合"
 
 msgid "CPU shares"
-msgstr ""
+msgstr "CPU 份额"
 
 msgid "DNS options"
-msgstr ""
+msgstr "DNS 选项"
 
 msgid "DNS search"
-msgstr ""
+msgstr "DNS 搜索"
 
 msgid "DNS servers"
-msgstr ""
+msgstr "DNS 服务器"
 
 msgid "Exit policy"
-msgstr ""
+msgstr "退出策略"
 
 msgid "Extra hosts"
-msgstr ""
+msgstr "额外主机"
 
 msgid "Host network"
-msgstr ""
+msgstr "主机网络"
 
 msgid "Infra container"
-msgstr ""
+msgstr "Infra 容器"
 
 msgid "Memory limit"
-msgstr ""
+msgstr "内存限制"
 
 msgid "Net I/O"
-msgstr ""
+msgstr "网络 I/O"
 
 msgid "Pause pod"
-msgstr ""
+msgstr "暂停 Pod"
 
 msgid "Pod is not running"
-msgstr ""
+msgstr "Pod 未运行"
 
 msgid "Remove pod"
-msgstr ""
+msgstr "删除 Pod"
 
 msgid "Restart policy"
-msgstr ""
+msgstr "重启策略"
 
 msgid "Restart pod"
-msgstr ""
+msgstr "重启 Pod"
 
 msgid "Shared namespaces"
-msgstr ""
+msgstr "共享命名空间"
 
 msgid "Start pod"
-msgstr ""
+msgstr "启动 Pod"
 
 msgid "Static IPv4"
-msgstr ""
+msgstr "静态 IPv4"
 
 msgid "Static MAC"
-msgstr ""
+msgstr "静态 MAC"
 
 msgid "Stop pod"
-msgstr ""
+msgstr "停止 Pod"
 
 msgid "Unlimited"
-msgstr ""
+msgstr "无限制"
 
 msgid "Unpause pod"
-msgstr ""
+msgstr "恢复 Pod"
 
 msgid "Stopping container"
-msgstr ""
+msgstr "正在停止容器"
 
 msgid "Stop failed: %s"
-msgstr ""
+msgstr "停止失败：%s"
 
 msgid "Removing container"
-msgstr ""
+msgstr "正在删除容器"
 
 msgid "Remove failed: %s"
-msgstr ""
+msgstr "删除失败：%s"
 
 msgid "Creating container"
-msgstr ""
+msgstr "正在创建容器"
 
 msgid "Create failed: %s"
-msgstr ""
+msgstr "创建失败：%s"
 
 msgid "Starting container"
-msgstr ""
+msgstr "正在启动容器"
 
 msgid "Start failed: %s"
-msgstr ""
+msgstr "启动失败：%s"
 
 msgid "Reinstating init script"
-msgstr ""
+msgstr "正在恢复初始化脚本"
 
 msgid "Init script reinstate failed: %s"
-msgstr ""
+msgstr "恢复初始化脚本失败：%s"
 
 msgid "Updated to %s"
-msgstr ""
+msgstr "已更新到 %s"
 
 msgid "Update image: %d/%d - %s"
-msgstr ""
+msgstr "更新镜像：%d/%d - %s"
 
 msgid "Removed old image %s"
-msgstr ""
+msgstr "已删除旧镜像 %s"
 
 msgid "Done."
-msgstr ""
+msgstr "完成。"
 
 msgid "Pause container"
-msgstr ""
+msgstr "暂停容器"
 
 msgid "Unpause container"
-msgstr ""
+msgstr "恢复容器"

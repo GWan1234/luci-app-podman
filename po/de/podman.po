@@ -22,7 +22,7 @@ msgid "%s: %d/%d"
 msgstr "%s: %d/%d"
 
 msgid "(none)"
-msgstr ""
+msgstr "(keine)"
 
 msgid "-- Select %s --"
 msgstr "-- %s auswählen --"
@@ -37,7 +37,7 @@ msgid "API Version"
 msgstr "API-Version"
 
 msgid "Add the container to an existing pod. Network, hostname and port mappings come from the pod's infra container."
-msgstr ""
+msgstr "Container zu einem bestehenden Pod hinzufügen. Netzwerk, Hostname und Port-Mappings stammen vom Infra-Container des Pods."
 
 msgid "All images updated successfully"
 msgstr "Alle Images erfolgreich aktualisiert"
@@ -103,7 +103,7 @@ msgid "CPU Limit"
 msgstr "CPU-Limit"
 
 msgid "CPU Set"
-msgstr ""
+msgstr "CPU-Set"
 
 msgid "CPU Shares Weight"
 msgstr "CPU-Shares Gewichtung"
@@ -115,7 +115,7 @@ msgid "CPU shares (relative weight). 0 = use default."
 msgstr "CPU-Anteile (relatives Gewicht). 0 = Standard."
 
 msgid "CPUs the pod is allowed to run on (e.g., \"0-3\" or \"0,2\")"
-msgstr ""
+msgstr "CPUs, auf denen der Pod laufen darf (z. B. \"0-3\" oder \"0,2\")"
 
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -232,7 +232,7 @@ msgid "Containers"
 msgstr "Container"
 
 msgid "Containers in pod %s"
-msgstr ""
+msgstr "Container im Pod %s"
 
 msgid "Containers updated successfully"
 msgstr "Container erfolgreich aktualisiert"
@@ -250,7 +250,7 @@ msgid "Create Command"
 msgstr "Erstellungsbefehl"
 
 msgid "Create Infra Container"
-msgstr ""
+msgstr "Infra-Container erstellen"
 
 msgid "Create new zone (will be named: podman_<network-name>)"
 msgstr "Neue Zone erstellen (Name: podman_<Netzwerkname>)"
@@ -265,16 +265,16 @@ msgid "Creating auto-start configuration for %s"
 msgstr "Erstelle Autostart-Konfiguration für %s"
 
 msgid "DNS Search Domains"
-msgstr ""
+msgstr "DNS-Suchdomänen"
 
 msgid "DNS Servers"
-msgstr ""
+msgstr "DNS-Server"
 
 msgid "DNS search domains for the infra container"
-msgstr ""
+msgstr "DNS-Suchdomänen für den Infra-Container"
 
 msgid "DNS servers for the infra container (shared with all pod containers)"
-msgstr ""
+msgstr "DNS-Server für den Infra-Container (gemeinsam für alle Container im Pod)"
 
 msgid "Delete"
 msgstr "Löschen"
@@ -382,7 +382,7 @@ msgid "Hostname"
 msgstr "Hostname"
 
 msgid "Hostname for the pod (defaults to pod name)"
-msgstr ""
+msgstr "Hostname des Pods (Standard: Pod-Name)"
 
 msgid "ID"
 msgstr "ID"
@@ -436,7 +436,7 @@ msgid "Information"
 msgstr "Informationen"
 
 msgid "Infra Image"
-msgstr ""
+msgstr "Infra-Image"
 
 msgid "Init Script"
 msgstr "Init-Skript"
@@ -469,7 +469,7 @@ msgid "Links"
 msgstr "Links"
 
 msgid "Linux namespaces shared between containers in the pod. Default matches `podman pod create`."
-msgstr ""
+msgstr "Linux-Namespaces, die von den Containern im Pod gemeinsam genutzt werden. Standard entspricht `podman pod create`."
 
 msgid "Load"
 msgstr "Laden"
@@ -511,7 +511,7 @@ msgid "Memory limit (e.g., 512m, 1g). -1 = unlimited, 0 = use default."
 msgstr "Speicherlimit (z.B. 512m, 1g). -1 = unbegrenzt, 0 = Standard."
 
 msgid "Memory limit for the pod (e.g., 512m, 1g)"
-msgstr ""
+msgstr "Speicherlimit für den Pod (z. B. 512m, 1g)"
 
 msgid "Mode"
 msgstr "Modus"
@@ -556,7 +556,7 @@ msgid "Network driver"
 msgstr "Netzwerktreiber"
 
 msgid "Network namespace for the pod. Containers in the pod share this network."
-msgstr ""
+msgstr "Netzwerk-Namespace für den Pod. Container im Pod teilen sich dieses Netzwerk."
 
 msgid "Networks"
 msgstr "Netzwerke"
@@ -571,7 +571,7 @@ msgid "No %s selected"
 msgstr "Keine %s ausgewählt"
 
 msgid "No containers in this pod"
-msgstr ""
+msgstr "Keine Container in diesem Pod"
 
 msgid "No containers with auto-update label found."
 msgstr "Keine Container mit Auto-Update-Label gefunden."
@@ -592,7 +592,7 @@ msgid "Number of CPUs (e.g., 0.5, 1.0, 2.0). Leave empty for unlimited."
 msgstr "Anzahl der CPUs (z. B. 0.5, 1.0, 2.0). Leer lassen für unbegrenzt."
 
 msgid "Number of CPUs available to the pod (e.g., 0.5, 1.0, 2.0)"
-msgstr ""
+msgstr "Anzahl der CPUs für den Pod (z. B. 0.5, 1.0, 2.0)"
 
 msgid "Number of lines"
 msgstr "Anzahl der Zeilen"
@@ -601,7 +601,7 @@ msgid "OK"
 msgstr "OK"
 
 msgid "Old image still used by other containers"
-msgstr ""
+msgstr "Altes Image wird noch von anderen Containern verwendet"
 
 msgid "On Failure"
 msgstr "Bei Fehler"
@@ -625,7 +625,7 @@ msgid "OpenWrt integration requires subnet to be specified"
 msgstr "OpenWrt-Integration erfordert die Angabe eines Subnetzes"
 
 msgid "Override the image used for the infra container"
-msgstr ""
+msgstr "Image für den Infra-Container überschreiben"
 
 msgid "PIDs"
 msgstr "PIDs"
@@ -640,13 +640,13 @@ msgid "Part of a pod (\"%s\")"
 msgstr "Teil eines Pods (\"%s\")"
 
 msgid "Pausing pod"
-msgstr ""
+msgstr "Pod wird pausiert"
 
 msgid "Pod"
 msgstr "Pod"
 
 msgid "Pod Name"
-msgstr ""
+msgstr "Pod-Name"
 
 msgid "Podman Version"
 msgstr "Podman-Version"
@@ -715,7 +715,7 @@ msgid "Repository"
 msgstr "Repository"
 
 msgid "Required for shared network namespace. Disable only if you know you do not need it."
-msgstr ""
+msgstr "Erforderlich für gemeinsamen Netzwerk-Namespace. Nur deaktivieren, wenn nicht benötigt."
 
 msgid "Resources"
 msgstr "Ressourcen"
@@ -730,7 +730,7 @@ msgid "Restart policy updated successfully"
 msgstr "Restart-Policy erfolgreich aktualisiert"
 
 msgid "Restarting pod"
-msgstr ""
+msgstr "Pod wird neu gestartet"
 
 msgid "Restrict external access to the network"
 msgstr "Externen Zugriff auf das Netzwerk einschränken"
@@ -775,7 +775,7 @@ msgid "Setup OpenWrt Integration"
 msgstr "OpenWrt-Integration einrichten"
 
 msgid "Shared Namespaces"
-msgstr ""
+msgstr "Gemeinsame Namespaces"
 
 msgid "Shares network with another container"
 msgstr "Teilt Netzwerk mit einem anderen Container"
@@ -823,7 +823,7 @@ msgid "Started At"
 msgstr "Gestartet um"
 
 msgid "Starting pod"
-msgstr ""
+msgstr "Pod wird gestartet"
 
 msgid "Statistics"
 msgstr "Statistiken"
@@ -841,7 +841,7 @@ msgid "Stop stream"
 msgstr "Stream stoppen"
 
 msgid "Stopping pod"
-msgstr ""
+msgstr "Pod wird gestoppt"
 
 msgid "Subnet"
 msgstr "Subnetz"
@@ -955,136 +955,136 @@ msgid "total"
 msgstr "gesamt"
 
 msgid "Are you sure to remove pod?"
-msgstr ""
+msgstr "Pod wirklich entfernen?"
 
 msgid "Cgroup parent"
-msgstr ""
+msgstr "Cgroup-Parent"
 
 msgid "CID"
-msgstr ""
+msgstr "CID"
 
 msgid "CPU %"
-msgstr ""
+msgstr "CPU-%"
 
 msgid "CPU period"
-msgstr ""
+msgstr "CPU-Periode"
 
 msgid "CPU quota"
-msgstr ""
+msgstr "CPU-Quote"
 
 msgid "CPU set"
-msgstr ""
+msgstr "CPU-Set"
 
 msgid "CPU shares"
-msgstr ""
+msgstr "CPU-Shares"
 
 msgid "DNS options"
-msgstr ""
+msgstr "DNS-Optionen"
 
 msgid "DNS search"
-msgstr ""
+msgstr "DNS-Suche"
 
 msgid "DNS servers"
-msgstr ""
+msgstr "DNS-Server"
 
 msgid "Exit policy"
-msgstr ""
+msgstr "Exit-Policy"
 
 msgid "Extra hosts"
-msgstr ""
+msgstr "Zusätzliche Hosts"
 
 msgid "Host network"
-msgstr ""
+msgstr "Host-Netzwerk"
 
 msgid "Infra container"
-msgstr ""
+msgstr "Infra-Container"
 
 msgid "Memory limit"
-msgstr ""
+msgstr "Speicherlimit"
 
 msgid "Net I/O"
-msgstr ""
+msgstr "Netzwerk-I/O"
 
 msgid "Pause pod"
-msgstr ""
+msgstr "Pod pausieren"
 
 msgid "Pod is not running"
-msgstr ""
+msgstr "Pod läuft nicht"
 
 msgid "Remove pod"
-msgstr ""
+msgstr "Pod entfernen"
 
 msgid "Restart policy"
-msgstr ""
+msgstr "Restart-Policy"
 
 msgid "Restart pod"
-msgstr ""
+msgstr "Pod neustarten"
 
 msgid "Shared namespaces"
-msgstr ""
+msgstr "Gemeinsame Namespaces"
 
 msgid "Start pod"
-msgstr ""
+msgstr "Pod starten"
 
 msgid "Static IPv4"
-msgstr ""
+msgstr "Statische IPv4"
 
 msgid "Static MAC"
-msgstr ""
+msgstr "Statische MAC"
 
 msgid "Stop pod"
-msgstr ""
+msgstr "Pod stoppen"
 
 msgid "Unlimited"
-msgstr ""
+msgstr "Unbegrenzt"
 
 msgid "Unpause pod"
-msgstr ""
+msgstr "Pod fortsetzen"
 
 msgid "Stopping container"
-msgstr ""
+msgstr "Container wird gestoppt"
 
 msgid "Stop failed: %s"
-msgstr ""
+msgstr "Stoppen fehlgeschlagen: %s"
 
 msgid "Removing container"
-msgstr ""
+msgstr "Container wird entfernt"
 
 msgid "Remove failed: %s"
-msgstr ""
+msgstr "Entfernen fehlgeschlagen: %s"
 
 msgid "Creating container"
-msgstr ""
+msgstr "Container wird erstellt"
 
 msgid "Create failed: %s"
-msgstr ""
+msgstr "Erstellen fehlgeschlagen: %s"
 
 msgid "Starting container"
-msgstr ""
+msgstr "Container wird gestartet"
 
 msgid "Start failed: %s"
-msgstr ""
+msgstr "Start fehlgeschlagen: %s"
 
 msgid "Reinstating init script"
-msgstr ""
+msgstr "Init-Skript wird wiederhergestellt"
 
 msgid "Init script reinstate failed: %s"
-msgstr ""
+msgstr "Wiederherstellen des Init-Skripts fehlgeschlagen: %s"
 
 msgid "Updated to %s"
-msgstr ""
+msgstr "Auf %s aktualisiert"
 
 msgid "Update image: %d/%d - %s"
-msgstr ""
+msgstr "Image aktualisieren: %d/%d - %s"
 
 msgid "Removed old image %s"
-msgstr ""
+msgstr "Altes Image %s entfernt"
 
 msgid "Done."
-msgstr ""
+msgstr "Fertig."
 
 msgid "Pause container"
-msgstr ""
+msgstr "Container pausieren"
 
 msgid "Unpause container"
-msgstr ""
+msgstr "Container fortsetzen"
