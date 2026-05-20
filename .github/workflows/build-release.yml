@@ -33,6 +33,8 @@ jobs:
       free_disk_space: true
       use_patched_build: true
       verbose: false
+    secrets:
+      APK_SIGN_KEY: ${{ secrets.APK_SIGN_KEY }}
 
   create-release:
     needs: build-packages
